@@ -30,7 +30,7 @@ async function flights(q) {
   if (!dateOk(dep) || (ret && !dateOk(ret))) return { code: 400, body: { error: 'Enter a valid date.' } };
   if (!/^[a-z]{3}$/.test(cur)) return { code: 400, body: { error: 'Invalid currency.' } };
   if (!TOKEN) return { code: 500, body: { error: 'Server is not configured yet (missing token).' } };
-  const p = new URLSearchParams({ origin, destination: dest, departure_at: dep, sorting: 'price', direct: 'false', currency: cur, limit: '50', page: '1', unique: 'false', one_way: ret ? 'false' : 'true' });
+  const p = new URLSearchParams({ origin, destination: dest, departure_at: dep, sorting: 'price', direct: 'false', currency: cur, cy: cur, limit: '50', page: '1', unique: 'false', one_way: ret ? 'false' : 'true' });
   if (ret) p.set('return_at', ret);
   const key = p.toString();
   let v = cache.get(key);
@@ -50,6 +50,33 @@ async function flights(q) {
     .map(f => Object.assign({}, f, { airline_name: NAMES[f.airline] || f.airline || '' }));
   return { code: 200, body: { currency: v.currency, requested: cur, data: out } };
 }
+// Lowest recent fare for each day of a month (used to show prices inside the calendar).
+async function calendar(q) {
+  const origin = (q.get('origin') || '').toUpperCase(), dest = (q.get('destination') || '').toUpperCase();
+  const month = q.get('month') || '', cur = (q.get('currency') || 'usd').toLowerCase();
+  if (!/^[A-Z]{3}$/.test(origin) || !/^[A-Z]{3}$/.test(dest) || origin === dest || !/^\d{4}-\d{2}$/.test(month) || !/^[a-z]{3}$/.test(cur)) return { code: 400, body: { error: 'Invalid request.' } };
+  if (!TOKEN) return { code: 200, body: { currency: cur, prices: {} } };
+  const p = new URLSearchParams({ origin, destination: dest, depart_date: month, calendar_type: 'departure_date', currency: cur });
+  const key = 'cal|' + p.toString();
+  let v = cache.get(key);
+  if (!v || Date.now() - v.t > 1800000) {
+    try {
+      const r = await fetch(BASE + '/v1/prices/calendar?' + p.toString(), { headers: { 'X-Access-Token': TOKEN } });
+      if (!r.ok) return { code: 200, body: { currency: cur, prices: {} } };
+      const j = await r.json(), prices = {}, d = j && j.data;
+      if (d && typeof d === 'object') {
+        for (const k of Object.keys(d)) {
+          const e = d[k];
+          const day = String(/^\d{4}-\d{2}-\d{2}/.test(k) ? k : (e && (e.departure_at || e.depart_date)) || '').slice(0, 10);
+          const pr = typeof e === 'number' ? e : (e && (e.price || e.value));
+          if (/^\d{4}-\d{2}-\d{2}$/.test(day) && pr > 0) prices[day] = Math.round(pr);
+        }
+      }
+      v = { t: Date.now(), prices }; cache.set(key, v);
+    } catch (e) { return { code: 200, body: { currency: cur, prices: {} } }; }
+  }
+  return { code: 200, body: { currency: cur, prices: v.prices } };
+}
 http.createServer(async (req, res) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
@@ -58,6 +85,11 @@ http.createServer(async (req, res) => {
   if (u.pathname === '/adclick') { // counts clicks on advertising banners
     console.log(JSON.stringify({ adclick: (u.searchParams.get('id') || '').replace(/[^A-Za-z0-9_-]/g, '').slice(0, 40), at: new Date().toISOString() }));
     res.writeHead(204); return res.end();
+  }
+  if (u.pathname === '/api/calendar') {
+    if (limited(ip + '|cal')) return json(res, 429, { error: 'Too many requests. Please wait a minute.' });
+    const r = await calendar(u.searchParams);
+    return json(res, r.code, r.body);
   }
   if (u.pathname === '/api/flights') {
     if (limited(ip)) return json(res, 429, { error: 'Too many requests. Please wait a minute.' });
