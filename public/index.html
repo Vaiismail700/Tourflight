@@ -19,6 +19,15 @@ button{font:inherit;cursor:pointer}.tabs{display:flex;gap:6px;flex-wrap:wrap;mar
 .sm{border:1px solid var(--line);background:#fff;color:var(--blue);border-radius:8px;padding:6px 12px;margin-right:6px}
 .tr{margin:12px 0 0;font-size:12px;color:var(--muted)}
 header .w{max-width:1280px;padding:0 16px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}.g2 input{text-overflow:ellipsis}
+.cal{display:none;position:absolute;top:100%;left:0;z-index:40;width:292px;margin-top:6px;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 12px 32px rgba(10,30,60,.22);padding:12px}.cal.r{left:auto;right:0}.cal.on{display:block}
+.ch{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}.cn{width:32px;height:32px;border-radius:50%;border:0;background:#eef4ff;color:var(--blue);font-size:20px;line-height:1}.cn:hover{background:#dbe8ff}
+.cg{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center}.cw{font-size:11px;color:var(--muted);padding:4px 0}
+.dd{height:36px;border:0;border-radius:50%;background:none;color:var(--ink);font-size:14px;cursor:pointer;padding:0}.dd:hover:not(:disabled){background:#eef4ff}.dd:disabled{color:#c3ccd8;cursor:not-allowed}
+.dd.rg{background:#e6efff;border-radius:0}.dd.sel,.dd.rs{background:var(--blue);color:#fff;font-weight:700}.dd.td:not(.sel){box-shadow:inset 0 0 0 1.5px var(--sun)}
+.cf{margin-top:8px;text-align:right}.cc{border:0;background:none;color:var(--blue);cursor:pointer;font-weight:600}.dpi{cursor:pointer}
+.acw{position:relative}.sug{display:none;position:absolute;left:0;right:0;top:100%;z-index:30;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 8px 24px rgba(10,30,60,.18);margin-top:4px;overflow:hidden}
+.sug.on{display:block}.si{padding:10px 12px;cursor:pointer;display:flex;justify-content:space-between;gap:8px;align-items:center;border-bottom:1px solid #eef2f6;min-height:48px}.si:last-child{border:0}.si:hover,.si.hl{background:#eef4ff}.si small{display:block;color:var(--muted);font-size:12px}.si .cd{font-weight:700;color:var(--blue)}
 .top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:12px}.top .tabs{margin:0}
 .opts{display:flex;gap:8px;align-items:center;margin-left:auto}.opts select{width:auto}
 .pax{position:relative}.pax summary{list-style:none;border:1px solid var(--line);border-radius:8px;padding:8px 12px;cursor:pointer;background:#fff;white-space:nowrap}.pax summary::-webkit-details-marker{display:none}
@@ -31,7 +40,7 @@ header .w{max-width:1280px;padding:0 16px}
 #fl summary{font-weight:700;cursor:pointer}.fg{margin-top:14px}.fg b{display:block;margin-bottom:4px}
 .ck{display:flex;gap:8px;align-items:center;margin:5px 0;font-size:14px;color:var(--ink)}.ck input{width:auto;flex:none}
 #al{max-height:55vh;overflow:auto}
-@media(max-width:859px){.page{display:block}#fl{position:static;min-height:0;margin-bottom:12px}}
+
 h2{font-size:18px;margin:18px 0 8px}
 .c{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:10px;display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}
 .pr{font-size:20px;font-weight:700;color:var(--blue)}.s{color:var(--muted);font-size:13px}
@@ -41,14 +50,39 @@ h2{font-size:18px;margin:18px 0 8px}
 .cmp{background:#fff;border:1px dashed var(--line);border-radius:12px;padding:12px;margin-bottom:10px}
 .cmp a{display:inline-block;margin:6px 6px 0 0;padding:6px 12px;border:1px solid var(--line);border-radius:8px;color:var(--blue);text-decoration:none}
 footer{background:#0a2a5e;color:#cfe0ff;padding:24px 16px;font-size:13px}footer a{color:#fff;margin-right:14px}footer p{margin:10px 0 0;opacity:.85}
+
+/* clearer boxes */
+input,select{background:#f3f6fb;border:1.5px solid #bccadc;border-radius:10px;padding:10px 12px;box-shadow:inset 0 1px 2px rgba(10,42,94,.06)}
+input:hover,select:hover{border-color:#8fa6c4}
+input:focus,select:focus{outline:none;border-color:var(--blue);background:#fff;box-shadow:0 0 0 3px rgba(20,88,199,.18)}
+input[type=checkbox],input[type=radio]{background:none;border:0;box-shadow:none;padding:0}
+.p label{font-weight:600;color:#33507a}.p{border:1px solid #c9d6e6}
+#fl summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:8px}#fl summary::-webkit-details-marker{display:none}
+.chev{display:none}.fcnt{background:var(--sun);color:#2a1300;border-radius:10px;padding:0 8px;font-size:12px;font-weight:700;margin-left:8px}.fcnt:empty{display:none}
+@media(max-width:859px){
+.page{display:flex;flex-direction:column}.content{display:contents}
+.p{order:1}#res{order:3}
+#fl{order:2;display:none;position:sticky;top:8px;z-index:25;padding:0;border:0;background:none;box-shadow:none;min-height:0;margin:0 0 12px}.page.has #fl{display:block}
+#fl summary{background:linear-gradient(90deg,#1458c7,#0a2a5e);color:#fff;padding:14px 16px;border-radius:12px;font-size:16px;box-shadow:0 8px 18px rgba(20,88,199,.4)}
+#fl details[open] summary{border-radius:12px 12px 0 0}.chev{display:inline}
+.fbody{background:#fff;border:1.5px solid #bccadc;border-top:0;border-radius:0 0 12px 12px;padding:2px 14px 14px;box-shadow:0 10px 20px rgba(10,30,60,.15);max-height:70vh;overflow:auto}
+}
+
+/* advertising banner */
+.ad{position:relative;margin-top:16px;border-radius:14px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3);padding:12px 14px 20px;color:#fff;min-height:80px}
+.adtag{position:absolute;top:8px;left:12px;font-size:10px;letter-spacing:.08em;text-transform:uppercase;background:rgba(0,0,0,.28);border-radius:6px;padding:1px 7px}
+.adin{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding-top:14px}.adimg{width:64px;height:64px;object-fit:cover;border-radius:10px;background:#fff}
+.adtx{flex:1;min-width:180px}.adtx b{display:block;font-size:16px}.adtx span{font-size:13px;opacity:.9}
+.adcta{background:var(--sun);color:#2a1300;text-decoration:none;font-weight:700;border-radius:10px;padding:9px 16px;white-space:nowrap}
+.addots{position:absolute;right:12px;bottom:6px;display:flex;gap:6px}.addots button{width:8px;height:8px;border-radius:50%;border:0;padding:0;background:rgba(255,255,255,.45)}.addots button.on{background:#fff}
+@media(max-width:600px){.adcta{width:100%;text-align:center}}
 </style></head><body>
-<header><div class="w hr"><img src="/logo.png" alt="Tourflight" onerror="this.style.display='none'"><div><h1>Explore · Compare · Fly</h1><div>Find the lowest fares from recent traveller searches.</div></div></div></header>
-<datalist id="ap"></datalist>
-<div class="page" id="lay"><aside id="fl"><details id="fd" open><summary>Filters</summary>
+<header><div class="w hr"><img src="/logo.png" alt="Tourflight" onerror="this.style.display='none'"><div><h1>Explore · Compare · Fly</h1><div>Find the lowest fares from recent traveller searches.</div></div></div><div class="w"><div class="ad" id="ad" aria-label="Advertisement"></div></div></header>
+<div class="page" id="lay"><aside id="fl"><details id="fd" open><summary><span>☰ Filters &amp; sort<span class="fcnt" id="fcnt"></span></span><span class="chev">▾</span></summary><div class="fbody">
 <div class="fg"><b>Stops</b><label class="ck"><input type="radio" name="sf" value="any" checked> Direct and 1 stop</label><label class="ck"><input type="radio" name="sf" value="0"> Direct only</label><label class="ck"><input type="radio" name="sf" value="1"> 1 stop only</label></div>
 <div class="fg"><b>Airlines</b><button class="sm" onclick="selAll(true)">All</button><button class="sm" onclick="selAll(false)">None</button><div id="al"><div class="s">Search to see airlines</div></div></div>
 <div class="fg"><b>Sort by</b><select id="so"><option value="price">Price: low to high</option><option value="dur">Shortest flight</option><option value="dep">Earliest departure</option></select></div>
-</details></aside><div class="content"><div class="p">
+</div></details></aside><div class="content"><div class="p">
 <div class="top"><div class="tabs" id="tabs"><button class="t" data-t="oneway" aria-pressed="false">One way</button><button class="t" data-t="round" aria-pressed="true">Round trip</button><button class="t" data-t="multi" aria-pressed="false">Multi-city</button></div><div class="opts"><details class="pax" id="pxd"><summary id="pxs">1 Adult</summary><div class="paxbox"><div class="pr2"><div>Adults<small>12+ years</small></div><div class="stp"><button type="button" aria-label="Fewer Adults" onclick="chg('a',-1)">−</button><b id="na">1</b><button type="button" aria-label="More Adults" onclick="chg('a',1)">+</button></div></div><div class="pr2"><div>Children<small>2–11 years</small></div><div class="stp"><button type="button" aria-label="Fewer Children" onclick="chg('c',-1)">−</button><b id="nc">0</b><button type="button" aria-label="More Children" onclick="chg('c',1)">+</button></div></div><div class="pr2"><div>Infants<small>Under 2 years</small></div><div class="stp"><button type="button" aria-label="Fewer Infants" onclick="chg('i',-1)">−</button><b id="ni">0</b><button type="button" aria-label="More Infants" onclick="chg('i',1)">+</button></div></div></div></details><select id="cabin" aria-label="Cabin class"><option value="economy">Economy</option><option value="business">Business</option></select></div></div>
 <div id="legs"></div>
 <div class="g"><div><label for="cy">Currency</label><select id="cy"><option value="usd">USD $</option><option value="eur">EUR €</option><option value="gbp">GBP £</option><option value="inr">INR ₹</option><option value="aed">AED</option><option value="sar">SAR</option><option value="myr">MYR</option><option value="sgd">SGD</option><option value="thb">THB</option></select></div>
@@ -64,12 +98,22 @@ var $=function(i){return document.getElementById(i)};
 function esc(t){return String(t).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 var AIRP="DAC|Dhaka|Bangladesh|Hazrat Shahjalal Intl;CGP|Chattogram|Bangladesh|Shah Amanat Intl;ZYL|Sylhet|Bangladesh|Osmani Intl;CXB|Cox\'s Bazar|Bangladesh|Cox\'s Bazar Airport;DEL|Delhi|India|Indira Gandhi Intl;BOM|Mumbai|India|Chhatrapati Shivaji Intl;CCU|Kolkata|India|Netaji Subhas Chandra Bose Intl;MAA|Chennai|India|Chennai Intl;BLR|Bengaluru|India|Kempegowda Intl;HYD|Hyderabad|India|Rajiv Gandhi Intl;KTM|Kathmandu|Nepal|Tribhuvan Intl;CMB|Colombo|Sri Lanka|Bandaranaike Intl;MLE|Male|Maldives|Velana Intl;ISB|Islamabad|Pakistan|Islamabad Intl;KHI|Karachi|Pakistan|Jinnah Intl;LHE|Lahore|Pakistan|Allama Iqbal Intl;SIN|Singapore|Singapore|Changi;KUL|Kuala Lumpur|Malaysia|Kuala Lumpur Intl;BKK|Bangkok|Thailand|Suvarnabhumi;HKT|Phuket|Thailand|Phuket Intl;CGK|Jakarta|Indonesia|Soekarno-Hatta;DPS|Bali|Indonesia|Ngurah Rai;MNL|Manila|Philippines|Ninoy Aquino Intl;SGN|Ho Chi Minh City|Vietnam|Tan Son Nhat;HAN|Hanoi|Vietnam|Noi Bai;HKG|Hong Kong|Hong Kong|Hong Kong Intl;PEK|Beijing|China|Beijing Capital;PVG|Shanghai|China|Pudong;CAN|Guangzhou|China|Baiyun;TPE|Taipei|Taiwan|Taoyuan;ICN|Seoul|South Korea|Incheon;NRT|Tokyo|Japan|Narita;KIX|Osaka|Japan|Kansai;DXB|Dubai|UAE|Dubai Intl;AUH|Abu Dhabi|UAE|Zayed Intl;SHJ|Sharjah|UAE|Sharjah Intl;DOH|Doha|Qatar|Hamad Intl;JED|Jeddah|Saudi Arabia|King Abdulaziz Intl;RUH|Riyadh|Saudi Arabia|King Khalid Intl;DMM|Dammam|Saudi Arabia|King Fahd Intl;MED|Madinah|Saudi Arabia|Prince Mohammad bin Abdulaziz;KWI|Kuwait City|Kuwait|Kuwait Intl;BAH|Bahrain|Bahrain|Bahrain Intl;MCT|Muscat|Oman|Muscat Intl;AMM|Amman|Jordan|Queen Alia Intl;BEY|Beirut|Lebanon|Rafic Hariri Intl;TLV|Tel Aviv|Israel|Ben Gurion;IST|Istanbul|Turkey|Istanbul Airport;SAW|Istanbul Sabiha Gokcen|Turkey|Sabiha Gokcen;LHR|London Heathrow|UK|Heathrow;LGW|London Gatwick|UK|Gatwick;MAN|Manchester|UK|Manchester Airport;CDG|Paris|France|Charles de Gaulle;AMS|Amsterdam|Netherlands|Schiphol;FRA|Frankfurt|Germany|Frankfurt Airport;MUC|Munich|Germany|Munich Airport;BER|Berlin|Germany|Brandenburg;MAD|Madrid|Spain|Barajas;BCN|Barcelona|Spain|El Prat;FCO|Rome|Italy|Fiumicino;MXP|Milan|Italy|Malpensa;ZRH|Zurich|Switzerland|Zurich Airport;VIE|Vienna|Austria|Vienna Intl;BRU|Brussels|Belgium|Brussels Airport;CPH|Copenhagen|Denmark|Kastrup;ARN|Stockholm|Sweden|Arlanda;OSL|Oslo|Norway|Gardermoen;HEL|Helsinki|Finland|Helsinki-Vantaa;DUB|Dublin|Ireland|Dublin Airport;LIS|Lisbon|Portugal|Humberto Delgado;ATH|Athens|Greece|Eleftherios Venizelos;WAW|Warsaw|Poland|Chopin;PRG|Prague|Czechia|Vaclav Havel;BUD|Budapest|Hungary|Ferenc Liszt;MOW|Moscow|Russia|All Moscow airports;CAI|Cairo|Egypt|Cairo Intl;ADD|Addis Ababa|Ethiopia|Bole Intl;NBO|Nairobi|Kenya|Jomo Kenyatta Intl;JNB|Johannesburg|South Africa|O.R. Tambo Intl;CPT|Cape Town|South Africa|Cape Town Intl;CMN|Casablanca|Morocco|Mohammed V Intl;LOS|Lagos|Nigeria|Murtala Muhammed Intl;ACC|Accra|Ghana|Kotoka Intl;JFK|New York JFK|USA|John F. Kennedy Intl;EWR|Newark|USA|Newark Liberty Intl;LAX|Los Angeles|USA|Los Angeles Intl;SFO|San Francisco|USA|San Francisco Intl;ORD|Chicago|USA|O\'Hare Intl;ATL|Atlanta|USA|Hartsfield-Jackson;DFW|Dallas|USA|Dallas/Fort Worth Intl;MIA|Miami|USA|Miami Intl;IAD|Washington|USA|Dulles Intl;BOS|Boston|USA|Logan Intl;SEA|Seattle|USA|Seattle-Tacoma Intl;YYZ|Toronto|Canada|Pearson Intl;YVR|Vancouver|Canada|Vancouver Intl;MEX|Mexico City|Mexico|Benito Juarez Intl;GRU|Sao Paulo|Brazil|Guarulhos Intl;GIG|Rio de Janeiro|Brazil|Galeao Intl;EZE|Buenos Aires|Argentina|Ezeiza Intl;SCL|Santiago|Chile|Arturo Merino Benitez;BOG|Bogota|Colombia|El Dorado Intl;LIM|Lima|Peru|Jorge Chavez Intl;SYD|Sydney|Australia|Kingsford Smith;MEL|Melbourne|Australia|Tullamarine;BNE|Brisbane|Australia|Brisbane Airport;PER|Perth|Australia|Perth Airport;AKL|Auckland|New Zealand|Auckland Airport;NAN|Nadi|Fiji|Nadi Intl",AP={},DL='';
 AIRP.split(';').forEach(function(s){var p=s.split('|');AP[p[0]]={n:p[1],c:p[2],a:p[3]};DL+='<option value="'+p[1]+', '+p[2]+' ('+p[0]+')" label="'+p[3]+'">'});
-$('ap').innerHTML=DL;
-function codeOf(v){var m=/\(([A-Za-z]{3})\)/.exec(v||'');if(m)return m[1].toUpperCase();v=(v||'').trim();return /^[A-Za-z]{3}$/.test(v)?v.toUpperCase():''}
+
+function codeOf(v){var m=/\(([A-Za-z]{3})\)/.exec(v||'');if(m)return m[1].toUpperCase();v=(v||'').trim();if(/^[A-Za-z]{3}$/.test(v)&&AP[v.toUpperCase()])return v.toUpperCase();var r=find(v,1);return r.length?r[0]:(/^[A-Za-z]{3}$/.test(v)?v.toUpperCase():'')}
 function nm(c){var a=AP[c];return a?a.n+', '+a.c+' ('+c+')':c}
+var POP=['DAC','DXB','DOH','SIN','KUL','BKK','DEL','LHR','JED','IST','CCU','CGP','AUH','RUH','JFK','BOM','SHJ','MCT','KWI','CDG'];
+function find(q,n){q=(q||'').toLowerCase().trim();var out=[];
+Object.keys(AP).forEach(function(c){var a=AP[c],city=a.n.toLowerCase(),cty=a.c.toLowerCase(),air=(a.a||'').toLowerCase(),code=c.toLowerCase(),sc=-1,p=POP.indexOf(c);
+if(!q){if(p>=0)sc=0}else if(code===q||city.indexOf(q)===0)sc=1;else if(code.indexOf(q)===0)sc=2;else if(cty.indexOf(q)===0)sc=3;else if(city.indexOf(q)>0||air.indexOf(q)>=0)sc=4;
+if(sc>=0)out.push([sc,p<0?99:p,c])});
+out.sort(function(x,y){return x[0]-y[0]||x[1]-y[1]||(x[2]<y[2]?-1:1)});return out.slice(0,n||6).map(function(x){return x[2]})}
+function showSug(inp){var box=inp.parentNode.querySelector('.sug'),r=find(inp.value,6);
+if(!r.length){box.classList.remove('on');return}
+box.innerHTML=r.map(function(c){var a=AP[c];return '<div class="si" role="option" data-c="'+c+'"><div><b>'+esc(a.n)+'</b>, '+esc(a.c)+'<small>'+esc(a.a||'')+'</small></div><span class="cd">'+c+'</span></div>'}).join('');box.classList.add('on');box.dataset.i='-1'}
+function pick(inp,c){var a=AP[c];inp.value=a.n+', '+a.c+' ('+c+')';inp.parentNode.querySelector('.sug').classList.remove('on');inp.dispatchEvent(new Event('change',{bubbles:true}))}
 var cnt={},type='round',nleg=2,data=[],today=new Date().toISOString().slice(0,10);
 (function(){try{var z=Intl.DateTimeFormat().resolvedOptions().timeZone,m={'Asia/Kolkata':'inr','Asia/Calcutta':'inr','Asia/Dubai':'aed','Asia/Riyadh':'sar','Asia/Kuala_Lumpur':'myr','Asia/Singapore':'sgd','Asia/Bangkok':'thb','Europe/London':'gbp','Europe/Berlin':'eur','Europe/Paris':'eur','Europe/Rome':'eur','Europe/Madrid':'eur'};if(m[z])$('cy').value=m[z]}catch(e){}})();
-function row(i){return '<div class="g"><div><label for="f'+i+'">From (city or airport)</label><input id="f'+i+'" list="ap" autocomplete="off" placeholder="e.g. Dhaka"></div><div><label for="t'+i+'">To (city or airport)</label><input id="t'+i+'" list="ap" autocomplete="off" placeholder="e.g. Dubai"></div><div><label for="d'+i+'">Departure date</label><input id="d'+i+'" type="date" min="'+today+'"></div></div>'}
+function row(i,ret){return '<div class="g2"><div><label for="f'+i+'">From (city or airport)</label><div class="acw"><input id="f'+i+'" data-ac="1" autocomplete="off" autocapitalize="words" spellcheck="false" placeholder="e.g. Dhaka"><div class="sug" role="listbox"></div></div></div><div><label for="t'+i+'">To (city or airport)</label><div class="acw"><input id="t'+i+'" data-ac="1" autocomplete="off" autocapitalize="words" spellcheck="false" placeholder="e.g. Dubai"><div class="sug" role="listbox"></div></div></div></div><div class="g2">'+dField('d'+i,'Departure date')+(ret?dField('rt','Return date (round trip)'):'')+'</div>'}
 var pax={a:1,c:0,i:0};
 function chg(k,d){var n=pax[k]+d,tot=pax.a+pax.c+pax.i;if(d>0&&tot>=9)return;if(n<0||(k==='a'&&(n<1||n<pax.i))||(k==='i'&&n>pax.a))return;pax[k]=n;paxUi()}
 function paxUi(){$('na').textContent=pax.a;$('nc').textContent=pax.c;$('ni').textContent=pax.i;
@@ -79,14 +123,47 @@ document.addEventListener('click',function(e){if(!$('pxd').contains(e.target))$(
 function setType(t){var old=[];for(var i=0;i<3;i++){if($('f'+i))old.push([$('f'+i).value,$('t'+i).value,$('d'+i).value])}
 type=t;document.querySelectorAll('.t').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.t===t)});
 var h='';if(t==='multi'){for(var i=0;i<nleg;i++)h+=row(i);h+=(nleg<3?'<button class="sm" onclick="addLeg(1)">+ Add flight</button>':'')+(nleg>2?'<button class="sm" onclick="addLeg(-1)">Remove last</button>':'')}
-else{h=row(0)+(t==='round'?'<div class="g"><div><label for="rt">Return date (round trip)</label><input id="rt" type="date" min="'+today+'"></div></div>':'')}
-$('legs').innerHTML=h;old.forEach(function(o,i){if($('f'+i)){$('f'+i).value=o[0];$('t'+i).value=o[1];$('d'+i).value=o[2]}});fixMins()}
+else{h=row(0,t==='round')}
+$('legs').innerHTML=h;old.forEach(function(o,i){if($('f'+i)){$('f'+i).value=o[0];$('t'+i).value=o[1];$('d'+i).value=o[2]}});fixMins();syncDates()}
 function fixMins(){if(type==='round'&&$('rt')){$('rt').min=$('d0').value||today}
 if(type==='multi'){for(var i=1;i<nleg;i++){var p=$('d'+(i-1)).value;$('d'+i).min=p||today}}}
 $('legs').addEventListener('change',function(e){var id=e.target.id||'';
 if(/^d\d$/.test(id)){var n=parseInt(id.slice(1),10),v=e.target.value;
 if(type==='round'&&n===0){var r=$('rt');r.min=v||today;if(v&&r.value&&r.value<v)r.value=''}
 if(type==='multi'){var nx=$('d'+(n+1));if(nx){nx.min=v||today;if(v&&nx.value&&nx.value<v)nx.value=''}}}});
+$('legs').addEventListener('input',function(e){if(e.target.dataset&&e.target.dataset.ac)showSug(e.target)});
+$('legs').addEventListener('focusin',function(e){if(e.target.dataset&&e.target.dataset.ac){e.target.select();showSug(e.target)}});
+$('legs').addEventListener('click',function(e){var it=e.target.closest&&e.target.closest('.si');if(it)pick(it.closest('.acw').querySelector('input'),it.dataset.c)});
+$('legs').addEventListener('keydown',function(e){var inp=e.target;if(!inp.dataset||!inp.dataset.ac)return;var box=inp.parentNode.querySelector('.sug');if(!box.classList.contains('on'))return;
+var its=box.querySelectorAll('.si'),i=parseInt(box.dataset.i||'-1',10);
+if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();i=e.key==='ArrowDown'?Math.min(i+1,its.length-1):Math.max(i-1,0);its.forEach(function(x,k){x.classList.toggle('hl',k===i)});box.dataset.i=i}
+else if(e.key==='Enter'&&its.length){e.preventDefault();pick(inp,its[i>=0?i:0].dataset.c)}else if(e.key==='Escape')box.classList.remove('on')});
+document.addEventListener('pointerdown',function(e){if(!e.target.closest('.acw'))document.querySelectorAll('.sug.on').forEach(function(b){b.classList.remove('on')})});
+var DESK=!!(window.matchMedia&&window.matchMedia('(hover:hover) and (pointer:fine)').matches),MN=['January','February','March','April','May','June','July','August','September','October','November','December'],cal={y:0,m:0,inp:null,box:null};
+function iso(y,m,d){return y+'-'+('0'+(m+1)).slice(-2)+'-'+('0'+d).slice(-2)}
+function fmt(v){if(!v)return'';var p=v.split('-');return new Date(+p[0],+p[1]-1,+p[2]).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'})}
+function dField(id,label){if(!DESK)return '<div><label for="'+id+'">'+label+'</label><input id="'+id+'" type="date" min="'+today+'"></div>';
+return '<div class="acw"><label for="v_'+id+'">'+label+'</label><input type="hidden" id="'+id+'" min="'+today+'"><input id="v_'+id+'" class="dpi" data-for="'+id+'" readonly placeholder="Select date" autocomplete="off"><div class="cal'+(id==='rt'?' r':'')+'"></div></div>'}
+function syncDates(){document.querySelectorAll('.dpi').forEach(function(i){i.value=fmt($(i.dataset.for).value)})}
+function renderCal(){var inp=cal.inp,hid=$(inp.dataset.for),min=hid.min||today,val=hid.value,dep=hid.id==='rt'?$('d0').value:'',y=cal.y,m=cal.m;
+var off=(new Date(y,m,1).getDay()+6)%7,days=new Date(y,m+1,0).getDate();
+var h='<div class="ch"><button type="button" class="cn" data-n="-1" aria-label="Previous month">‹</button><b>'+MN[m]+' '+y+'</b><button type="button" class="cn" data-n="1" aria-label="Next month">›</button></div><div class="cg">'+['Mo','Tu','We','Th','Fr','Sa','Su'].map(function(x){return '<span class="cw">'+x+'</span>'}).join('');
+for(var i=0;i<off;i++)h+='<span></span>';
+for(var d=1;d<=days;d++){var v=iso(y,m,d),c='dd'+(v===val?' sel':'')+(v===today?' td':'')+(dep&&v===dep&&v!==val?' rs':'')+(dep&&val&&v>dep&&v<val?' rg':'');
+h+='<button type="button" class="'+c+'" data-v="'+v+'"'+(v<min?' disabled':'')+'>'+d+'</button>'}
+h+='</div><div class="cf"><button type="button" class="cc">Clear</button></div>';cal.box.innerHTML=h}
+function closeCals(){document.querySelectorAll('.cal.on').forEach(function(b){b.classList.remove('on')})}
+function openCal(inp){closeCals();var hid=$(inp.dataset.for),base=hid.value||(hid.id==='rt'&&$('d0').value)||hid.min||today,p=base.split('-');
+cal.y=+p[0];cal.m=+p[1]-1;cal.inp=inp;cal.box=inp.parentNode.querySelector('.cal');cal.box.classList.add('on');renderCal()}
+function setDate(inp,v){var hid=$(inp.dataset.for);hid.value=v;closeCals();hid.dispatchEvent(new Event('change',{bubbles:true}));syncDates();
+if(v&&hid.id==='d0'&&type==='round'&&$('v_rt'))openCal($('v_rt'))}
+$('legs').addEventListener('change',function(){syncDates()});
+document.addEventListener('click',function(e){var t=e.target;if(!t.closest)return;
+if(t.classList.contains('dpi')){openCal(t);return}
+var cn=t.closest('.cn');if(cn){cal.m+=+cn.dataset.n;if(cal.m<0){cal.m=11;cal.y--}if(cal.m>11){cal.m=0;cal.y++}renderCal();return}
+var dd=t.closest('.dd');if(dd&&!dd.disabled){setDate(cal.inp,dd.dataset.v);return}
+if(t.closest('.cc'))setDate(cal.inp,'')});
+document.addEventListener('pointerdown',function(e){if(!e.target.closest('.acw'))closeCals()});
 function addLeg(n){nleg+=n;setType('multi')}
 $('tabs').onclick=function(e){if(e.target.dataset.t)setType(e.target.dataset.t)};
 function show(h){$('res').innerHTML=h}
@@ -106,13 +183,13 @@ return fetch('/api/flights?'+p).then(function(r){return r.json()}).catch(functio
 .then(function(js){data=js.map(function(j,i){return{q:reqs[i],j:j}});var al={};
 cnt={};data.forEach(function(x){(x.j.data||[]).forEach(function(f){if(f.airline){al[f.airline]=f.airline_name||f.airline;cnt[f.airline]=(cnt[f.airline]||0)+1}})});
 $('al').innerHTML=Object.keys(al).sort(function(a,b){return al[a]<al[b]?-1:1}).map(function(c){return '<label class="ck"><input type="checkbox" value="'+esc(c)+'" checked> '+esc(al[c])+' <span class="s">('+cnt[c]+')</span></label>'}).join('')||'<div class="s">No airlines</div>';
-$('lay').classList.remove('nofl');draw()})}
+$('lay').classList.add('has');$('lay').classList.remove('nofl');draw()})}
 function cmp(q){var f=q.f,t=q.t,d=q.d.length===7?q.d+'-01':q.d,r=q.r?(q.r.length===7?q.r+'-01':q.r):'';
 var y=function(x){return x.slice(2,4)+x.slice(5,7)+x.slice(8,10)},tail=(r?'/'+r:'')+($('cabin').value==='business'?'/business':'')+(pax.a>1?'/'+pax.a+'adults':'');
 return [['Google Flights','https://www.google.com/travel/flights?q='+encodeURIComponent('Flights from '+f+' to '+t+' on '+d+(r?' through '+r:'')+($('cabin').value==='business'?' business class':''))],
 ['Skyscanner','https://www.skyscanner.net/transport/flights/'+f.toLowerCase()+'/'+t.toLowerCase()+'/'+y(d)+'/'+(r?y(r)+'/':'')+'?adultsv2='+pax.a+'&cabinclass='+($('cabin').value==='business'?'business':'economy')],
 ['Kayak','https://www.kayak.com/flights/'+f+'-'+t+'/'+d+tail],['Momondo','https://www.momondo.com/flight-search/'+f+'-'+t+'/'+d+tail],['Cheapflights','https://www.cheapflights.com/flight-search/'+f+'-'+t+'/'+d+tail]]}
-function draw(){var np=pax.a+pax.c,biz=$('cabin').value==='business',sf=document.querySelector('input[name=sf]:checked').value,so=$('so').value,h='',af=[].slice.call(document.querySelectorAll('#al input:checked')).map(function(i){return i.value});
+function draw(){var np=pax.a+pax.c,fc=(document.querySelector('input[name=sf]:checked').value!=='any'?1:0)+(document.querySelectorAll('#al input:not(:checked)').length?1:0)+($('so').value!=='price'?1:0);$('fcnt').textContent=fc?fc+' active':'';var biz=$('cabin').value==='business',sf=document.querySelector('input[name=sf]:checked').value,so=$('so').value,h='',af=[].slice.call(document.querySelectorAll('#al input:checked')).map(function(i){return i.value});
 data.forEach(function(x){var q=x.q,j=x.j;
 h+='<h2>'+esc(nm(q.f))+' → '+esc(nm(q.t))+'</h2>';if(biz)h+='<div class="m" style="margin-bottom:10px">Business class: the prices below are economy fares from recent searches. Business fares are shown on the booking site and on the comparison links below.</div>';
 if(j.error){h+='<div class="m">'+esc(j.error)+'</div>';return}
@@ -130,4 +207,25 @@ h+='<div class="cmp"><b>Compare the same trip on other sites</b><div class="s">O
 show(h)}
 $('fl').addEventListener('change',draw);function selAll(v){document.querySelectorAll('#al input').forEach(function(i){i.checked=v});draw()}if(window.innerWidth<860)$('fd').open=false;
 $('cabin').onchange=function(){if(data.length)draw()};$('go').onclick=search;setType('round');
+// ===== ADVERTISING BANNER: edit this list to change the ads =====
+// Fields: id (any short name), tag (label shown on the ad), title, text, cta (button text),
+// url (https://..., mailto:... or a path like /about.html), img (optional, e.g. '/ads/hotel.webp', or leave '').
+var ADS=[
+{id:'demo1',tag:'Ad',title:'Your ad could be here',text:'Reach travellers who are searching for flights right now.',cta:'Advertise with us',url:'mailto:ismailtasheel4@gmail.com?subject=Advertise%20on%20Tourflight',img:''},
+{id:'demo2',tag:'Ad',title:'Sample sponsored offer (demo)',text:'Hotels, visas, SIM cards or insurance: any travel brand can appear in this space.',cta:'Learn more',url:'/about.html',img:''}
+];
+function adInit(){var box=$('ad');if(!box)return;if(!ADS.length){box.style.display='none';return}
+var i=0,timer=null,ok=function(u){return /^(https?:\/\/|mailto:|\/)/.test(u||'')};
+function draw(){var a=ADS[i];box.innerHTML='<span class="adtag">'+esc(a.tag||'Ad')+'</span><div class="adin">'+(a.img?'<img class="adimg" src="'+esc(a.img)+'" alt="" loading="lazy">':'')
++'<div class="adtx"><b>'+esc(a.title||'')+'</b><span>'+esc(a.text||'')+'</span></div>'
++(ok(a.url)?'<a class="adcta" href="'+esc(a.url)+'"'+(/^https?:/.test(a.url)?' target="_blank"':'')+' rel="sponsored noopener noreferrer" data-id="'+esc(a.id||'')+'">'+esc(a.cta||'Learn more')+'</a>':'')+'</div>'
++(ADS.length>1?'<div class="addots">'+ADS.map(function(_,k){return '<button type="button" aria-label="Show ad '+(k+1)+'" data-k="'+k+'"'+(k===i?' class="on"':'')+'></button>'}).join('')+'</div>':'')}
+function go(n){i=(n+ADS.length)%ADS.length;draw()}
+box.addEventListener('click',function(e){var d=e.target.closest&&e.target.closest('.addots button');if(d){go(+d.dataset.k);return}
+var c=e.target.closest&&e.target.closest('.adcta');if(c&&navigator.sendBeacon)navigator.sendBeacon('/adclick?id='+encodeURIComponent(c.dataset.id))});
+draw();
+var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+if(ADS.length>1&&!reduce){var start=function(){stop();timer=setInterval(function(){go(i+1)},6000)},stop=function(){if(timer){clearInterval(timer);timer=null}};
+box.addEventListener('mouseenter',stop);box.addEventListener('mouseleave',start);box.addEventListener('focusin',stop);box.addEventListener('focusout',start);start()}}
+adInit();
 </script></body></html>
