@@ -76,6 +76,9 @@ input[type=checkbox],input[type=radio]{background:none;border:0;box-shadow:none;
 .adcta{background:var(--sun);color:#2a1300;text-decoration:none;font-weight:700;border-radius:10px;padding:9px 16px;white-space:nowrap}
 .addots{position:absolute;right:12px;bottom:6px;display:flex;gap:6px}.addots button{width:8px;height:8px;border-radius:50%;border:0;padding:0;background:rgba(255,255,255,.45)}.addots button.on{background:#fff}
 @media(max-width:600px){.adcta{width:100%;text-align:center}}
+
+.cal.hasp .dd{height:46px;border-radius:10px;line-height:1.15;padding:2px 0}.dd small{display:block;font-size:10px;color:var(--muted);font-weight:500}
+.dd small.lo{color:#12805c;font-weight:700}.dd.sel small,.dd.rs small{color:#fff}.dd:disabled small{color:#c3ccd8}.cl{font-size:11px;color:var(--muted);margin-top:8px;line-height:1.35}
 </style></head><body>
 <header><div class="w hr"><img src="/logo.png" alt="Tourflight" onerror="this.style.display='none'"><div><h1>Explore · Compare · Fly</h1><div>Find the lowest fares from recent traveller searches.</div></div></div><div class="w"><div class="ad" id="ad" aria-label="Advertisement"></div></div></header>
 <div class="page" id="lay"><aside id="fl"><details id="fd" open><summary><span>☰ Filters &amp; sort<span class="fcnt" id="fcnt"></span></span><span class="chev">▾</span></summary><div class="fbody">
@@ -145,13 +148,21 @@ function fmt(v){if(!v)return'';var p=v.split('-');return new Date(+p[0],+p[1]-1,
 function dField(id,label){if(!DESK)return '<div><label for="'+id+'">'+label+'</label><input id="'+id+'" type="date" min="'+today+'"></div>';
 return '<div class="acw"><label for="v_'+id+'">'+label+'</label><input type="hidden" id="'+id+'" min="'+today+'"><input id="v_'+id+'" class="dpi" data-for="'+id+'" readonly placeholder="Select date" autocomplete="off"><div class="cal'+(id==='rt'?' r':'')+'"></div></div>'}
 function syncDates(){document.querySelectorAll('.dpi').forEach(function(i){i.value=fmt($(i.dataset.for).value)})}
+var calP={};
+function legCodes(inp){var id=inp.dataset.for,n=id==='rt'?0:parseInt(id.slice(1),10),f=codeOf(($('f'+n)||{}).value),t=codeOf(($('t'+n)||{}).value);
+if(!f||!t||f===t)return null;return id==='rt'?[t,f]:[f,t]}
+function getPrices(inp,y,m){var c=legCodes(inp);if(!c)return null;var mo=y+'-'+('0'+(m+1)).slice(-2),cy=$('cy').value,key=c[0]+c[1]+mo+cy;
+if(calP[key]===undefined){calP[key]=null;fetch('/api/calendar?origin='+c[0]+'&destination='+c[1]+'&month='+mo+'&currency='+cy).then(function(r){return r.json()}).then(function(j){calP[key]=(j&&j.prices)||{};if(cal.inp===inp&&cal.box&&cal.box.classList.contains('on'))renderCal()}).catch(function(){calP[key]={}})}
+return calP[key]}
+function fmtP(n){return n>=10000?Math.round(n/1000)+'k':String(Math.round(n))}
 function renderCal(){var inp=cal.inp,hid=$(inp.dataset.for),min=hid.min||today,val=hid.value,dep=hid.id==='rt'?$('d0').value:'',y=cal.y,m=cal.m;
+var pr=getPrices(inp,y,m),mo2=y+'-'+('0'+(m+1)).slice(-2),lo=null,hasp=false;if(pr){var vs=[];Object.keys(pr).forEach(function(k){if(k.slice(0,7)===mo2&&k>=min)vs.push(pr[k])});if(vs.length){lo=Math.min.apply(null,vs);hasp=true}}
 var off=(new Date(y,m,1).getDay()+6)%7,days=new Date(y,m+1,0).getDate();
 var h='<div class="ch"><button type="button" class="cn" data-n="-1" aria-label="Previous month">‹</button><b>'+MN[m]+' '+y+'</b><button type="button" class="cn" data-n="1" aria-label="Next month">›</button></div><div class="cg">'+['Mo','Tu','We','Th','Fr','Sa','Su'].map(function(x){return '<span class="cw">'+x+'</span>'}).join('');
 for(var i=0;i<off;i++)h+='<span></span>';
 for(var d=1;d<=days;d++){var v=iso(y,m,d),c='dd'+(v===val?' sel':'')+(v===today?' td':'')+(dep&&v===dep&&v!==val?' rs':'')+(dep&&val&&v>dep&&v<val?' rg':'');
-h+='<button type="button" class="'+c+'" data-v="'+v+'"'+(v<min?' disabled':'')+'>'+d+'</button>'}
-h+='</div><div class="cf"><button type="button" class="cc">Clear</button></div>';cal.box.innerHTML=h}
+h+='<button type="button" class="'+c+'" data-v="'+v+'"'+(v<min?' disabled':'')+'>'+d+(hasp&&pr[v]&&v>=min?'<small'+(pr[v]===lo?' class="lo"':'')+'>'+fmtP(pr[v])+'</small>':'')+'</button>'}
+h+='</div>'+(hasp?'<div class="cl">Lowest recent fares in '+esc($('cy').value.toUpperCase())+' per person. Green is the cheapest day this month. Prices may have changed.</div>':'')+'<div class="cf"><button type="button" class="cc">Clear</button></div>';cal.box.classList.toggle('hasp',hasp);cal.box.innerHTML=h}
 function closeCals(){document.querySelectorAll('.cal.on').forEach(function(b){b.classList.remove('on')})}
 function openCal(inp){closeCals();var hid=$(inp.dataset.for),base=hid.value||(hid.id==='rt'&&$('d0').value)||hid.min||today,p=base.split('-');
 cal.y=+p[0];cal.m=+p[1]-1;cal.inp=inp;cal.box=inp.parentNode.querySelector('.cal');cal.box.classList.add('on');renderCal()}
