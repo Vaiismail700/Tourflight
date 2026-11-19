@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tourflight – Explore · Compare · Fly</title>
+<meta name="description" content="Search and compare flights. Tourflight never takes payments; you book on the partner site.">
+<style>
+:root{--ink:#0a2a5e;--blue:#1458c7;--sun:#ff7a00;--line:#d9e1ea;--muted:#5d6f85}
+*{box-sizing:border-box}body{margin:0;background:#f2f5f9;color:var(--ink);font:15px/1.5 system-ui,Segoe UI,Roboto,sans-serif}
+header{background:linear-gradient(180deg,#0a2a5e,#1458c7);color:#fff;padding:16px 16px 60px}
+.w{max-width:900px;margin:0 auto}.hr{display:flex;gap:16px;align-items:center}
+.hr img{width:104px;background:#fff;border-radius:16px;padding:6px}h1{font-size:22px;margin:0 0 4px}
+.p{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;margin:0 0 16px;box-shadow:0 8px 24px rgba(10,30,60,.12)}
+.g{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:10px}
+label{display:block;font-size:12px;color:var(--muted);margin-bottom:2px}
+input,select{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;font:inherit;background:#fff;color:var(--ink)}
+button{font:inherit;cursor:pointer}.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.t{border:1px solid var(--line);background:#fff;color:var(--ink);padding:6px 14px;border-radius:20px}.t[aria-pressed=true]{background:var(--blue);color:#fff;border-color:var(--blue)}
+.go{margin-top:6px;width:100%;padding:12px;border:0;border-radius:10px;background:var(--sun);color:#2a1300;font-weight:600;font-size:16px}
+.sm{border:1px solid var(--line);background:#fff;color:var(--blue);border-radius:8px;padding:6px 12px;margin-right:6px}
+.tr{margin:12px 0 0;font-size:12px;color:var(--muted)}
+header .w{max-width:1280px;padding:0 16px}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:12px}.top .tabs{margin:0}
+.opts{display:flex;gap:8px;align-items:center;margin-left:auto}.opts select{width:auto}
+.pax{position:relative}.pax summary{list-style:none;border:1px solid var(--line);border-radius:8px;padding:8px 12px;cursor:pointer;background:#fff;white-space:nowrap}.pax summary::-webkit-details-marker{display:none}
+.paxbox{position:absolute;right:0;top:calc(100% + 6px);z-index:20;background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px;width:250px;box-shadow:0 8px 24px rgba(10,30,60,.18)}
+.pr2{display:flex;justify-content:space-between;align-items:center;margin:8px 0}.pr2 small{display:block;color:var(--muted)}
+.stp{display:flex;gap:10px;align-items:center}.stp button{width:30px;height:30px;border-radius:50%;border:1px solid var(--line);background:#fff;color:var(--blue);font-size:18px;line-height:1}
+.page{max-width:1280px;margin:-40px auto 0;padding:0 16px;display:grid;grid-template-columns:260px minmax(0,1fr);gap:20px;align-items:start}
+.content{min-width:0}.content #res{margin:0 0 30px;padding:0;max-width:none}
+#fl{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px;position:sticky;top:12px;min-height:calc(100vh - 150px)}
+#fl summary{font-weight:700;cursor:pointer}.fg{margin-top:14px}.fg b{display:block;margin-bottom:4px}
+.ck{display:flex;gap:8px;align-items:center;margin:5px 0;font-size:14px;color:var(--ink)}.ck input{width:auto;flex:none}
+#al{max-height:55vh;overflow:auto}
+@media(max-width:859px){.page{display:block}#fl{position:static;min-height:0;margin-bottom:12px}}
+h2{font-size:18px;margin:18px 0 8px}
+.c{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:10px;display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}
+.pr{font-size:20px;font-weight:700;color:var(--blue)}.s{color:var(--muted);font-size:13px}
+.tag{display:inline-block;font-size:12px;padding:1px 9px;border-radius:10px;border:1px solid var(--line);margin:2px 4px 0 0}
+.bk{display:inline-block;margin-top:6px;padding:9px 16px;border-radius:8px;background:var(--blue);color:#fff;text-decoration:none;font-weight:600}
+.m{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px}
+.cmp{background:#fff;border:1px dashed var(--line);border-radius:12px;padding:12px;margin-bottom:10px}
+.cmp a{display:inline-block;margin:6px 6px 0 0;padding:6px 12px;border:1px solid var(--line);border-radius:8px;color:var(--blue);text-decoration:none}
+footer{background:#0a2a5e;color:#cfe0ff;padding:24px 16px;font-size:13px}footer a{color:#fff;margin-right:14px}footer p{margin:10px 0 0;opacity:.85}
+</style></head><body>
+<header><div class="w hr"><img src="/logo.png" alt="Tourflight" onerror="this.style.display='none'"><div><h1>Explore · Compare · Fly</h1><div>Find the lowest fares from recent traveller searches.</div></div></div></header>
+<datalist id="ap"></datalist>
+<div class="page" id="lay"><aside id="fl"><details id="fd" open><summary>Filters</summary>
+<div class="fg"><b>Stops</b><label class="ck"><input type="radio" name="sf" value="any" checked> Direct and 1 stop</label><label class="ck"><input type="radio" name="sf" value="0"> Direct only</label><label class="ck"><input type="radio" name="sf" value="1"> 1 stop only</label></div>
+<div class="fg"><b>Airlines</b><button class="sm" onclick="selAll(true)">All</button><button class="sm" onclick="selAll(false)">None</button><div id="al"><div class="s">Search to see airlines</div></div></div>
+<div class="fg"><b>Sort by</b><select id="so"><option value="price">Price: low to high</option><option value="dur">Shortest flight</option><option value="dep">Earliest departure</option></select></div>
+</details></aside><div class="content"><div class="p">
+<div class="top"><div class="tabs" id="tabs"><button class="t" data-t="oneway" aria-pressed="false">One way</button><button class="t" data-t="round" aria-pressed="true">Round trip</button><button class="t" data-t="multi" aria-pressed="false">Multi-city</button></div><div class="opts"><details class="pax" id="pxd"><summary id="pxs">1 Adult</summary><div class="paxbox"><div class="pr2"><div>Adults<small>12+ years</small></div><div class="stp"><button type="button" aria-label="Fewer Adults" onclick="chg('a',-1)">−</button><b id="na">1</b><button type="button" aria-label="More Adults" onclick="chg('a',1)">+</button></div></div><div class="pr2"><div>Children<small>2–11 years</small></div><div class="stp"><button type="button" aria-label="Fewer Children" onclick="chg('c',-1)">−</button><b id="nc">0</b><button type="button" aria-label="More Children" onclick="chg('c',1)">+</button></div></div><div class="pr2"><div>Infants<small>Under 2 years</small></div><div class="stp"><button type="button" aria-label="Fewer Infants" onclick="chg('i',-1)">−</button><b id="ni">0</b><button type="button" aria-label="More Infants" onclick="chg('i',1)">+</button></div></div></div></details><select id="cabin" aria-label="Cabin class"><option value="economy">Economy</option><option value="business">Business</option></select></div></div>
+<div id="legs"></div>
+<div class="g"><div><label for="cy">Currency</label><select id="cy"><option value="usd">USD $</option><option value="eur">EUR €</option><option value="gbp">GBP £</option><option value="inr">INR ₹</option><option value="aed">AED</option><option value="sar">SAR</option><option value="myr">MYR</option><option value="sgd">SGD</option><option value="thb">THB</option></select></div>
+<div style="align-self:end"><label style="display:flex;gap:8px;align-items:center;margin:0 0 8px"><input type="checkbox" id="mo" style="width:auto"> Cheapest across the whole month</label></div></div>
+<button class="go" id="go">Search flights</button>
+<div class="tr">Tourflight never takes payments or card details. You book on the partner site. Prices come from recent searches and may have changed.</div>
+</div><main id="res"></main></div></div>
+<footer><div class="w"><a href="/about.html">About</a><a href="/terms.html">Terms &amp; Conditions</a><a href="/privacy.html">Privacy Policy</a>
+<p>Tourflight is a flight search and comparison service. We do not sell tickets or take payments. Prices come from third-party sources, can change at any time and must be confirmed on the booking site. Baggage rules and fare conditions are set by the airline or booking site. We may earn a commission when you book through partner links.</p>
+<p>&copy; Tourflight. All rights reserved.</p></div></footer>
+<script>
+var $=function(i){return document.getElementById(i)};
+function esc(t){return String(t).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+var AIRP="DAC|Dhaka|Bangladesh|Hazrat Shahjalal Intl;CGP|Chattogram|Bangladesh|Shah Amanat Intl;ZYL|Sylhet|Bangladesh|Osmani Intl;CXB|Cox\'s Bazar|Bangladesh|Cox\'s Bazar Airport;DEL|Delhi|India|Indira Gandhi Intl;BOM|Mumbai|India|Chhatrapati Shivaji Intl;CCU|Kolkata|India|Netaji Subhas Chandra Bose Intl;MAA|Chennai|India|Chennai Intl;BLR|Bengaluru|India|Kempegowda Intl;HYD|Hyderabad|India|Rajiv Gandhi Intl;KTM|Kathmandu|Nepal|Tribhuvan Intl;CMB|Colombo|Sri Lanka|Bandaranaike Intl;MLE|Male|Maldives|Velana Intl;ISB|Islamabad|Pakistan|Islamabad Intl;KHI|Karachi|Pakistan|Jinnah Intl;LHE|Lahore|Pakistan|Allama Iqbal Intl;SIN|Singapore|Singapore|Changi;KUL|Kuala Lumpur|Malaysia|Kuala Lumpur Intl;BKK|Bangkok|Thailand|Suvarnabhumi;HKT|Phuket|Thailand|Phuket Intl;CGK|Jakarta|Indonesia|Soekarno-Hatta;DPS|Bali|Indonesia|Ngurah Rai;MNL|Manila|Philippines|Ninoy Aquino Intl;SGN|Ho Chi Minh City|Vietnam|Tan Son Nhat;HAN|Hanoi|Vietnam|Noi Bai;HKG|Hong Kong|Hong Kong|Hong Kong Intl;PEK|Beijing|China|Beijing Capital;PVG|Shanghai|China|Pudong;CAN|Guangzhou|China|Baiyun;TPE|Taipei|Taiwan|Taoyuan;ICN|Seoul|South Korea|Incheon;NRT|Tokyo|Japan|Narita;KIX|Osaka|Japan|Kansai;DXB|Dubai|UAE|Dubai Intl;AUH|Abu Dhabi|UAE|Zayed Intl;SHJ|Sharjah|UAE|Sharjah Intl;DOH|Doha|Qatar|Hamad Intl;JED|Jeddah|Saudi Arabia|King Abdulaziz Intl;RUH|Riyadh|Saudi Arabia|King Khalid Intl;DMM|Dammam|Saudi Arabia|King Fahd Intl;MED|Madinah|Saudi Arabia|Prince Mohammad bin Abdulaziz;KWI|Kuwait City|Kuwait|Kuwait Intl;BAH|Bahrain|Bahrain|Bahrain Intl;MCT|Muscat|Oman|Muscat Intl;AMM|Amman|Jordan|Queen Alia Intl;BEY|Beirut|Lebanon|Rafic Hariri Intl;TLV|Tel Aviv|Israel|Ben Gurion;IST|Istanbul|Turkey|Istanbul Airport;SAW|Istanbul Sabiha Gokcen|Turkey|Sabiha Gokcen;LHR|London Heathrow|UK|Heathrow;LGW|London Gatwick|UK|Gatwick;MAN|Manchester|UK|Manchester Airport;CDG|Paris|France|Charles de Gaulle;AMS|Amsterdam|Netherlands|Schiphol;FRA|Frankfurt|Germany|Frankfurt Airport;MUC|Munich|Germany|Munich Airport;BER|Berlin|Germany|Brandenburg;MAD|Madrid|Spain|Barajas;BCN|Barcelona|Spain|El Prat;FCO|Rome|Italy|Fiumicino;MXP|Milan|Italy|Malpensa;ZRH|Zurich|Switzerland|Zurich Airport;VIE|Vienna|Austria|Vienna Intl;BRU|Brussels|Belgium|Brussels Airport;CPH|Copenhagen|Denmark|Kastrup;ARN|Stockholm|Sweden|Arlanda;OSL|Oslo|Norway|Gardermoen;HEL|Helsinki|Finland|Helsinki-Vantaa;DUB|Dublin|Ireland|Dublin Airport;LIS|Lisbon|Portugal|Humberto Delgado;ATH|Athens|Greece|Eleftherios Venizelos;WAW|Warsaw|Poland|Chopin;PRG|Prague|Czechia|Vaclav Havel;BUD|Budapest|Hungary|Ferenc Liszt;MOW|Moscow|Russia|All Moscow airports;CAI|Cairo|Egypt|Cairo Intl;ADD|Addis Ababa|Ethiopia|Bole Intl;NBO|Nairobi|Kenya|Jomo Kenyatta Intl;JNB|Johannesburg|South Africa|O.R. Tambo Intl;CPT|Cape Town|South Africa|Cape Town Intl;CMN|Casablanca|Morocco|Mohammed V Intl;LOS|Lagos|Nigeria|Murtala Muhammed Intl;ACC|Accra|Ghana|Kotoka Intl;JFK|New York JFK|USA|John F. Kennedy Intl;EWR|Newark|USA|Newark Liberty Intl;LAX|Los Angeles|USA|Los Angeles Intl;SFO|San Francisco|USA|San Francisco Intl;ORD|Chicago|USA|O\'Hare Intl;ATL|Atlanta|USA|Hartsfield-Jackson;DFW|Dallas|USA|Dallas/Fort Worth Intl;MIA|Miami|USA|Miami Intl;IAD|Washington|USA|Dulles Intl;BOS|Boston|USA|Logan Intl;SEA|Seattle|USA|Seattle-Tacoma Intl;YYZ|Toronto|Canada|Pearson Intl;YVR|Vancouver|Canada|Vancouver Intl;MEX|Mexico City|Mexico|Benito Juarez Intl;GRU|Sao Paulo|Brazil|Guarulhos Intl;GIG|Rio de Janeiro|Brazil|Galeao Intl;EZE|Buenos Aires|Argentina|Ezeiza Intl;SCL|Santiago|Chile|Arturo Merino Benitez;BOG|Bogota|Colombia|El Dorado Intl;LIM|Lima|Peru|Jorge Chavez Intl;SYD|Sydney|Australia|Kingsford Smith;MEL|Melbourne|Australia|Tullamarine;BNE|Brisbane|Australia|Brisbane Airport;PER|Perth|Australia|Perth Airport;AKL|Auckland|New Zealand|Auckland Airport;NAN|Nadi|Fiji|Nadi Intl",AP={},DL='';
+AIRP.split(';').forEach(function(s){var p=s.split('|');AP[p[0]]={n:p[1],c:p[2],a:p[3]};DL+='<option value="'+p[1]+', '+p[2]+' ('+p[0]+')" label="'+p[3]+'">'});
+$('ap').innerHTML=DL;
+function codeOf(v){var m=/\(([A-Za-z]{3})\)/.exec(v||'');if(m)return m[1].toUpperCase();v=(v||'').trim();return /^[A-Za-z]{3}$/.test(v)?v.toUpperCase():''}
+function nm(c){var a=AP[c];return a?a.n+', '+a.c+' ('+c+')':c}
+var cnt={},type='round',nleg=2,data=[],today=new Date().toISOString().slice(0,10);
+(function(){try{var z=Intl.DateTimeFormat().resolvedOptions().timeZone,m={'Asia/Kolkata':'inr','Asia/Calcutta':'inr','Asia/Dubai':'aed','Asia/Riyadh':'sar','Asia/Kuala_Lumpur':'myr','Asia/Singapore':'sgd','Asia/Bangkok':'thb','Europe/London':'gbp','Europe/Berlin':'eur','Europe/Paris':'eur','Europe/Rome':'eur','Europe/Madrid':'eur'};if(m[z])$('cy').value=m[z]}catch(e){}})();
+function row(i){return '<div class="g"><div><label for="f'+i+'">From (city or airport)</label><input id="f'+i+'" list="ap" autocomplete="off" placeholder="e.g. Dhaka"></div><div><label for="t'+i+'">To (city or airport)</label><input id="t'+i+'" list="ap" autocomplete="off" placeholder="e.g. Dubai"></div><div><label for="d'+i+'">Departure date</label><input id="d'+i+'" type="date" min="'+today+'"></div></div>'}
+var pax={a:1,c:0,i:0};
+function chg(k,d){var n=pax[k]+d,tot=pax.a+pax.c+pax.i;if(d>0&&tot>=9)return;if(n<0||(k==='a'&&(n<1||n<pax.i))||(k==='i'&&n>pax.a))return;pax[k]=n;paxUi()}
+function paxUi(){$('na').textContent=pax.a;$('nc').textContent=pax.c;$('ni').textContent=pax.i;
+var t=[pax.a+(pax.a>1?' Adults':' Adult')];if(pax.c)t.push(pax.c+(pax.c>1?' Children':' Child'));if(pax.i)t.push(pax.i+(pax.i>1?' Infants':' Infant'));
+$('pxs').textContent=t.join(', ');if(data.length)draw()}
+document.addEventListener('click',function(e){if(!$('pxd').contains(e.target))$('pxd').open=false});
+function setType(t){var old=[];for(var i=0;i<3;i++){if($('f'+i))old.push([$('f'+i).value,$('t'+i).value,$('d'+i).value])}
+type=t;document.querySelectorAll('.t').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.t===t)});
+var h='';if(t==='multi'){for(var i=0;i<nleg;i++)h+=row(i);h+=(nleg<3?'<button class="sm" onclick="addLeg(1)">+ Add flight</button>':'')+(nleg>2?'<button class="sm" onclick="addLeg(-1)">Remove last</button>':'')}
+else{h=row(0)+(t==='round'?'<div class="g"><div><label for="rt">Return date (round trip)</label><input id="rt" type="date" min="'+today+'"></div></div>':'')}
+$('legs').innerHTML=h;old.forEach(function(o,i){if($('f'+i)){$('f'+i).value=o[0];$('t'+i).value=o[1];$('d'+i).value=o[2]}});fixMins()}
+function fixMins(){if(type==='round'&&$('rt')){$('rt').min=$('d0').value||today}
+if(type==='multi'){for(var i=1;i<nleg;i++){var p=$('d'+(i-1)).value;$('d'+i).min=p||today}}}
+$('legs').addEventListener('change',function(e){var id=e.target.id||'';
+if(/^d\d$/.test(id)){var n=parseInt(id.slice(1),10),v=e.target.value;
+if(type==='round'&&n===0){var r=$('rt');r.min=v||today;if(v&&r.value&&r.value<v)r.value=''}
+if(type==='multi'){var nx=$('d'+(n+1));if(nx){nx.min=v||today;if(v&&nx.value&&nx.value<v)nx.value=''}}}});
+function addLeg(n){nleg+=n;setType('multi')}
+$('tabs').onclick=function(e){if(e.target.dataset.t)setType(e.target.dataset.t)};
+function show(h){$('res').innerHTML=h}
+function search(){var reqs=[],mo=$('mo').checked;
+if(type==='multi'){for(var i=0;i<nleg;i++)reqs.push({f:codeOf($('f'+i).value),t:codeOf($('t'+i).value),d:$('d'+i).value,r:''})}
+else reqs.push({f:codeOf($('f0').value),t:codeOf($('t0').value),d:$('d0').value,r:type==='round'?$('rt').value:''});
+for(var k=0;k<reqs.length;k++){var q=reqs[k];
+if(!q.f||!q.t){show('<div class="m">Choose both airports from the list, or type a 3-letter airport code.</div>');return}
+if(q.f===q.t){show('<div class="m">Origin and destination must be different.</div>');return}
+if(!q.d||(type==='round'&&!q.r)){show('<div class="m">Please choose all dates.</div>');return}
+if(q.r&&q.r<q.d){show('<div class="m">The return date must be on or after the departure date.</div>');return}
+if(type==='multi'&&k>0&&q.d<reqs[k-1].d0){show('<div class="m">Each flight date must be on or after the previous flight date.</div>');return}
+q.d0=q.d;if(mo){q.d=q.d.slice(0,7);q.r=q.r?q.r.slice(0,7):''}}
+show('<div class="m">Searching…</div>');$('lay').classList.add('nofl');
+Promise.all(reqs.map(function(q){var p=new URLSearchParams({origin:q.f,destination:q.t,date:q.d,currency:$('cy').value});if(q.r)p.set('return',q.r);
+return fetch('/api/flights?'+p).then(function(r){return r.json()}).catch(function(){return{error:'Something went wrong. Please try again.'}})}))
+.then(function(js){data=js.map(function(j,i){return{q:reqs[i],j:j}});var al={};
+cnt={};data.forEach(function(x){(x.j.data||[]).forEach(function(f){if(f.airline){al[f.airline]=f.airline_name||f.airline;cnt[f.airline]=(cnt[f.airline]||0)+1}})});
+$('al').innerHTML=Object.keys(al).sort(function(a,b){return al[a]<al[b]?-1:1}).map(function(c){return '<label class="ck"><input type="checkbox" value="'+esc(c)+'" checked> '+esc(al[c])+' <span class="s">('+cnt[c]+')</span></label>'}).join('')||'<div class="s">No airlines</div>';
+$('lay').classList.remove('nofl');draw()})}
+function cmp(q){var f=q.f,t=q.t,d=q.d.length===7?q.d+'-01':q.d,r=q.r?(q.r.length===7?q.r+'-01':q.r):'';
+var y=function(x){return x.slice(2,4)+x.slice(5,7)+x.slice(8,10)},tail=(r?'/'+r:'')+($('cabin').value==='business'?'/business':'')+(pax.a>1?'/'+pax.a+'adults':'');
+return [['Google Flights','https://www.google.com/travel/flights?q='+encodeURIComponent('Flights from '+f+' to '+t+' on '+d+(r?' through '+r:'')+($('cabin').value==='business'?' business class':''))],
+['Skyscanner','https://www.skyscanner.net/transport/flights/'+f.toLowerCase()+'/'+t.toLowerCase()+'/'+y(d)+'/'+(r?y(r)+'/':'')+'?adultsv2='+pax.a+'&cabinclass='+($('cabin').value==='business'?'business':'economy')],
+['Kayak','https://www.kayak.com/flights/'+f+'-'+t+'/'+d+tail],['Momondo','https://www.momondo.com/flight-search/'+f+'-'+t+'/'+d+tail],['Cheapflights','https://www.cheapflights.com/flight-search/'+f+'-'+t+'/'+d+tail]]}
+function draw(){var np=pax.a+pax.c,biz=$('cabin').value==='business',sf=document.querySelector('input[name=sf]:checked').value,so=$('so').value,h='',af=[].slice.call(document.querySelectorAll('#al input:checked')).map(function(i){return i.value});
+data.forEach(function(x){var q=x.q,j=x.j;
+h+='<h2>'+esc(nm(q.f))+' → '+esc(nm(q.t))+'</h2>';if(biz)h+='<div class="m" style="margin-bottom:10px">Business class: the prices below are economy fares from recent searches. Business fares are shown on the booking site and on the comparison links below.</div>';
+if(j.error){h+='<div class="m">'+esc(j.error)+'</div>';return}
+var sym={usd:'$',eur:'€',gbp:'£',inr:'₹'}[j.currency]||String(j.currency).toUpperCase()+' ';
+if(j.currency!==j.requested)h+='<div class="m" style="margin-bottom:10px">The price source returned '+esc(String(j.currency).toUpperCase())+' prices for this search, so prices are shown in that currency.</div>';
+var list=(j.data||[]).filter(function(f){return(sf==='any'||String(f.transfers)===sf)&&(af.indexOf(f.airline)>=0)});
+list.sort(function(a,b){return so==='price'?a.price-b.price:so==='dur'?(a.duration_to||a.duration||0)-(b.duration_to||b.duration||0):String(a.departure_at).localeCompare(String(b.departure_at))});
+if(!list.length)h+='<div class="m">No recent prices found for these filters. Try another date, the whole-month option, or other filters.</div>';
+list.forEach(function(f){var d=f.duration_to||f.duration,du=typeof d==='number'?Math.floor(d/60)+'h '+d%60+'m':'',st=f.transfers===0?'Direct':'1 stop',link=f.link?'/out?link='+encodeURIComponent(f.link):'';
+h+='<div class="c"><div><b>'+esc(f.airline_name||f.airline||'Airline')+'</b> <span class="s">'+esc(f.flight_number?f.airline+' '+f.flight_number:'')+'</span>'
++'<div class="s">'+esc(f.origin||q.f)+' → '+esc(f.destination||q.t)+' · departs '+esc(String(f.departure_at||'').slice(0,16).replace('T',' '))+(f.return_at?' · returns '+esc(String(f.return_at).slice(0,16).replace('T',' ')):'')+'</div>'
++'<div><span class="tag">'+st+'</span>'+(du?'<span class="tag">Flight time '+du+'</span>':'')+'<span class="tag">Baggage: shown on the booking site</span></div></div>'
++'<div style="text-align:right"><div class="pr">'+sym+Math.round(f.price)+'</div><div class="s">per person'+(np>1?' · about '+sym+Math.round(f.price*np)+' for '+np:'')+'</div>'+(link?'<a class="bk" href="'+link+'" target="_blank" rel="noopener">Book Now</a>':'')+'</div></div>'});
+h+='<div class="cmp"><b>Compare the same trip on other sites</b><div class="s">Opens their own search. Prices there may differ. Children and infants can be added on those sites.</div>'+cmp(q).map(function(l){return '<a href="'+esc(l[1])+'" target="_blank" rel="noopener noreferrer">'+l[0]+'</a>'}).join('')+'</div>'});
+show(h)}
+$('fl').addEventListener('change',draw);function selAll(v){document.querySelectorAll('#al input').forEach(function(i){i.checked=v});draw()}if(window.innerWidth<860)$('fd').open=false;
+$('cabin').onchange=function(){if(data.length)draw()};$('go').onclick=search;setType('round');
+</script></body></html>
