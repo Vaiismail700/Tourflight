@@ -55,6 +55,10 @@ http.createServer(async (req, res) => {
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
   const u = new URL(req.url, 'http://x'), ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '';
   if (u.pathname === '/health') return json(res, 200, { ok: true, tokenSet: !!TOKEN });
+  if (u.pathname === '/adclick') { // counts clicks on advertising banners
+    console.log(JSON.stringify({ adclick: (u.searchParams.get('id') || '').replace(/[^A-Za-z0-9_-]/g, '').slice(0, 40), at: new Date().toISOString() }));
+    res.writeHead(204); return res.end();
+  }
   if (u.pathname === '/api/flights') {
     if (limited(ip)) return json(res, 429, { error: 'Too many requests. Please wait a minute.' });
     const r = await flights(u.searchParams);
