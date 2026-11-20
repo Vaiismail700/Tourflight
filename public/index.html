@@ -124,6 +124,20 @@ input[type=checkbox],input[type=radio]{background:none;border:0;box-shadow:none;
 .tf:has(input:checked){border-color:var(--blue);background:#e6efff}.tf:hover{border-color:#8fa6c4}
 .tf input:focus-visible~svg{outline:2px solid var(--sun);outline-offset:2px;border-radius:6px}
 @media(max-width:859px){.tfg{grid-template-columns:repeat(4,1fr)}.tf{font-size:10px;padding:8px 2px}}
+
+.lgl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-top:8px;font-weight:600}.lgl+.rt{margin-top:4px}
+/* phones: keep the date strip inside the screen and swipeable */
+.chips{touch-action:pan-x pan-y;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+@media(max-width:859px){
+html,body{max-width:100%;overflow-x:clip}
+.strip{width:100%;max-width:calc(100vw - 32px);padding:8px}
+.sw{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:4px;align-items:center;width:100%}
+.chips{max-width:calc(100vw - 32px - 16px - 76px);scroll-snap-type:x proximity}.chip{scroll-snap-align:start}
+.strip .s:last-child{display:none}.sh{margin-bottom:4px}
+.hr img{width:76px}.hero h1,header h1{font-size:18px}header{padding-bottom:52px}.p{padding:12px}
+}
+@media(hover:none){.arw{display:none}.sw{grid-template-columns:minmax(0,1fr)}.chips{max-width:calc(100vw - 32px - 16px)}}
+@media(max-width:600px){.chip{min-width:70px}.chip small{min-height:10px;font-size:9px}}
 </style></head><body>
 <header><div class="w hr"><img src="/logo.png" alt="Tourflight" onerror="this.style.display='none'"><div><h1>Explore · Compare · Fly</h1><div>Find the lowest fares from recent traveller searches.</div></div></div><div class="w"><div class="ad" id="ad" aria-label="Advertisement"></div></div></header>
 <div class="page" id="lay"><aside id="fl"><details id="fd" open><summary><span>☰ Filters &amp; sort<span class="fcnt" id="fcnt"></span></span><span class="chev">▾</span></summary><div class="fbody">
@@ -283,12 +297,19 @@ return [['Google Flights','https://www.google.com/travel/flights?q='+encodeURICo
 ['Kayak','https://www.kayak.com/flights/'+f+'-'+t+'/'+d+tail],['Momondo','https://www.momondo.com/flight-search/'+f+'-'+t+'/'+d+tail],['Cheapflights','https://www.cheapflights.com/flight-search/'+f+'-'+t+'/'+d+tail]]}
 function t12(h,m){return ((h%12)||12)+':'+('0'+m).slice(-2)+' '+(h>=12?'PM':'AM')}
 function depT(iso){var h=+iso.slice(11,13),m=+iso.slice(14,16);return isNaN(h)||isNaN(m)?'':t12(h,m)}
-function arrInfo(f,q){var d=f.duration_to||(f.return_at?0:f.duration);if(!(d>0)||!f.departure_at)return null;
-var a=(AP[f.destination_airport]&&AP[f.destination_airport].tz?AP[f.destination_airport]:null)||(AP[f.destination]&&AP[f.destination].tz?AP[f.destination]:null)||AP[q.t],tz=a&&a.tz;if(!tz)return null;
-var t=new Date(new Date(f.departure_at).getTime()+d*60000);if(isNaN(t.getTime()))return null;
+function arrCalc(depIso,d,codes){if(!(d>0)||!depIso)return null;var tz='';
+for(var i=0;i<codes.length;i++){if(codes[i]&&AP[codes[i]]&&AP[codes[i]].tz){tz=AP[codes[i]].tz;break}}if(!tz)return null;
+var t=new Date(new Date(depIso).getTime()+d*60000);if(isNaN(t.getTime()))return null;
 try{var tf=new Intl.DateTimeFormat('en-US',{timeZone:tz,hour:'numeric',minute:'2-digit',hour12:true}).format(t).replace(/[\u202f\u00a0]/g,' ');
-var dd=new Intl.DateTimeFormat('en-CA',{timeZone:tz,year:'numeric',month:'2-digit',day:'2-digit'}).format(t),dp=String(f.departure_at).slice(0,10);
+var dd=new Intl.DateTimeFormat('en-CA',{timeZone:tz,year:'numeric',month:'2-digit',day:'2-digit'}).format(t),dp=String(depIso).slice(0,10);
 return{t:tf,d:Math.round((Date.parse(dd+'T00:00:00Z')-Date.parse(dp+'T00:00:00Z'))/86400000)}}catch(e){return null}}
+function arrInfo(f,q){return arrCalc(f.departure_at,f.duration_to||(f.return_at?0:f.duration),[f.destination_airport,f.destination,q.t])}
+function arrBack(f,q){return arrCalc(f.return_at,f.duration_back||0,[f.origin_airport,f.origin,q.f])}
+function legHtml(label,dateIso,depIso,arr,fromC,toC,du,stops,tip){
+return (label?'<div class="lgl">'+esc(label)+(dateIso?' \u00b7 '+esc(shortDate(dateIso)):'')+'</div>':'')
++'<div class="rt"><div class="ep"><b>'+esc(depT(String(depIso||''))||'\u2014')+'</b><span class="s">'+esc(fromC)+'</span></div>'
++'<div class="ln"><span class="bar"></span>'+(stops>0?'<span class="stop" tabindex="0" role="img" aria-label="'+esc(tip)+'" data-tip="'+esc(tip)+'"></span>':'')+'<span class="dur">'+esc(du)+'</span></div>'
++'<div class="ep"><b>'+(arr?esc(arr.t)+(arr.d?'<sup>'+(arr.d>0?'+':'')+arr.d+'</sup>':''):'\u2014')+'</b><span class="s">'+esc(toC)+'</span></div></div>'}
 function logo(c){c=String(c||'');return c?'<img class="lg" data-c="'+esc(c)+'" src="https://pics.avs.io/64/64/'+encodeURIComponent(c)+'.png" alt="" loading="lazy" referrerpolicy="no-referrer">':''}
 document.addEventListener('error',function(e){var t=e.target;if(t&&t.classList&&t.classList.contains('lg')){var sp=document.createElement('span');sp.className='lg0';sp.textContent=t.dataset.c||'';t.replaceWith(sp)}},true);
 function tfOk(f,tf){var h=+String(f.departure_at||'').slice(11,13);return isNaN(h)||tf.indexOf(Math.floor(h/6))>=0}
@@ -301,15 +322,16 @@ if(j.currency!==j.requested)h+='<div class="m" style="margin-bottom:10px">'+esc(
 var list=(j.data||[]).filter(function(f){return(sf==='any'||String(f.transfers)===sf)&&(af.indexOf(f.airline)>=0)&&tfOk(f,tf)});
 list.sort(function(a,b){return so==='price'?a.price-b.price:so==='dur'?(a.duration_to||a.duration||0)-(b.duration_to||b.duration||0):String(a.departure_at).localeCompare(String(b.departure_at))});
 if(!list.length)h+='<div class="m">No recent prices found for these filters. Try another date, the whole-month option, or other filters.</div>';
-list.forEach(function(f){var d=f.duration_to||f.duration,du=typeof d==='number'&&d>0?Math.floor(d/60)+'h '+d%60+'m':'',link=f.link?'/out?link='+encodeURIComponent(f.link):'',ar=arrInfo(f,q),oc=f.origin_airport||f.origin||q.f,dc=f.destination_airport||f.destination||q.t,
+list.forEach(function(f){var rtrip=!!f.return_at,d=f.duration_to||(rtrip?0:f.duration),db=f.duration_back||0,fm=function(m){return m>0?Math.floor(m/60)+'h '+m%60+'m':''},
+link=f.link?'/out?link='+encodeURIComponent(f.link):'',oc=f.origin_airport||f.origin||q.f,dc=f.destination_airport||f.destination||q.t,
 lay=f.layovers&&f.layovers.length?f.layovers.map(function(l){return Math.floor(l.minutes/60)+'h '+l.minutes%60+'m in '+(AP[l.airport]?AP[l.airport].n+' ('+l.airport+')':l.airport)}).join(', '):'',
-tip=f.transfers===0?'':(lay?'Layover: '+lay:'1 stop. The layover airport and waiting time are shown on the booking site.');
+tip=f.transfers===0?'':(lay?'Layover: '+lay:'1 stop. The layover airport and waiting time are shown on the booking site.'),
+tipB=(typeof f.return_transfers==='number'&&f.return_transfers>0)?'1 stop. The layover airport and waiting time are shown on the booking site.':'';
 h+='<div class="c"><div class="fm"><div class="al">'+logo(f.airline)+'<b>'+esc(f.airline_name||f.airline||'Airline')+'</b><span class="s">'+esc(f.flight_number?f.airline+' '+f.flight_number:'')+'</span></div>'
-+'<div class="rt"><div class="ep"><b>'+esc(depT(String(f.departure_at||''))||'\u2014')+'</b><span class="s">'+esc(oc)+'</span></div>'
-+'<div class="ln"><span class="bar"></span>'+(f.transfers>0?'<span class="stop" tabindex="0" role="img" aria-label="'+esc(tip)+'" data-tip="'+esc(tip)+'"></span>':'')+'<span class="dur">'+esc(du)+'</span></div>'
-+'<div class="ep"><b>'+(ar?esc(ar.t)+(ar.d?'<sup>'+(ar.d>0?'+':'')+ar.d+'</sup>':''):'\u2014')+'</b><span class="s">'+esc(dc)+'</span></div></div>'
-+'<div><span class="tag">'+(f.transfers===0?'Direct':'1 stop')+'</span><span class="tag">'+esc(shortDate(String(f.departure_at||'').slice(0,10)))+'</span>'+(f.return_at?'<span class="tag">Returns '+esc(shortDate(String(f.return_at).slice(0,10)))+'</span>':'')+'<span class="tag">Baggage: shown on the booking site</span></div></div>'
-+'<div class="pc"><div><div class="pr">'+sym+fmtN(f.price)+'</div><div class="s">per person'+(np>1?' \u00b7 about '+sym+fmtN(f.price*np)+' for '+np:'')+'</div></div>'+(link?'<a class="bk" href="'+link+'" target="_blank" rel="noopener">Book Now</a>':'')+'</div></div>'});
++legHtml(rtrip?'Outbound':'',String(f.departure_at||'').slice(0,10),f.departure_at,arrInfo(f,q),oc,dc,fm(d),f.transfers,tip)
++(rtrip?legHtml('Return',String(f.return_at).slice(0,10),f.return_at,arrBack(f,q),dc,oc,fm(db),f.return_transfers||0,tipB):'')
++'<div><span class="tag">'+(f.transfers===0?'Direct':'1 stop')+'</span>'+(rtrip?'':'<span class="tag">'+esc(shortDate(String(f.departure_at||'').slice(0,10)))+'</span>')+'<span class="tag">Baggage: shown on the booking site</span></div></div>'
++'<div class="pc"><div><div class="pr">'+sym+fmtN(f.price)+'</div><div class="s">'+(rtrip?'round trip, per person':'per person')+(np>1?' \u00b7 about '+sym+fmtN(f.price*np)+' for '+np:'')+'</div></div>'+(link?'<a class="bk" href="'+link+'" target="_blank" rel="noopener">Book Now</a>':'')+'</div></div>'});
 h+='<div class="cmp"><b>Compare the same trip on other sites</b><div class="s">Opens their own search. Prices there may differ. Children and infants can be added on those sites.</div>'+cmp(q).map(function(l){return '<a href="'+esc(l[1])+'" target="_blank" rel="noopener noreferrer">'+l[0]+'</a>'}).join('')+'</div>'});
 show(h);data.forEach(function(x,xi){fillStrip(xi)})}
 $('fl').addEventListener('change',draw);$('al').addEventListener('click',function(e){var o=e.target.closest&&e.target.closest('.only');if(!o)return;
@@ -355,4 +377,5 @@ var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce
 if(ADS.length>1&&!reduce){var start=function(){stop();timer=setInterval(function(){go(i+1)},6000)},stop=function(){if(timer){clearInterval(timer);timer=null}};
 box.addEventListener('mouseenter',stop);box.addEventListener('mouseleave',start);box.addEventListener('focusin',stop);box.addEventListener('focusout',start);start()}}
 adInit();
-</script></body></html>
+</script><script src="/cookies.js" defer></script>
+</body></html>
