@@ -97,7 +97,7 @@ input[type=checkbox],input[type=radio]{background:none;border:0;box-shadow:none;
 <div class="top"><div class="tabs" id="tabs"><button class="t" data-t="oneway" aria-pressed="false">One way</button><button class="t" data-t="round" aria-pressed="true">Round trip</button><button class="t" data-t="multi" aria-pressed="false">Multi-city</button></div><div class="opts"><details class="pax" id="pxd"><summary id="pxs">1 Adult</summary><div class="paxbox"><div class="pr2"><div>Adults<small>12+ years</small></div><div class="stp"><button type="button" aria-label="Fewer Adults" onclick="chg('a',-1)">−</button><b id="na">1</b><button type="button" aria-label="More Adults" onclick="chg('a',1)">+</button></div></div><div class="pr2"><div>Children<small>2–11 years</small></div><div class="stp"><button type="button" aria-label="Fewer Children" onclick="chg('c',-1)">−</button><b id="nc">0</b><button type="button" aria-label="More Children" onclick="chg('c',1)">+</button></div></div><div class="pr2"><div>Infants<small>Under 2 years</small></div><div class="stp"><button type="button" aria-label="Fewer Infants" onclick="chg('i',-1)">−</button><b id="ni">0</b><button type="button" aria-label="More Infants" onclick="chg('i',1)">+</button></div></div></div></details><select id="cabin" aria-label="Cabin class"><option value="economy">Economy</option><option value="business">Business</option></select></div></div>
 <div id="legs"></div>
 <div class="g"><div><label for="cyv">Currency (type to search)</label><div class="acw"><input type="hidden" id="cy" value="bdt"><input id="cyv" autocomplete="off" spellcheck="false" placeholder="Search currency"><div class="sug" id="cys" role="listbox"></div></div></div>
-<div style="align-self:end"><label style="display:flex;gap:8px;align-items:center;margin:0 0 8px"><input type="checkbox" id="mo" style="width:auto"> Cheapest across the whole month</label></div></div>
+<div style="align-self:end"><label style="display:flex;gap:8px;align-items:center;margin:0 0 8px"><input type="checkbox" id="mo" style="width:auto" checked> Cheapest across the whole month</label></div></div>
 <button class="go" id="go">Search flights</button>
 <div class="tr">Tourflight never takes payments or card details. You book on the partner site. Prices come from recent searches and may have changed.</div>
 </div><main id="res"></main></div></div>
@@ -163,10 +163,10 @@ function addDays(iso,n){var p=iso.split('-');return new Date(Date.UTC(+p[0],+p[1
 function shortDate(d){var p=d.split('-');return new Date(+p[0],+p[1]-1,+p[2]).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})}
 var strips={};
 function fillStrip(xi){var x=data[xi],el=$('st'+xi);if(!el||!x)return;var q=x.q;
-if(q.d.length===7){el.style.display='none';return}
+var base=q.d0||q.d;if(base.length===7){el.style.display='none';return}
 if(strips[xi]){paintStrip(xi);return}
 el.innerHTML='<div class="s">Loading the lowest fares around your date\u2026</div>';
-var start=addDays(q.d,-10);if(start<today)start=today;var end=addDays(q.d,20);if(end<start)end=start;var months=[],mc=start.slice(0,7);while(mc<=end.slice(0,7)){months.push(mc);var pp=mc.split('-');mc=new Date(Date.UTC(+pp[0],+pp[1],1)).toISOString().slice(0,7)}
+var start=addDays(base,-10);if(start<today)start=today;var end=addDays(base,20);if(end<start)end=start;var months=[],mc=start.slice(0,7);while(mc<=end.slice(0,7)){months.push(mc);var pp=mc.split('-');mc=new Date(Date.UTC(+pp[0],+pp[1],1)).toISOString().slice(0,7)}
 Promise.all(months.map(function(mo){return fetch('/api/calendar?origin='+q.f+'&destination='+q.t+'&month='+mo+'&currency='+$('cy').value).then(function(r){return r.json()}).catch(function(){return{prices:{}}})})).then(function(rs){
 var pr={};rs.forEach(function(r){Object.keys(r.prices||{}).forEach(function(k){pr[k]=r.prices[k]})});
 strips[xi]={start:start,end:end,pr:pr,cy:(rs[0]&&rs[0].currency)||$('cy').value,sort:'date'};paintStrip(xi)})}
@@ -176,14 +176,14 @@ if(lo===null){el.innerHTML='<div class="s">No recent fares found around these da
 if(st.sort==='price')days.sort(function(a,b){return(a.p||1e12)-(b.p||1e12)});
 var sym=symOf(st.cy);
 el.innerHTML='<div class="sh"><b>Lowest fares around your date (10 days before, 20 days after)</b><span class="s">Cheapest: '+esc(shortDate(loD))+' \u00b7 '+sym+fmtN(lo)+'</span><button type="button" class="sm ssort" data-x="'+xi+'">'+(st.sort==='date'?'Sort by price':'Sort by date')+'</button></div><div class="sw"><button type="button" class="arw" data-dir="-1" aria-label="Earlier dates">\u2039</button><div class="chips">'
-+days.map(function(o){return '<button type="button" class="chip'+(o.p&&o.p===lo?' lo':'')+(o.d===q.d?' cur':'')+'" data-x="'+xi+'" data-d="'+o.d+'"><b>'+esc(shortDate(o.d))+'</b><span>'+(o.p?sym+fmtN(o.p):'\u2014')+'</span><small>'+(o.p&&o.p===lo?'Lowest':'')+'</small></button>'}).join('')
++days.map(function(o){return '<button type="button" class="chip'+(o.p&&o.p===lo?' lo':'')+(o.d===(q.d0||q.d)?' cur':'')+'" data-x="'+xi+'" data-d="'+o.d+'"><b>'+esc(shortDate(o.d))+'</b><span>'+(o.p?sym+fmtN(o.p):'\u2014')+'</span><small>'+(o.p&&o.p===lo?'Lowest':'')+'</small></button>'}).join('')
 +'</div><button type="button" class="arw" data-dir="1" aria-label="Later dates">\u203a</button></div><div class="s">Outbound fares from recent searches; may have changed. Tap a day to search it.</div>';var ch=el.querySelector('.chips'),cu=el.querySelector('.chip.cur');if(ch){if(cu)ch.scrollLeft=cu.offsetLeft-ch.clientWidth/2+cu.offsetWidth/2;arwState(el);ch.addEventListener('scroll',function(){arwState(el)})}}
 function arwState(el){var ch=el.querySelector('.chips'),b=el.querySelectorAll('.arw');if(!ch||b.length<2)return;b[0].disabled=ch.scrollLeft<=2;b[1].disabled=ch.scrollLeft+ch.clientWidth>=ch.scrollWidth-2}
 var drag=null,lastDrag=0;
 $('res').addEventListener('pointerdown',function(e){if(e.pointerType!=='mouse'||e.button!==0)return;var ch=e.target.closest&&e.target.closest('.chips');if(ch)drag={ch:ch,x:e.clientX,l:ch.scrollLeft,moved:false}});
 document.addEventListener('pointermove',function(e){if(!drag)return;var dx=e.clientX-drag.x;if(Math.abs(dx)>5){drag.moved=true;drag.ch.classList.add('drag')}if(drag.moved)drag.ch.scrollLeft=drag.l-dx});
 document.addEventListener('pointerup',function(){if(drag){var d=drag;drag=null;d.ch.classList.remove('drag');if(d.moved)lastDrag=Date.now()}});
-function pickDay(xi,d){if(type==='multi'){$('d'+xi).value=d}
+function pickDay(xi,d){$('mo').checked=false;if(type==='multi'){$('d'+xi).value=d}
 else{var old=$('d0').value,ret=$('rt')?$('rt').value:'';$('d0').value=d;if(type==='round'&&ret&&old){var len=Math.round((new Date(ret)-new Date(old))/86400000);if(!(len>=0))len=0;$('rt').value=addDays(d,len)}}
 fixMins();syncDates();search()}
 $('res').addEventListener('click',function(e){if(Date.now()-lastDrag<300)return;
