@@ -82,7 +82,8 @@ input[type=checkbox],input[type=radio]{background:none;border:0;box-shadow:none;
 
 .strip{margin:6px 0 12px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px}
 .sh{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}.sh .s{flex:1;min-width:140px}
-.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px}
+.sw{display:flex;align-items:center;gap:6px}.chips{flex:1;min-width:0;position:relative;display:flex;gap:8px;overflow-x:auto;padding:2px 0;scrollbar-width:none;-ms-overflow-style:none;cursor:grab;user-select:none}.chips::-webkit-scrollbar{display:none}.chips.drag{cursor:grabbing}
+.arw{flex:none;width:36px;height:36px;border-radius:50%;border:1.5px solid #bccadc;background:#fff;color:var(--blue);font-size:22px;line-height:1;cursor:pointer;box-shadow:0 2px 6px rgba(10,30,60,.12);padding:0}.arw:hover:not(:disabled){background:#eef4ff}.arw:disabled{opacity:.35;cursor:default}
 .chip{flex:none;min-width:92px;border:1.5px solid #bccadc;background:#f3f6fb;border-radius:10px;padding:6px 8px;text-align:center;cursor:pointer;color:var(--ink);font:inherit}
 .chip b{display:block;font-size:12px}.chip span{font-size:14px;font-weight:700;color:var(--blue)}.chip small{display:block;font-size:10px;color:#12805c;font-weight:700;min-height:12px}
 .chip.lo{border-color:#12805c;background:#e8f6ef}.chip.lo span{color:#12805c}.chip.cur{outline:2px solid var(--blue)}
@@ -95,7 +96,7 @@ input[type=checkbox],input[type=radio]{background:none;border:0;box-shadow:none;
 </div></details></aside><div class="content"><div class="p">
 <div class="top"><div class="tabs" id="tabs"><button class="t" data-t="oneway" aria-pressed="false">One way</button><button class="t" data-t="round" aria-pressed="true">Round trip</button><button class="t" data-t="multi" aria-pressed="false">Multi-city</button></div><div class="opts"><details class="pax" id="pxd"><summary id="pxs">1 Adult</summary><div class="paxbox"><div class="pr2"><div>Adults<small>12+ years</small></div><div class="stp"><button type="button" aria-label="Fewer Adults" onclick="chg('a',-1)">−</button><b id="na">1</b><button type="button" aria-label="More Adults" onclick="chg('a',1)">+</button></div></div><div class="pr2"><div>Children<small>2–11 years</small></div><div class="stp"><button type="button" aria-label="Fewer Children" onclick="chg('c',-1)">−</button><b id="nc">0</b><button type="button" aria-label="More Children" onclick="chg('c',1)">+</button></div></div><div class="pr2"><div>Infants<small>Under 2 years</small></div><div class="stp"><button type="button" aria-label="Fewer Infants" onclick="chg('i',-1)">−</button><b id="ni">0</b><button type="button" aria-label="More Infants" onclick="chg('i',1)">+</button></div></div></div></details><select id="cabin" aria-label="Cabin class"><option value="economy">Economy</option><option value="business">Business</option></select></div></div>
 <div id="legs"></div>
-<div class="g"><div><label for="cy">Currency</label><select id="cy"><option value="bdt">BDT ৳ Bangladeshi Taka</option><option value="usd">USD $ US Dollar</option><option value="eur">EUR € Euro</option><option value="gbp">GBP £ British Pound</option><option value="aed">AED UAE Dirham</option><option value="sar">SAR Saudi Riyal</option><option value="inr">INR ₹ Indian Rupee</option><option value="myr">MYR Malaysian Ringgit</option><option value="sgd">SGD Singapore Dollar</option><option value="thb">THB Thai Baht</option><option value="qar">QAR Qatari Riyal</option><option value="kwd">KWD Kuwaiti Dinar</option><option value="bhd">BHD Bahraini Dinar</option><option value="omr">OMR Omani Rial</option><option value="pkr">PKR Pakistani Rupee</option><option value="lkr">LKR Sri Lankan Rupee</option><option value="npr">NPR Nepali Rupee</option><option value="idr">IDR Indonesian Rupiah</option><option value="php">PHP Philippine Peso</option><option value="vnd">VND Vietnamese Dong</option><option value="jpy">JPY Japanese Yen</option><option value="cny">CNY Chinese Yuan</option><option value="krw">KRW South Korean Won</option><option value="hkd">HKD Hong Kong Dollar</option><option value="aud">AUD Australian Dollar</option><option value="cad">CAD Canadian Dollar</option><option value="nzd">NZD New Zealand Dollar</option><option value="chf">CHF Swiss Franc</option><option value="try">TRY Turkish Lira</option><option value="egp">EGP Egyptian Pound</option><option value="zar">ZAR South African Rand</option><option value="ngn">NGN Nigerian Naira</option><option value="rub">RUB Russian Ruble</option><option value="brl">BRL Brazilian Real</option><option value="mxn">MXN Mexican Peso</option></select></div>
+<div class="g"><div><label for="cyv">Currency (type to search)</label><div class="acw"><input type="hidden" id="cy" value="bdt"><input id="cyv" autocomplete="off" spellcheck="false" placeholder="Search currency"><div class="sug" id="cys" role="listbox"></div></div></div>
 <div style="align-self:end"><label style="display:flex;gap:8px;align-items:center;margin:0 0 8px"><input type="checkbox" id="mo" style="width:auto"> Cheapest across the whole month</label></div></div>
 <button class="go" id="go">Search flights</button>
 <div class="tr">Tourflight never takes payments or card details. You book on the partner site. Prices come from recent searches and may have changed.</div>
@@ -165,22 +166,29 @@ function fillStrip(xi){var x=data[xi],el=$('st'+xi);if(!el||!x)return;var q=x.q;
 if(q.d.length===7){el.style.display='none';return}
 if(strips[xi]){paintStrip(xi);return}
 el.innerHTML='<div class="s">Loading the lowest fares around your date\u2026</div>';
-var start=addDays(q.d,-7);if(start<today)start=today;var end=addDays(start,14),months=[start.slice(0,7)];if(end.slice(0,7)!==months[0])months.push(end.slice(0,7));
+var start=addDays(q.d,-10);if(start<today)start=today;var end=addDays(q.d,20);if(end<start)end=start;var months=[],mc=start.slice(0,7);while(mc<=end.slice(0,7)){months.push(mc);var pp=mc.split('-');mc=new Date(Date.UTC(+pp[0],+pp[1],1)).toISOString().slice(0,7)}
 Promise.all(months.map(function(mo){return fetch('/api/calendar?origin='+q.f+'&destination='+q.t+'&month='+mo+'&currency='+$('cy').value).then(function(r){return r.json()}).catch(function(){return{prices:{}}})})).then(function(rs){
 var pr={};rs.forEach(function(r){Object.keys(r.prices||{}).forEach(function(k){pr[k]=r.prices[k]})});
-strips[xi]={start:start,pr:pr,cy:(rs[0]&&rs[0].currency)||$('cy').value,sort:'date'};paintStrip(xi)})}
+strips[xi]={start:start,end:end,pr:pr,cy:(rs[0]&&rs[0].currency)||$('cy').value,sort:'date'};paintStrip(xi)})}
 function paintStrip(xi){var st=strips[xi],el=$('st'+xi);if(!st||!el)return;var q=data[xi].q,days=[],lo=null,loD='';
-for(var i=0;i<15;i++){var d=addDays(st.start,i),p=st.pr[d]||0;days.push({d:d,p:p});if(p&&(lo===null||p<lo)){lo=p;loD=d}}
+for(var d=st.start;d<=st.end;d=addDays(d,1)){var p=st.pr[d]||0;days.push({d:d,p:p});if(p&&(lo===null||p<lo)){lo=p;loD=d}}
 if(lo===null){el.innerHTML='<div class="s">No recent fares found around these dates. Try another date or route.</div>';return}
 if(st.sort==='price')days.sort(function(a,b){return(a.p||1e12)-(b.p||1e12)});
 var sym=symOf(st.cy);
-el.innerHTML='<div class="sh"><b>Lowest fares around your date (15 days)</b><span class="s">Cheapest: '+esc(shortDate(loD))+' \u00b7 '+sym+fmtN(lo)+'</span><button type="button" class="sm ssort" data-x="'+xi+'">'+(st.sort==='date'?'Sort by price':'Sort by date')+'</button></div><div class="chips">'
+el.innerHTML='<div class="sh"><b>Lowest fares around your date (10 days before, 20 days after)</b><span class="s">Cheapest: '+esc(shortDate(loD))+' \u00b7 '+sym+fmtN(lo)+'</span><button type="button" class="sm ssort" data-x="'+xi+'">'+(st.sort==='date'?'Sort by price':'Sort by date')+'</button></div><div class="sw"><button type="button" class="arw" data-dir="-1" aria-label="Earlier dates">\u2039</button><div class="chips">'
 +days.map(function(o){return '<button type="button" class="chip'+(o.p&&o.p===lo?' lo':'')+(o.d===q.d?' cur':'')+'" data-x="'+xi+'" data-d="'+o.d+'"><b>'+esc(shortDate(o.d))+'</b><span>'+(o.p?sym+fmtN(o.p):'\u2014')+'</span><small>'+(o.p&&o.p===lo?'Lowest':'')+'</small></button>'}).join('')
-+'</div><div class="s">Outbound fares from recent searches; may have changed. Tap a day to search it.</div>'}
++'</div><button type="button" class="arw" data-dir="1" aria-label="Later dates">\u203a</button></div><div class="s">Outbound fares from recent searches; may have changed. Tap a day to search it.</div>';var ch=el.querySelector('.chips'),cu=el.querySelector('.chip.cur');if(ch){if(cu)ch.scrollLeft=cu.offsetLeft-ch.clientWidth/2+cu.offsetWidth/2;arwState(el);ch.addEventListener('scroll',function(){arwState(el)})}}
+function arwState(el){var ch=el.querySelector('.chips'),b=el.querySelectorAll('.arw');if(!ch||b.length<2)return;b[0].disabled=ch.scrollLeft<=2;b[1].disabled=ch.scrollLeft+ch.clientWidth>=ch.scrollWidth-2}
+var drag=null,lastDrag=0;
+$('res').addEventListener('pointerdown',function(e){if(e.pointerType!=='mouse'||e.button!==0)return;var ch=e.target.closest&&e.target.closest('.chips');if(ch)drag={ch:ch,x:e.clientX,l:ch.scrollLeft,moved:false}});
+document.addEventListener('pointermove',function(e){if(!drag)return;var dx=e.clientX-drag.x;if(Math.abs(dx)>5){drag.moved=true;drag.ch.classList.add('drag')}if(drag.moved)drag.ch.scrollLeft=drag.l-dx});
+document.addEventListener('pointerup',function(){if(drag){var d=drag;drag=null;d.ch.classList.remove('drag');if(d.moved)lastDrag=Date.now()}});
 function pickDay(xi,d){if(type==='multi'){$('d'+xi).value=d}
 else{var old=$('d0').value,ret=$('rt')?$('rt').value:'';$('d0').value=d;if(type==='round'&&ret&&old){var len=Math.round((new Date(ret)-new Date(old))/86400000);if(!(len>=0))len=0;$('rt').value=addDays(d,len)}}
 fixMins();syncDates();search()}
-$('res').addEventListener('click',function(e){var c=e.target.closest&&e.target.closest('.chip');if(c){pickDay(+c.dataset.x,c.dataset.d);return}
+$('res').addEventListener('click',function(e){if(Date.now()-lastDrag<300)return;
+var ar=e.target.closest&&e.target.closest('.arw');if(ar){var ch2=ar.parentNode.querySelector('.chips');if(ch2)ch2.scrollBy({left:(+ar.dataset.dir)*ch2.clientWidth*0.8,behavior:'smooth'});return}
+var c=e.target.closest&&e.target.closest('.chip');if(c){pickDay(+c.dataset.x,c.dataset.d);return}
 var so=e.target.closest&&e.target.closest('.ssort');if(so){var st=strips[+so.dataset.x];if(st){st.sort=st.sort==='date'?'price':'date';paintStrip(+so.dataset.x)}}});
 var calP={};
 function legCodes(inp){var id=inp.dataset.for,n=id==='rt'?0:parseInt(id.slice(1),10),f=codeOf(($('f'+n)||{}).value),t=codeOf(($('t'+n)||{}).value);
@@ -252,6 +260,23 @@ h+='<div class="cmp"><b>Compare the same trip on other sites</b><div class="s">O
 show(h);data.forEach(function(x,xi){fillStrip(xi)})}
 $('fl').addEventListener('change',draw);function selAll(v){document.querySelectorAll('#al input').forEach(function(i){i.checked=v});draw()}if(window.innerWidth<860)$('fd').open=false;
 $('cabin').onchange=function(){if(data.length)draw()};$('go').onclick=search;setType('round');
+var CURS=[['bdt','Bangladeshi Taka'],['usd','US Dollar'],['eur','Euro'],['gbp','British Pound'],['aed','UAE Dirham'],['sar','Saudi Riyal'],['inr','Indian Rupee'],['myr','Malaysian Ringgit'],['sgd','Singapore Dollar'],['thb','Thai Baht'],['qar','Qatari Riyal'],['kwd','Kuwaiti Dinar'],['bhd','Bahraini Dinar'],['omr','Omani Rial'],['pkr','Pakistani Rupee'],['lkr','Sri Lankan Rupee'],['npr','Nepali Rupee'],['idr','Indonesian Rupiah'],['php','Philippine Peso'],['vnd','Vietnamese Dong'],['jpy','Japanese Yen'],['cny','Chinese Yuan'],['krw','South Korean Won'],['hkd','Hong Kong Dollar'],['aud','Australian Dollar'],['cad','Canadian Dollar'],['nzd','New Zealand Dollar'],['chf','Swiss Franc'],['try','Turkish Lira'],['egp','Egyptian Pound'],['zar','South African Rand'],['ngn','Nigerian Naira'],['rub','Russian Ruble'],['brl','Brazilian Real'],['mxn','Mexican Peso']],cyTyped=false;
+function cyName(c){for(var i=0;i<CURS.length;i++)if(CURS[i][0]===c)return CURS[i][1];return c.toUpperCase()}
+function cyUi(){var c=$('cy').value;$('cyv').value=c.toUpperCase()+' \u00b7 '+cyName(c)}
+function cyFind(q){q=(q||'').toLowerCase().trim();if(!q)return CURS.slice(0,6);var a=[],b=[];
+CURS.forEach(function(x){var n=x[1].toLowerCase();if(x[0].indexOf(q)===0||n.split(' ').some(function(w){return w.indexOf(q)===0}))a.push(x);else if(n.indexOf(q)>=0)b.push(x)});return a.concat(b).slice(0,6)}
+function cyShow(){var box=$('cys'),r=cyFind(cyTyped?$('cyv').value:'');
+box.innerHTML=r.map(function(x){return '<div class="si" role="option" data-c="'+x[0]+'"><div><b>'+x[0].toUpperCase()+'</b> <span>'+esc(symOf(x[0]).trim())+'</span><small>'+esc(x[1])+'</small></div></div>'}).join('')||'<div class="si"><div class="s">No match</div></div>';
+box.classList.add('on');box.dataset.i='-1'}
+function cyPick(c){var old=$('cy').value;$('cy').value=c;cyUi();$('cys').classList.remove('on');if(c!==old&&data.length)search()}
+$('cyv').addEventListener('focus',function(){this.select();cyTyped=false;cyShow()});
+$('cyv').addEventListener('input',function(){cyTyped=true;cyShow()});
+$('cys').addEventListener('click',function(e){var it=e.target.closest&&e.target.closest('.si');if(it&&it.dataset.c)cyPick(it.dataset.c)});
+$('cyv').addEventListener('keydown',function(e){var box=$('cys');if(!box.classList.contains('on'))return;var its=box.querySelectorAll('.si[data-c]'),i=parseInt(box.dataset.i||'-1',10);
+if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();i=e.key==='ArrowDown'?Math.min(i+1,its.length-1):Math.max(i-1,0);its.forEach(function(x,k){x.classList.toggle('hl',k===i)});box.dataset.i=i}
+else if(e.key==='Enter'&&its.length){e.preventDefault();cyPick(its[i>=0?i:0].dataset.c)}else if(e.key==='Escape'){box.classList.remove('on');cyUi()}});
+document.addEventListener('pointerdown',function(e){if(!e.target.closest('.acw'))cyUi()});
+cyUi();
 // ===== ADVERTISING BANNER: edit this list to change the ads =====
 // Fields: id (any short name), tag (label shown on the ad), title, text, cta (button text),
 // url (https://..., mailto:... or a path like /about.html), img (optional, e.g. '/ads/hotel.webp', or leave '').
