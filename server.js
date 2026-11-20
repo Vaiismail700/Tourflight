@@ -21,6 +21,22 @@ const NAMES = {"EK": "Emirates", "QR": "Qatar Airways", "EY": "Etihad Airways", 
 // Try to add more airline names from Travelpayouts' public list (falls back silently).
 (async () => { try { const r = await fetch('https://api.travelpayouts.com/data/en/airlines.json'); if (r.ok) { for (const x of await r.json()) { if (x.code && x.name && !NAMES[x.code]) NAMES[x.code] = x.name; } } } catch (e) {} })();
 
+// ---- Exchange rates: live when available, otherwise approximate built-in values ----
+const FALLBACK = { USD: 1, BDT: 122, EUR: 0.92, GBP: 0.79, AED: 3.67, SAR: 3.75, INR: 84, MYR: 4.4, SGD: 1.34, THB: 36, QAR: 3.64, KWD: 0.31, BHD: 0.376, OMR: 0.385, PKR: 280, LKR: 300, NPR: 134, IDR: 15800, PHP: 57, VND: 25000, JPY: 150, CNY: 7.2, KRW: 1350, HKD: 7.8, AUD: 1.52, CAD: 1.37, NZD: 1.65, CHF: 0.88, TRY: 34, EGP: 49, ZAR: 18, NGN: 1500, RUB: 92, BRL: 5.5, MXN: 19.5 };
+const RATES_URL = process.env.RATES_URL || 'https://open.er-api.com/v6/latest/USD';
+let RATES = { t: 0, live: false, r: FALLBACK };
+async function getRates() {
+  if (Date.now() - RATES.t < 43200000) return RATES;
+  try {
+    const ctl = new AbortController(), to = setTimeout(() => ctl.abort(), 5000);
+    const r = await fetch(RATES_URL, { signal: ctl.signal }); clearTimeout(to);
+    const j = await r.json();
+    if (j && j.rates && j.rates.BDT) { RATES = { t: Date.now(), live: true, r: Object.assign({}, FALLBACK, j.rates) }; return RATES; }
+  } catch (e) {}
+  RATES = { t: Date.now() - 43200000 + 600000, live: false, r: RATES.r }; // try again in 10 minutes
+  return RATES;
+}
+
 async function flights(q) {
   const origin = (q.get('origin') || '').toUpperCase(), dest = (q.get('destination') || '').toUpperCase();
   const dep = q.get('date') || '', ret = q.get('return') || '';
@@ -30,7 +46,8 @@ async function flights(q) {
   if (!dateOk(dep) || (ret && !dateOk(ret))) return { code: 400, body: { error: 'Enter a valid date.' } };
   if (!/^[a-z]{3}$/.test(cur)) return { code: 400, body: { error: 'Invalid currency.' } };
   if (!TOKEN) return { code: 500, body: { error: 'Server is not configured yet (missing token).' } };
-  const p = new URLSearchParams({ origin, destination: dest, departure_at: dep, sorting: 'price', direct: 'false', currency: cur, cy: cur, limit: '50', page: '1', unique: 'false', one_way: ret ? 'false' : 'true' });
+  // Always ask the provider for US dollars; we convert to the visitor's currency below.
+  const p = new URLSearchParams({ origin, destination: dest, departure_at: dep, sorting: 'price', direct: 'false', currency: 'usd', cy: 'usd', limit: '50', page: '1', unique: 'false', one_way: ret ? 'false' : 'true' });
   if (ret) p.set('return_at', ret);
   const key = p.toString();
   let v = cache.get(key);
@@ -39,43 +56,52 @@ async function flights(q) {
       const r = await fetch(BASE + '/aviasales/v3/prices_for_dates?' + key, { headers: { 'X-Access-Token': TOKEN } });
       if (!r.ok) return { code: 502, body: { error: 'Price provider returned an error (' + r.status + ').' } };
       const j = await r.json();
-      v = { t: Date.now(), currency: String(j.currency || cur).toLowerCase(), data: Array.isArray(j.data) ? j.data : [] };
+      v = { t: Date.now(), currency: String(j.currency || 'usd').toLowerCase(), data: Array.isArray(j.data) ? j.data : [] };
       cache.set(key, v);
     } catch (e) {
       return { code: 502, body: { error: 'Could not reach the price provider.' } };
     }
   }
+  const R = await getRates();
+  const fromRate = v.currency === 'usd' ? 1 : R.r[v.currency.toUpperCase()];
+  const toRate = R.r[cur.toUpperCase()];
+  const target = fromRate ? (toRate ? cur : 'usd') : v.currency;
+  const mul = fromRate ? (toRate || 1) / fromRate : 1;
   // Only direct and 1-stop itineraries are shown.
   const out = v.data.filter(f => typeof f.transfers !== 'number' || f.transfers <= 1)
-    .map(f => Object.assign({}, f, { airline_name: NAMES[f.airline] || f.airline || '' }));
-  return { code: 200, body: { currency: v.currency, requested: cur, data: out } };
+    .map(f => Object.assign({}, f, { price: Math.round(f.price * mul), airline_name: NAMES[f.airline] || f.airline || '' }));
+  return { code: 200, body: { currency: target, requested: cur, converted: mul !== 1, rates: R.live ? 'live' : 'approximate', data: out } };
 }
-// Lowest recent fare for each day of a month (used to show prices inside the calendar).
+
+// Lowest recent fare for each day of a month (calendar prices and the 15-day lowest-fare strip).
 async function calendar(q) {
   const origin = (q.get('origin') || '').toUpperCase(), dest = (q.get('destination') || '').toUpperCase();
   const month = q.get('month') || '', cur = (q.get('currency') || 'usd').toLowerCase();
   if (!/^[A-Z]{3}$/.test(origin) || !/^[A-Z]{3}$/.test(dest) || origin === dest || !/^\d{4}-\d{2}$/.test(month) || !/^[a-z]{3}$/.test(cur)) return { code: 400, body: { error: 'Invalid request.' } };
-  if (!TOKEN) return { code: 200, body: { currency: cur, prices: {} } };
-  const p = new URLSearchParams({ origin, destination: dest, depart_date: month, calendar_type: 'departure_date', currency: cur });
+  const R = await getRates(), toRate = R.r[cur.toUpperCase()], target = toRate ? cur : 'usd', mul = toRate || 1;
+  if (!TOKEN) return { code: 200, body: { currency: target, prices: {} } };
+  const p = new URLSearchParams({ origin, destination: dest, depart_date: month, calendar_type: 'departure_date', currency: 'usd' });
   const key = 'cal|' + p.toString();
   let v = cache.get(key);
   if (!v || Date.now() - v.t > 1800000) {
     try {
       const r = await fetch(BASE + '/v1/prices/calendar?' + p.toString(), { headers: { 'X-Access-Token': TOKEN } });
-      if (!r.ok) return { code: 200, body: { currency: cur, prices: {} } };
+      if (!r.ok) return { code: 200, body: { currency: target, prices: {} } };
       const j = await r.json(), prices = {}, d = j && j.data;
       if (d && typeof d === 'object') {
         for (const k of Object.keys(d)) {
           const e = d[k];
           const day = String(/^\d{4}-\d{2}-\d{2}/.test(k) ? k : (e && (e.departure_at || e.depart_date)) || '').slice(0, 10);
           const pr = typeof e === 'number' ? e : (e && (e.price || e.value));
-          if (/^\d{4}-\d{2}-\d{2}$/.test(day) && pr > 0) prices[day] = Math.round(pr);
+          if (/^\d{4}-\d{2}-\d{2}$/.test(day) && pr > 0) prices[day] = pr;
         }
       }
       v = { t: Date.now(), prices }; cache.set(key, v);
-    } catch (e) { return { code: 200, body: { currency: cur, prices: {} } }; }
+    } catch (e) { return { code: 200, body: { currency: target, prices: {} } }; }
   }
-  return { code: 200, body: { currency: cur, prices: v.prices } };
+  const prices = {};
+  for (const k of Object.keys(v.prices)) prices[k] = Math.round(v.prices[k] * mul);
+  return { code: 200, body: { currency: target, prices, converted: mul !== 1, rates: R.live ? 'live' : 'approximate' } };
 }
 http.createServer(async (req, res) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
