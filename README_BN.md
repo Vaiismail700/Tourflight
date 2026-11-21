@@ -38,3 +38,13 @@
 - Terms & Conditions, Privacy Policy, About পেজ ও ফুটার।
 - terms.html ও privacy.html-এ [বন্ধনীর ভেতরের] অংশগুলো (নাম, দেশ, ইমেইল, তারিখ) নিজের তথ্য দিয়ে বদলে নিন, এবং একজন আইনজ্ঞকে দিয়ে দেখিয়ে নিন।
 - GitHub-এ ফাইল বদলাতে: Add file > Upload files দিয়ে একই নামের ফাইল আপলোড করলে পুরনোটি বদলে যায়। নতুন html ফাইলগুলো public ফোল্ডারের ভেতরে ঢুকে আপলোড করুন।
+
+
+## আপডেট (v3): Flight comparison ও search fixes
+- একই itinerary-র একাধিক agency offer একত্র করে আলাদা Compare Offers পেজে দেখানো হয়; agency-র সর্বনিম্ন দাম আগে থাকে।
+- Agency-র provider-supplied booking link `/out` দিয়ে Aviasales-এ redirect হয়।
+- Currency conversion ব্যর্থ হলে নীরবে অন্য currency দেখানো হয় না; নির্বাচিত currency সমর্থিত না হলে স্পষ্ট error দেখায়।
+- Flight result নির্বাচিত exact date বা selected month-এর বাইরে হলে বাদ যায়; return date outbound-এর আগে হলে বাদ যায়।
+- Cheapest across the whole month checkbox ডিফল্টে checked থাকে; ব্যবহারকারী নিজে uncheck না করা পর্যন্ত checked থাকে। এটি checked থাকলে নির্বাচিত মাসের যেকোনো দিন থেকে ফ্লাইট দেখাতে পারে; exact date চাইলে uncheck করতে হবে।
+- Travelpayouts-এর এই endpoint recent-search/indicative fares দেয়; বুকিংয়ের আগে agency site-এ final price ও availability নিশ্চিত করতে হবে। এখানে live price recheck আছে বলে দাবি করা হয়নি।
+- Cabin-specific business fare provider থেকে নিশ্চিত না হলে ফলাফলে সতর্কবার্তা দেখানো হয়।

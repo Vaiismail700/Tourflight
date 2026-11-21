@@ -65,12 +65,25 @@ async function flights(q) {
   const R = await getRates();
   const fromRate = v.currency === 'usd' ? 1 : R.r[v.currency.toUpperCase()];
   const toRate = R.r[cur.toUpperCase()];
-  const target = fromRate ? (toRate ? cur : 'usd') : v.currency;
-  const mul = fromRate ? (toRate || 1) / fromRate : 1;
-  // Only direct and 1-stop itineraries are shown.
-  const out = v.data.filter(f => typeof f.transfers !== 'number' || f.transfers <= 1)
-    .map(f => Object.assign({}, f, { price: Math.round(f.price * mul), airline_name: NAMES[f.airline] || f.airline || '' }));
-  return { code: 200, body: { currency: target, requested: cur, converted: mul !== 1, rates: R.live ? 'live' : 'approximate', data: out } };
+  // Never silently show a different currency from the one the traveller selected.
+  if (!fromRate || !toRate) return { code: 400, body: { error: 'The selected currency is not supported. Please choose another currency.', requested: cur } };
+  const mul = toRate / fromRate;
+  const monthOrDateMatches = (value, requested) => {
+    if (!requested) return true;
+    const actual = String(value || '').slice(0, 10);
+    return requested.length === 7 ? actual.slice(0, 7) === requested : actual === requested;
+  };
+  // Keep results inside the selected outbound/return date or month and reject impossible return dates.
+  const out = v.data.filter(f => {
+    if (typeof f.transfers === 'number' && f.transfers > 1) return false;
+    if (!monthOrDateMatches(f.departure_at, dep)) return false;
+    if (ret && (!monthOrDateMatches(f.return_at, ret) || String(f.return_at || '').slice(0, 10) < String(f.departure_at || '').slice(0, 10))) return false;
+    return true;
+  }).map(f => Object.assign({}, f, {
+    price: Math.round(Number(f.price) * mul),
+    airline_name: NAMES[f.airline] || f.airline || ''
+  }));
+  return { code: 200, body: { currency: cur, requested: cur, converted: v.currency !== cur, rates: R.live ? 'live' : 'approximate', data: out } };
 }
 
 // Lowest recent fare for each day of a month (calendar prices and the 15-day lowest-fare strip).
@@ -78,7 +91,9 @@ async function calendar(q) {
   const origin = (q.get('origin') || '').toUpperCase(), dest = (q.get('destination') || '').toUpperCase();
   const month = q.get('month') || '', cur = (q.get('currency') || 'usd').toLowerCase();
   if (!/^[A-Z]{3}$/.test(origin) || !/^[A-Z]{3}$/.test(dest) || origin === dest || !/^\d{4}-\d{2}$/.test(month) || !/^[a-z]{3}$/.test(cur)) return { code: 400, body: { error: 'Invalid request.' } };
-  const R = await getRates(), toRate = R.r[cur.toUpperCase()], target = toRate ? cur : 'usd', mul = toRate || 1;
+  const R = await getRates(), toRate = R.r[cur.toUpperCase()];
+  if (!toRate) return { code: 400, body: { error: 'The selected currency is not supported.', requested: cur } };
+  const target = cur, mul = toRate;
   if (!TOKEN) return { code: 200, body: { currency: target, prices: {} } };
   const p = new URLSearchParams({ origin, destination: dest, depart_date: month, calendar_type: 'departure_date', currency: 'usd' });
   const key = 'cal|' + p.toString();
