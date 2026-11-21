@@ -327,7 +327,7 @@ var h='<button type="button" class="sm" data-offer-back="1">← Back to flight r
 h+='<h2>'+esc(f.airline_name||f.airline||'Flight')+' · '+esc(f.airline||'')+' '+esc(f.flight_number||'')+'</h2>';
 h+='<div class="m" style="margin-bottom:12px"><b>'+esc(q.f)+' → '+esc(q.t)+'</b><div class="s">'+esc(shortDate(String(f.departure_at||'').slice(0,10)))+(f.return_at?' · Return '+esc(shortDate(String(f.return_at).slice(0,10))):' · One way')+'</div><div class="s">Compare prices from the agencies returned by the current provider. Final fare and availability must be confirmed on the agency website.</div></div>';
 h+='<h3 style="margin:12px 0 8px">Agency offers ('+offers.length+')</h3>';
-offers.forEach(function(o){var link=o.link?'/out?link='+encodeURIComponent(o.link):'';
+offers.forEach(function(o){var link=/^https?:\/\//i.test(String(o.link||''))?String(o.link):'';
 h+='<div class="c"><div style="display:flex;align-items:center;gap:10px">'+agencyLogo(o.gate||'Travel agency')+'<div><b>'+esc(o.gate||'Travel agency')+'</b><div class="s">'+esc(o.airline_name||o.airline||'Airline')+' · '+esc(o.flight_number||'')+'</div></div></div><div class="pc"><div class="pr">'+sym+fmtN(o.price)+'</div>'+(link?'<a class="bk" href="'+esc(link)+'" target="_blank" rel="noopener">Book Now</a>':'<span class="s">Booking link unavailable</span>')+'</div></div>'});
 $('res').innerHTML=h;
 }
