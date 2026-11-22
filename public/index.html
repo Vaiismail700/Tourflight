@@ -3,7 +3,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Tourflight – Explore · Compare · Fly</title>
 <meta name="description" content="Search and compare flights. Tourflight never takes payments; you book on the partner site.">
-<script>(function(){var t=null;try{t=localStorage.getItem('tf-theme')}catch(e){}if(t!=='light'&&t!=='dark')t=(window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';document.documentElement.setAttribute('data-theme',t)})()</script>
+<script>(function(){var h=new Date().getHours(),t=(h>=6&&h<18)?'light':'dark';try{var o=JSON.parse(localStorage.getItem('tf-theme-v2')||'null');if(o&&o.p===t&&(o.t==='light'||o.t==='dark'))t=o.t}catch(e){}document.documentElement.setAttribute('data-theme',t)})()</script>
 <style>
 :root{--ink:#0a2a5e;--blue:#1458c7;--link:#1458c7;--sun:#ff7a00;--line:#d9e1ea;--muted:#5d6f85;--bg:#f2f5f9;--card:#fff;--field:#f3f6fb;--fb:#bccadc;--hb:#8fa6c4;--hov:#eef4ff;--hov2:#dbe8ff;--rng:#e6efff;--dis:#c3ccd8;--grn:#12805c;--grnbg:#e8f6ef;--grnbg2:#f2fbf6;--lbl:#33507a;--line2:#eef2f6;--tip:#0a2a5e;--ft:#0a2a5e;--h1:#0a2a5e;--h2:#1458c7;color-scheme:light}
 :root[data-theme=dark]{--ink:#e6edf7;--blue:#2f6fdc;--link:#7db0ff;--line:#2a3a52;--muted:#9bacc2;--bg:#0d1420;--card:#162131;--field:#1b2a3e;--fb:#3a4d68;--hb:#5d7597;--hov:#1f3350;--hov2:#2a4268;--rng:#1d3558;--dis:#4a5a72;--grn:#3ecf94;--grnbg:#12352a;--grnbg2:#0f2a22;--lbl:#a9bddb;--line2:#243348;--tip:#2b3a55;--ft:#0a0f19;--h1:#0b1a38;--h2:#143e86;color-scheme:dark}
@@ -179,7 +179,7 @@ html,body{max-width:100%;overflow-x:clip}
 <div class="top"><div class="tabs" id="tabs"><button class="t" data-t="oneway" aria-pressed="false">One way</button><button class="t" data-t="round" aria-pressed="true">Round trip</button><button class="t" data-t="multi" aria-pressed="false">Multi-city</button></div><div class="opts"><details class="pax" id="pxd"><summary id="pxs">1 Adult</summary><div class="paxbox"><div class="pr2"><div>Adults<small>12+ years</small></div><div class="stp"><button type="button" aria-label="Fewer Adults" onclick="chg('a',-1)">−</button><b id="na">1</b><button type="button" aria-label="More Adults" onclick="chg('a',1)">+</button></div></div><div class="pr2"><div>Children<small>2–11 years</small></div><div class="stp"><button type="button" aria-label="Fewer Children" onclick="chg('c',-1)">−</button><b id="nc">0</b><button type="button" aria-label="More Children" onclick="chg('c',1)">+</button></div></div><div class="pr2"><div>Infants<small>Under 2 years</small></div><div class="stp"><button type="button" aria-label="Fewer Infants" onclick="chg('i',-1)">−</button><b id="ni">0</b><button type="button" aria-label="More Infants" onclick="chg('i',1)">+</button></div></div></div></details><select id="cabin" aria-label="Cabin class"><option value="economy">Economy</option><option value="business">Business</option></select></div></div>
 <div id="legs"></div>
 <div class="g"><div><label for="cyv">Currency (type to search)</label><div class="acw"><input type="hidden" id="cy" value="bdt"><input id="cyv" autocomplete="off" spellcheck="false" placeholder="Search currency"><div class="sug" id="cys" role="listbox"></div></div></div>
-<div style="align-self:end"><label style="display:flex;gap:8px;align-items:center;margin:0 0 8px"><input type="checkbox" id="mo" style="width:auto" checked> Cheapest across the whole month (flexible dates)</label><div class="s" style="margin-top:-5px">On by default. Untick to search only the exact dates selected.</div></div></div>
+<div style="align-self:end"><label style="display:flex;gap:8px;align-items:center;margin:0 0 8px"><input type="checkbox" id="mo" style="width:auto"> Flexible dates: show the cheapest across the whole month</label><div class="s" style="margin-top:-5px">Off by default, so results match the exact dates you select. Tick to see other dates in the month.</div></div></div>
 <button class="go" id="go">Search flights</button>
 <div class="tr">Tourflight never takes payments or card details. You book on the partner site. Prices come from recent searches and may have changed.</div>
 </div><main id="res"></main></div></div>
@@ -394,10 +394,12 @@ var sym=symOf(j.currency||$('cy').value);
 if(biz)h+='<div class="m" style="margin-bottom:10px">The current price source does not confirm cabin-specific fares. Business-class availability and price must be checked on the booking website.</div>';
 if(j.currency!==j.requested)h+='<div class="m" style="margin-bottom:10px">The selected currency could not be applied. Please try again or choose another currency.</div>';
 var list=(j.data||[]).filter(function(f){return(sf==='any'||String(f.transfers)===sf)&&(af.indexOf(f.airline)>=0)&&tfOk(f,tf)});
+if(!q.mo){list=list.filter(function(f){var dd=String(f.departure_at||'').slice(0,10);if(dd&&q.d0&&dd!==q.d0)return false;if(q.r0){var rr=String(f.return_at||'').slice(0,10);if(rr&&rr!==q.r0)return false}return true})}
 var grouped={};list.forEach(function(f){var k=flightKey(f);if(!grouped[k])grouped[k]={key:k,q:q,flight:f,offers:[],currency:j.currency};grouped[k].offers.push(f)});
 var groups=Object.keys(grouped).map(function(k){var g=grouped[k],byAgency={};g.offers.forEach(function(o){var agency=String(o.gate||'Travel agency');if(!byAgency[agency]||Number(o.price)<Number(byAgency[agency].price))byAgency[agency]=o});g.offers=Object.keys(byAgency).map(function(a){return byAgency[a]});g.best=g.offers.reduce(function(a,b){return !a||Number(b.price)<Number(a.price)?b:a},null);return g});
 groups.sort(function(a,b){return so==='price'?Number(a.best.price)-Number(b.best.price):so==='dur'?(a.flight.duration_to||a.flight.duration||0)-(b.flight.duration_to||b.flight.duration||0):String(a.flight.departure_at).localeCompare(String(b.flight.departure_at))});
-if(!groups.length)h+='<div class="m">No recent prices found for these filters and selected date range. Try another date, or change the filters.</div>';
+if(!groups.length)h+='<div class="m">'+(q.mo?'No recent prices found for these filters and selected date range. Try another date, or change the filters.':'No recent prices found for exactly these dates. Pick a cheaper nearby day from the dates above, tick flexible dates, or change the filters.')+'</div>';
+if(q.mo&&groups.length)h+='<div class="s" style="margin-bottom:8px">Flexible dates is on: the flights below can be from any day in the month, not only the dates you picked.</div>';
 groups.forEach(function(g){var f=g.flight,rtrip=!!f.return_at,d=f.duration_to||(rtrip?0:f.duration),db=f.duration_back||0,fm=function(m){return m>0?Math.floor(m/60)+'h '+m%60+'m':''},oc=f.origin_airport||f.origin||q.f,dc=f.destination_airport||f.destination||q.t;
 var key='g'+Object.keys(visibleGroups).length;visibleGroups[key]=g;
 var lay=f.layovers&&f.layovers.length?f.layovers.map(function(l){return Math.floor(l.minutes/60)+'h '+l.minutes%60+'m in '+(AP[l.airport]?AP[l.airport].n+' ('+l.airport+')':l.airport)}).join(', '):'';
@@ -435,8 +437,8 @@ if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();i=e.key==='ArrowDo
 else if(e.key==='Enter'&&its.length){e.preventDefault();cyPick(its[i>=0?i:0].dataset.c)}else if(e.key==='Escape'){box.classList.remove('on');cyUi()}});
 document.addEventListener('pointerdown',function(e){if(!e.target.closest('.acw'))cyUi()});
 cyUi();
-// Flexible whole-month search is ON by default; it stays on until the traveller unticks it.
-$('mo').checked=true;
+// Exact-date search is the default; flexible whole-month search only when the traveller ticks it.
+$('mo').checked=false;
 // ===== ADVERTISING BANNER: edit this list to change the ads =====
 // Fields: id (any short name), tag (label shown on the ad), title, text, cta (button text),
 // url (https://..., mailto:... or a path like /about.html), img (optional, e.g. '/ads/hotel.webp', or leave '').
@@ -459,12 +461,15 @@ if(ADS.length>1&&!reduce){var start=function(){stop();timer=setInterval(function
 box.addEventListener('mouseenter',stop);box.addEventListener('mouseleave',start);box.addEventListener('focusin',stop);box.addEventListener('focusout',start);start()}}
 adInit();
 </script><script>
-(function(){var r=document.documentElement,b=document.getElementById('tg'),K='tf-theme';
-function saved(){try{return localStorage.getItem(K)}catch(e){return null}}
-function set(t,save){r.setAttribute('data-theme',t);b.querySelector('.tx').textContent=t==='dark'?'Night':'Day';b.setAttribute('aria-checked',t==='dark'?'true':'false');b.setAttribute('aria-label',t==='dark'?'Switch to light mode':'Switch to dark mode');b.title=b.getAttribute('aria-label');
-if(save){try{localStorage.setItem(K,t)}catch(e){}}}
-set(r.getAttribute('data-theme')==='dark'?'dark':'light');
-b.addEventListener('click',function(){set(r.getAttribute('data-theme')==='dark'?'light':'dark',true)});
-if(window.matchMedia){var mq=matchMedia('(prefers-color-scheme: dark)'),f=function(e){if(!saved())set(e.matches?'dark':'light')};mq.addEventListener?mq.addEventListener('change',f):mq.addListener&&mq.addListener(f)}})();
+(function(){var r=document.documentElement,b=document.getElementById('tg'),K='tf-theme-v2';
+// Day = 6:00 AM to 5:59 PM (light), night = 6:00 PM to 5:59 AM (dark), by the visitor's own clock.
+function auto(){var h=new Date().getHours();return h>=6&&h<18?'light':'dark'}
+function ovr(){try{var o=JSON.parse(localStorage.getItem(K)||'null');if(o&&o.p===auto()&&(o.t==='light'||o.t==='dark'))return o.t}catch(e){}return null}
+function set(t){r.setAttribute('data-theme',t);b.querySelector('.tx').textContent=t==='dark'?'Night':'Day';b.setAttribute('aria-checked',t==='dark'?'true':'false');
+b.setAttribute('aria-label',t==='dark'?'Switch to light mode':'Switch to dark mode');b.title=b.getAttribute('aria-label')}
+set(ovr()||auto());
+b.addEventListener('click',function(){var n=r.getAttribute('data-theme')==='dark'?'light':'dark';set(n);try{localStorage.setItem(K,JSON.stringify({t:n,p:auto()}))}catch(e){}});
+setInterval(function(){set(ovr()||auto())},60000);
+document.addEventListener('visibilitychange',function(){if(!document.hidden)set(ovr()||auto())});})();
 </script><script src="/cookies.js" defer></script>
 </body></html>
