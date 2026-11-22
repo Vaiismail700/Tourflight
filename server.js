@@ -68,12 +68,12 @@ const NAMES = {
   "FZ": "flydubai", "G9": "Air Arabia", "SV": "Saudia",
   "XY": "flynas", "F3": "flyadeal", "GF": "Gulf Air",
   "WY": "Oman Air", "KU": "Kuwait Airways", "RJ": "Royal Jordanian",
-  "ME": "Middle East Airlines", "BG": "Biman Bangladesh Airlines",
-  "BS": "US-Bangla Airlines", "VQ": "Novoair", "AI": "Air India",
-  "6E": "IndiGo", "UK": "Vistara", "SG": "SpiceJet", "AK": "AirAsia",
-  "MH": "Malaysia Airlines", "SQ": "Singapore Airlines", "TG": "Thai Airways",
-  "CX": "Cathay Pacific", "TK": "Turkish Airlines", "BA": "British Airways",
-  "AF": "Air France", "KL": "KLM", "LH": "Lufthansa", "LX": "SWISS"
+  "ME": "Middle East Airlines", "MS": "EgyptAir", "TK": "Turkish Airlines",
+  "BG": "Biman Bangladesh Airlines", "BS": "US-Bangla Airlines",
+  "VQ": "Novoair", "AI": "Air India", "6E": "IndiGo",
+  "UK": "Air India Express", "BA": "British Airways", "LH": "Lufthansa",
+  "AF": "Air France", "KL": "KLM", "SQ": "Singapore Airlines",
+  "MH": "Malaysia Airlines", "TG": "Thai Airways", "CX": "Cathay Pacific"
 };
 
 (async () => {
@@ -101,8 +101,7 @@ const FALLBACK = {
   PKR: 280, LKR: 300, NPR: 134, IDR: 15800, PHP: 57,
   VND: 25000, JPY: 150, CNY: 7.2, KRW: 1350, HKD: 7.8,
   AUD: 1.52, CAD: 1.37, NZD: 1.65, CHF: 0.88,
-  TRY: 34, EGP: 49, ZAR: 18, NGN: 1600, RUB: 95,
-  BRL: 5.5, MXN: 18
+  TRY: 34, EGP: 49
 };
 
 const md5 = x => crypto.createHash('md5').update(x).digest('hex');
@@ -159,23 +158,179 @@ function tpHeaders(ip, body) {
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 async function getRates() {
-  const key = 'fx_rates';
-  const hit = cache.get(key);
-  if (hit && Date.now() - hit.t < 3600000) return hit.v;
+  const c = cache.get('rates');
+  if (c && Date.now() - c.t < 3600000) return c.v;
   try {
-    const r = await tp('https://open.er-api.com/v6/latest/USD', {}, 8000);
-    if (r.ok && r.json && r.json.rates && typeof r.json.rates === 'object') {
-      const merged = Object.assign({}, FALLBACK, r.json.rates);
-      const val = { t: Date.now(), r: merged };
-      cache.set(key, val);
-      return val;
+    const r = await fetch('https://open.er-api.com/v6/latest/USD');
+    if (r.ok) {
+      const j = await r.json();
+      if (j && j.rates && j.rates.USD) {
+        const v = { r: j.rates, live: true };
+        cache.set('rates', { t: Date.now(), v });
+        return v;
+      }
     }
-  } catch (e) {
-    if (DEBUG) console.log('FX error:', e.message);
+  } catch (e) {}
+  return { r: FALLBACK, live: false };
+}
+
+function convertPrice(amount, fromCur, toCur, ratesObj) {
+  const n = Number(amount);
+  if (!Number.isFinite(n) || n <= 0) return 0;
+  const f = String(fromCur || 'USD').toUpperCase();
+  const t = String(toCur || 'USD').toUpperCase();
+  if (f === t) return n;
+  const r = ratesObj.r || FALLBACK;
+  const rf = r[f];
+  const rt = r[t];
+  if (!rf || !rt) return n;
+  return (n / rf) * rt;
+}
+
+function linkOf(origin, dest, date, ret) {
+  const p = new URLSearchParams({
+    origin_iata: origin,
+    destination_iata: dest,
+    depart_date: date
+  });
+  if (ret) p.set('return_date', ret);
+  if (MARKER) p.set('marker', MARKER);
+  return 'https://www.aviasales.com/search?' + p.toString();
+}
+
+function normPriceItem(item, origin, dest, retDate, cur, ratesObj) {
+  const carrier = String(item.airline || item.carrier || '').toUpperCase();
+  const rawPrice = Number(item.price != null ? item.price : item.value);
+  const srcCur = String(item.currency || 'USD').toUpperCase();
+  const price = Math.round(convertPrice(rawPrice, srcCur, cur, ratesObj));
+  const dep = String(item.departure_at || item.depart_date || '').replace(' ', 'T');
+  const ret = String(item.return_at || item.return_date || retDate || '').replace(' ', 'T');
+  const transfers = typeof item.transfers === 'number'
+    ? item.transfers
+    : (typeof item.number_of_changes === 'number' ? item.number_of_changes : 0);
+
+  return {
+    id: String(item.id || [carrier, origin, dest, dep, price].join('-')),
+    airline: carrier,
+    airline_name: NAMES[carrier] || item.airline_name || carrier || 'Airline',
+    flight_number: item.flight_number || '',
+    origin,
+    destination: dest,
+    origin_airport: item.origin_airport || origin,
+    destination_airport: item.destination_airport || dest,
+    departure_at: dep,
+    return_at: ret || '',
+    duration: Number(item.duration || 0),
+    duration_to: Number(item.duration_to || item.duration || 0),
+    duration_back: Number(item.duration_back || 0),
+    transfers,
+    return_transfers: typeof item.return_transfers === 'number' ? item.return_transfers : 0,
+    price,
+    currency: cur.toLowerCase(),
+    gate: item.gate || 'Aviasales',
+    link: item.link || linkOf(origin, dest, dep.slice(0, 10), ret ? ret.slice(0, 10) : '')
+  };
+}
+
+async function calendar(q) {
+  const origin = (q.get('origin') || '').toUpperCase();
+  const dest = (q.get('destination') || '').toUpperCase();
+  const month = (q.get('month') || '').slice(0, 7);
+  const cur = (q.get('currency') || 'usd').toLowerCase();
+
+  if (!/^[A-Z]{3}$/.test(origin) || !/^[A-Z]{3}$/.test(dest) || origin === dest || !/^\d{4}-\d{2}$/.test(month) || !/^[a-z]{3}$/.test(cur)) {
+    return { code: 400, body: { error: 'Invalid calendar request.' } };
   }
-  const fb = { t: Date.now(), r: FALLBACK };
-  cache.set(key, fb);
-  return fb;
+  if (!TOKEN) {
+    return { code: 200, body: { currency: cur, prices: {} } };
+  }
+
+  const ck = ['cal', origin, dest, month, cur].join('|');
+  const hit = cache.get(ck);
+  if (hit && Date.now() - hit.t < 900000) return { code: 200, body: hit.v };
+
+  const ratesObj = await getRates();
+  const u = BASE + '/v1/prices/calendar?origin=' + encodeURIComponent(origin)
+    + '&destination=' + encodeURIComponent(dest)
+    + '&month=' + encodeURIComponent(month + '-01')
+    + '&currency=USD&token=' + encodeURIComponent(TOKEN);
+
+  const r = await tp(u, {}, 12000);
+  const prices = {};
+  if (r.ok && r.json && r.json.data && typeof r.json.data === 'object') {
+    Object.keys(r.json.data).forEach(dateStr => {
+      const it = r.json.data[dateStr];
+      const raw = it && (it.price != null ? it.price : it.value);
+      if (Number(raw) > 0 && dateStr.startsWith(month)) {
+        prices[dateStr] = Math.round(convertPrice(raw, 'USD', cur, ratesObj));
+      }
+    });
+  }
+
+  const body = { currency: cur, prices };
+  cache.set(ck, { t: Date.now(), v: body });
+  return { code: 200, body };
+}
+
+async function flights(q) {
+  const origin = (q.get('origin') || '').toUpperCase();
+  const dest = (q.get('destination') || '').toUpperCase();
+  const date = (q.get('date') || q.get('depart_date') || '').trim();
+  const ret = (q.get('return') || '').trim();
+  const cur = (q.get('currency') || 'usd').toLowerCase();
+
+  if (!/^[A-Z]{3}$/.test(origin) || !/^[A-Z]{3}$/.test(dest) || origin === dest || !/^\d{4}-\d{2}(-\d{2})?$/.test(date) || !/^[a-z]{3}$/.test(cur)) {
+    return { code: 400, body: { error: 'Invalid flight search request.', data: [] } };
+  }
+  if (!TOKEN) {
+    return { code: 200, body: { error: 'TP_TOKEN is not configured on the server.', currency: cur, data: [] } };
+  }
+
+  const ck = ['fl', origin, dest, date, ret, cur].join('|');
+  const hit = cache.get(ck);
+  if (hit && Date.now() - hit.t < 600000) return { code: 200, body: hit.v };
+
+  const ratesObj = await getRates();
+  const ep = date.length === 7 ? '/v2/prices/month-matrix' : '/v1/prices/cheap';
+  const params = new URLSearchParams({
+    origin,
+    destination: dest,
+    currency: 'USD',
+    token: TOKEN
+  });
+  if (date.length === 7) {
+    params.set('month', date + '-01');
+  } else {
+    params.set('depart_date', date);
+    if (ret) params.set('return_date', ret);
+  }
+
+  const r = await tp(BASE + ep + '?' + params.toString(), {}, 12000);
+  const rawList = [];
+  if (r.ok && r.json && r.json.data && typeof r.json.data === 'object') {
+    if (Array.isArray(r.json.data)) {
+      r.json.data.forEach(item => rawList.push(item));
+    } else {
+      Object.keys(r.json.data).forEach(k => {
+        const bucket = r.json.data[k];
+        if (bucket && typeof bucket === 'object') {
+          Object.keys(bucket).forEach(subKey => {
+            const it = Object.assign({}, bucket[subKey]);
+            if (!it.departure_at && /^\d{4}-\d{2}-\d{2}$/.test(k)) it.departure_at = k;
+            rawList.push(it);
+          });
+        }
+      });
+    }
+  }
+
+  const data = rawList
+    .filter(it => it && (Number(it.price) > 0 || Number(it.value) > 0))
+    .map(it => normPriceItem(it, origin, dest, ret, cur, ratesObj));
+
+  const body = { currency: cur, requested: cur, data };
+  cache.set(ck, { t: Date.now(), v: body });
+  return { code: 200, body };
 }
 
 function legOf(l) {
@@ -296,132 +451,6 @@ function agentName(id, agents) {
   return typeof a === 'string' ? a.trim() : '';
 }
 
-async function calendar(q) {
-  const origin = (q.get('origin') || '').toUpperCase();
-  const dest = (q.get('destination') || '').toUpperCase();
-  const month = (q.get('month') || '').slice(0, 7);
-  const cur = (q.get('currency') || 'usd').toLowerCase();
-
-  if (!/^[A-Z]{3}$/.test(origin) || !/^[A-Z]{3}$/.test(dest) || origin === dest || !/^\d{4}-\d{2}$/.test(month) || !/^[a-z]{3}$/.test(cur)) {
-    return { code: 400, body: { error: 'Invalid calendar query.' } };
-  }
-
-  const R = await getRates();
-  const toRate = R.r[cur.toUpperCase()];
-  if (!toRate) {
-    return { code: 400, body: { error: 'The selected currency is not supported.' } };
-  }
-
-  const cacheKey = 'cal:' + origin + ':' + dest + ':' + month;
-  let rawData = null;
-  const hit = cache.get(cacheKey);
-  if (hit && Date.now() - hit.t < 900000) {
-    rawData = hit.v;
-  } else if (TOKEN) {
-    const u = BASE + '/v1/prices/calendar?origin=' + encodeURIComponent(origin) +
-      '&destination=' + encodeURIComponent(dest) +
-      '&depart_date=' + encodeURIComponent(month + '-01') +
-      '&calendar_type=departure&currency=USD&token=' + encodeURIComponent(TOKEN);
-    const r = await tp(u, {}, 12000);
-    if (r.ok && r.json && r.json.data && typeof r.json.data === 'object') {
-      rawData = r.json.data;
-      cache.set(cacheKey, { t: Date.now(), v: rawData });
-    }
-  }
-
-  const prices = {};
-  if (rawData) {
-    Object.keys(rawData).forEach(day => {
-      if (day.startsWith(month)) {
-        const item = rawData[day];
-        const usdPrice = Number(item && item.price);
-        if (Number.isFinite(usdPrice) && usdPrice > 0) {
-          prices[day] = Math.round(usdPrice * toRate);
-        }
-      }
-    });
-  }
-
-  return { code: 200, body: { currency: cur, prices } };
-}
-
-async function flights(q) {
-  const origin = (q.get('origin') || '').toUpperCase();
-  const dest = (q.get('destination') || '').toUpperCase();
-  const date = (q.get('date') || q.get('depart_date') || '').trim();
-  const ret = (q.get('return') || '').trim();
-  const reqCur = (q.get('currency') || 'usd').toLowerCase();
-
-  if (!/^[A-Z]{3}$/.test(origin) || !/^[A-Z]{3}$/.test(dest) || origin === dest || !/^[a-z]{3}$/.test(reqCur)) {
-    return { code: 400, body: { error: 'Invalid search parameters.' } };
-  }
-
-  const R = await getRates();
-  const toRate = R.r[reqCur.toUpperCase()];
-  if (!toRate) {
-    return { code: 400, body: { error: 'The selected currency is not supported.', requested: reqCur, currency: 'usd' } };
-  }
-
-  const cacheKey = 'flt:' + origin + ':' + dest + ':' + date + ':' + ret;
-  let items = null;
-  const hit = cache.get(cacheKey);
-  if (hit && Date.now() - hit.t < 600000) {
-    items = hit.v;
-  } else if (TOKEN) {
-    const params = new URLSearchParams({
-      origin,
-      destination: dest,
-      currency: 'USD',
-      token: TOKEN
-    });
-    if (date) params.set('depart_date', date);
-    if (ret) params.set('return_date', ret);
-    const r = await tp(BASE + '/v1/prices/cheap?' + params.toString(), {}, 12000);
-    if (r.ok && r.json && r.json.data && r.json.data[dest]) {
-      const byDest = r.json.data[dest];
-      items = Object.keys(byDest).map(k => Object.assign({ _slot: k }, byDest[k]));
-      cache.set(cacheKey, { t: Date.now(), v: items });
-    }
-  }
-
-  const out = (items || []).map((it, idx) => {
-    const code = String(it.airline || '').toUpperCase();
-    const usdPrice = Number(it.price || 0);
-    const converted = Number.isFinite(usdPrice) && usdPrice > 0 ? Math.round(usdPrice * toRate) : 0;
-    const rawLink = it.link || '';
-    const link = rawLink
-      ? (rawLink.startsWith('/') ? '/out?link=' + encodeURIComponent(rawLink) + '&src=site1' : rawLink)
-      : '';
-    return {
-      id: String(idx),
-      airline: code,
-      airline_name: NAMES[code] || code || 'Airline',
-      flight_number: it.flight_number || '',
-      origin,
-      destination: dest,
-      departure_at: it.departure_at || (date.length === 10 ? date + 'T00:00:00' : ''),
-      return_at: it.return_at || (ret.length === 10 ? ret + 'T00:00:00' : ''),
-      duration: it.duration || 0,
-      duration_to: it.duration || 0,
-      duration_back: 0,
-      transfers: typeof it.transfers === 'number' ? it.transfers : 0,
-      price: converted,
-      currency: reqCur,
-      gate: it.gate || 'Aviasales',
-      link
-    };
-  }).filter(f => f.price > 0);
-
-  return {
-    code: 200,
-    body: {
-      currency: reqCur,
-      requested: reqCur,
-      data: out
-    }
-  };
-}
-
 async function offers(q, ip) {
   const origin = (q.get('origin') || '').toUpperCase();
   const dest = (q.get('destination') || '').toUpperCase();
@@ -474,21 +503,19 @@ async function offers(q, ip) {
   }
 
   const matched = [];
-  for (const t of (c.tickets || [])) {
-    const firstLeg = t.segs && t.segs[0] && t.segs[0][0];
+  for (const tk of (c.tickets || [])) {
+    const firstLeg = tk.segs && tk.segs[0] && tk.segs[0][0];
     if (airline && firstLeg && firstLeg.carrier && firstLeg.carrier !== airline) continue;
     if (dep && firstLeg && firstLeg.dep && firstLeg.dep !== dep) continue;
 
-    for (const p of (t.proposals || [])) {
-      const agent = agentName(p.agent_id, c.agents) || 'Travel Partner';
-      const price = Math.round(p.price * toRate);
-      if (price > 0) {
+    for (const p of (tk.proposals || [])) {
+      const converted = Math.round(convertPrice(p.price, 'USD', cur, R));
+      if (converted > 0) {
         matched.push({
-          id: p.id,
+          agent: agentName(p.agent_id, c.agents) || 'Travel Partner',
+          price: converted,
           search_id: c.search_id,
-          agent,
-          price,
-          currency: cur
+          id: p.id
         });
       }
     }
@@ -500,7 +527,7 @@ async function offers(q, ip) {
     body: {
       live: matched.length > 0,
       currency: cur,
-      offers: matched.slice(0, 20)
+      offers: matched.slice(0, 15)
     }
   };
 }
