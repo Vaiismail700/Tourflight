@@ -138,6 +138,17 @@ html,body{max-width:100%;overflow-x:clip}
 }
 @media(hover:none){.arw{display:none}.sw{grid-template-columns:minmax(0,1fr)}.chips{max-width:calc(100vw - 32px - 16px)}}
 @media(max-width:600px){.chip{min-width:70px}.chip small{min-height:10px;font-size:9px}}
+
+/* offers popup */
+.ovl{position:fixed;inset:0;z-index:100;background:rgba(10,30,60,.55);display:flex;align-items:center;justify-content:center;padding:16px}.ovl[hidden]{display:none}
+.ofd{background:#fff;color:var(--ink);width:100%;max-width:640px;max-height:88vh;display:flex;flex-direction:column;border-radius:16px;box-shadow:0 20px 50px rgba(0,0,0,.35);overflow:hidden}
+.ofh{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding:14px 14px 10px;border-bottom:1px solid var(--line)}.ofh h3{margin:0;font-size:17px;line-height:1.3}
+.ofx{flex:none;width:38px;height:38px;border-radius:50%;border:1.5px solid #bccadc;background:#fff;color:var(--ink);font-size:18px;line-height:1;cursor:pointer;padding:0}.ofx:hover{background:#eef4ff}
+.ofb{overflow:auto;padding:12px 14px 16px;-webkit-overflow-scrolling:touch}
+.ofr{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-top:8px}.ofr.lo{border-color:#12805c;background:#f2fbf6}
+.ofr .l{display:flex;align-items:center;gap:10px;min-width:0}.ofr .l b{overflow-wrap:anywhere}.ofr .bk{margin-top:0}
+.fcard{cursor:pointer}.fcard:hover{border-color:#8fa6c4}.fcard:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+@media(max-width:600px){.ovl{align-items:flex-end;padding:0}.ofd{max-width:none;border-radius:16px 16px 0 0;max-height:92vh}.ofr .bk{width:100%;text-align:center}}
 </style></head><body>
 <header><div class="w hr"><img src="/logo.png" alt="Tourflight" onerror="this.style.display='none'"><div><h1>Explore · Compare · Fly</h1><div>Find the lowest fares from recent traveller searches.</div></div></div><div class="w"><div class="ad" id="ad" aria-label="Advertisement"></div></div></header>
 <div class="page" id="lay"><aside id="fl"><details id="fd" open><summary><span>☰ Filters &amp; sort<span class="fcnt" id="fcnt"></span></span><span class="chev">▾</span></summary><div class="fbody">
@@ -149,13 +160,14 @@ html,body{max-width:100%;overflow-x:clip}
 <div class="top"><div class="tabs" id="tabs"><button class="t" data-t="oneway" aria-pressed="false">One way</button><button class="t" data-t="round" aria-pressed="true">Round trip</button><button class="t" data-t="multi" aria-pressed="false">Multi-city</button></div><div class="opts"><details class="pax" id="pxd"><summary id="pxs">1 Adult</summary><div class="paxbox"><div class="pr2"><div>Adults<small>12+ years</small></div><div class="stp"><button type="button" aria-label="Fewer Adults" onclick="chg('a',-1)">−</button><b id="na">1</b><button type="button" aria-label="More Adults" onclick="chg('a',1)">+</button></div></div><div class="pr2"><div>Children<small>2–11 years</small></div><div class="stp"><button type="button" aria-label="Fewer Children" onclick="chg('c',-1)">−</button><b id="nc">0</b><button type="button" aria-label="More Children" onclick="chg('c',1)">+</button></div></div><div class="pr2"><div>Infants<small>Under 2 years</small></div><div class="stp"><button type="button" aria-label="Fewer Infants" onclick="chg('i',-1)">−</button><b id="ni">0</b><button type="button" aria-label="More Infants" onclick="chg('i',1)">+</button></div></div></div></details><select id="cabin" aria-label="Cabin class"><option value="economy">Economy</option><option value="business">Business</option></select></div></div>
 <div id="legs"></div>
 <div class="g"><div><label for="cyv">Currency (type to search)</label><div class="acw"><input type="hidden" id="cy" value="bdt"><input id="cyv" autocomplete="off" spellcheck="false" placeholder="Search currency"><div class="sug" id="cys" role="listbox"></div></div></div>
-<div style="align-self:end"><label style="display:flex;gap:8px;align-items:center;margin:0 0 8px"><input type="checkbox" id="mo" style="width:auto" checked> Cheapest across the whole month (flexible dates)</label><div class="s" style="margin-top:-5px">On by default. Uncheck to search only the exact dates selected.</div></div></div>
+<div style="align-self:end"><label style="display:flex;gap:8px;align-items:center;margin:0 0 8px"><input type="checkbox" id="mo" style="width:auto"> Cheapest across the whole month (flexible dates)</label><div class="s" style="margin-top:-5px">Off by default: only your exact dates are searched. Tick to see the cheapest fares across the whole month.</div></div></div>
 <button class="go" id="go">Search flights</button>
 <div class="tr">Tourflight never takes payments or card details. You book on the partner site. Prices come from recent searches and may have changed.</div>
 </div><main id="res"></main></div></div>
 <footer><div class="w"><a href="/about.html">About</a><a href="/terms.html">Terms &amp; Conditions</a><a href="/privacy.html">Privacy Policy</a>
 <p>Tourflight is a flight search and comparison service. We do not sell tickets or take payments. Prices come from third-party sources, can change at any time and must be confirmed on the booking site. Baggage rules and fare conditions are set by the airline or booking site. We may earn a commission when you book through partner links.</p>
 <p>&copy; Tourflight. All rights reserved.</p></div></footer>
+<div class="ovl" id="ofm" hidden role="dialog" aria-modal="true" aria-labelledby="oft"><div class="ofd"><div class="ofh"><h3 id="oft">Offers</h3><button type="button" class="ofx" id="ofx" aria-label="Close">\u2715</button></div><div class="ofb" id="ofb"></div></div></div>
 <script>
 var $=function(i){return document.getElementById(i)};
 function esc(t){return String(t).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
@@ -272,7 +284,7 @@ document.addEventListener('pointerdown',function(e){if(!e.target.closest('.acw')
 function addLeg(n){nleg+=n;setType('multi')}
 $('tabs').onclick=function(e){if(e.target.dataset.t)setType(e.target.dataset.t)};
 function show(h){$('res').innerHTML=h}
-function search(){var reqs=[],mo=$('mo').checked;
+function search(){closeOffers();var reqs=[],mo=$('mo').checked;
 if(type==='multi'){for(var i=0;i<nleg;i++)reqs.push({f:codeOf($('f'+i).value),t:codeOf($('t'+i).value),d:$('d'+i).value,r:''})}
 else reqs.push({f:codeOf($('f0').value),t:codeOf($('t0').value),d:$('d0').value,r:type==='round'?$('rt').value:''});
 for(var k=0;k<reqs.length;k++){var q=reqs[k];
@@ -317,22 +329,40 @@ function flightKey(f){
 return [f.airline||'',f.flight_number||'',f.origin_airport||f.origin||'',f.destination_airport||f.destination||'',String(f.departure_at||''),String(f.return_at||''),f.transfers==null?'':f.transfers,f.return_transfers==null?'':f.return_transfers].join('|')}
 function agencyLogo(name){
 var n=String(name||'Travel agency'),key=n.toLowerCase(),domains={'trip.com':'trip.com','turna.com':'turna.com','flightnetwork':'flightnetwork.com','emirates':'emirates.com','airfrance':'airfrance.com','air france':'airfrance.com','qatar airways':'qatarairways.com','british airways':'britishairways.com','turkish airlines':'turkishairlines.com','etihad':'etihad.com','skyscanner':'skyscanner.net','kayak':'kayak.com','momondo':'momondo.com'};
-var d=domains[key];if(d)return '<img class="aglogo" src="https://www.google.com/s2/favicons?domain='+encodeURIComponent(d)+'&sz=64" alt="" loading="lazy" onerror="this.style.display=\'none\'">';
+if(!domains[key]&&/^[a-z0-9-]+(\.[a-z0-9-]+)*\.[a-z]{2,}$/.test(key))domains[key]=key;var d=domains[key];if(d)return '<img class="aglogo" src="https://www.google.com/s2/favicons?domain='+encodeURIComponent(d)+'&sz=64" alt="" loading="lazy" onerror="this.style.display=\'none\'">';
 var initials=n.split(/\s+/).filter(Boolean).slice(0,2).map(function(x){return x.charAt(0).toUpperCase()}).join('')||'A';return '<span class="agmark" aria-hidden="true">'+esc(initials)+'</span>';
 }
-function drawOfferPage(){
-var g=visibleGroups[offerPage];if(!g){offerPage=null;draw();return}
-var q=g.q,offers=g.offers.slice().sort(function(a,b){return Number(a.price)-Number(b.price)}),sym=symOf(g.currency||$('cy').value),f=g.flight;
-var h='<button type="button" class="sm" data-offer-back="1">← Back to flight results</button>';
-h+='<h2>'+esc(f.airline_name||f.airline||'Flight')+' · '+esc(f.airline||'')+' '+esc(f.flight_number||'')+'</h2>';
-h+='<div class="m" style="margin-bottom:12px"><b>'+esc(q.f)+' → '+esc(q.t)+'</b><div class="s">'+esc(shortDate(String(f.departure_at||'').slice(0,10)))+(f.return_at?' · Return '+esc(shortDate(String(f.return_at).slice(0,10))):' · One way')+'</div><div class="s">Compare prices from the agencies returned by the current provider. Final fare and availability must be confirmed on the agency website.</div></div>';
-h+='<h3 style="margin:12px 0 8px">Agency offers ('+offers.length+')</h3>';
-offers.forEach(function(o){var link=/^https?:\/\//i.test(String(o.link||''))?String(o.link):'';
-h+='<div class="c"><div style="display:flex;align-items:center;gap:10px">'+agencyLogo(o.gate||'Travel agency')+'<div><b>'+esc(o.gate||'Travel agency')+'</b><div class="s">'+esc(o.airline_name||o.airline||'Airline')+' · '+esc(o.flight_number||'')+'</div></div></div><div class="pc"><div class="pr">'+sym+fmtN(o.price)+'</div>'+(link?'<a class="bk" href="'+esc(link)+'" target="_blank" rel="noopener">Book Now</a>':'<span class="s">Booking link unavailable</span>')+'</div></div>'});
-$('res').innerHTML=h;
-}
+var ofLast=null,ofSeq=0;
+function agName(o){return String((o&&o.gate)||'Aviasales')}
+function fbLink(l){l=String(l||'');if(/^https:\/\//i.test(l))return l;if(l.charAt(0)==='/'&&l.charAt(1)!=='/')return '/out?link='+encodeURIComponent(l);return ''}
+function ofRow(name,price,link,sym,lo){return '<div class="ofr'+(lo?' lo':'')+'"><div class="l">'+agencyLogo(name)+'<b>'+esc(name)+'</b></div><div class="pc"><div class="pr">'+sym+fmtN(price)+'</div>'+(link?'<a class="bk" href="'+esc(link)+'" target="_blank" rel="noopener noreferrer sponsored">Book on '+esc(name)+'</a>':'<span class="s">Booking link unavailable</span>')+'</div></div>'}
+function closeOffers(){var m=$('ofm');if(!m||m.hidden)return;m.hidden=true;document.body.style.overflow='';ofSeq++;offerPage=null;if(ofLast&&ofLast.focus)ofLast.focus()}
+function openOffers(key,btn){var g=visibleGroups[key];if(!g)return;var q=g.q,f=g.flight,my=++ofSeq;ofLast=btn||null;offerPage=key;
+var dep=String(f.departure_at||''),ret=f.return_at?String(f.return_at):'',sym=symOf(g.currency||$('cy').value);
+var oc=f.origin_airport||f.origin||q.f,dc=f.destination_airport||f.destination||q.t;
+$('oft').textContent=(f.airline_name||f.airline||'Flight')+(f.flight_number?' \u00b7 '+(f.airline||'')+' '+f.flight_number:'');
+var head='<div class="m" style="margin-bottom:6px"><b>'+esc(nm(oc))+' \u2192 '+esc(nm(dc))+'</b>'
++'<div class="s">Departure: '+esc(shortDate(dep.slice(0,10)))+(depT(dep)?' \u00b7 '+esc(depT(dep)):'')+'</div>'
++(ret?'<div class="s">Return: '+esc(shortDate(ret.slice(0,10)))+(depT(ret)?' \u00b7 '+esc(depT(ret)):'')+'</div>':'<div class="s">One way</div>')
++'<div class="s">'+(f.transfers===0?'Direct':'1 stop')+'</div></div>';
+$('ofb').innerHTML=head+'<div class="s" id="ofl">Loading offers from agencies\u2026</div>';
+$('ofm').hidden=false;document.body.style.overflow='hidden';$('ofx').focus();
+var p=new URLSearchParams({origin:q.f,destination:q.t,date:dep.slice(0,10),currency:$('cy').value,cabin:$('cabin').value,airline:f.airline||'',dep:dep.slice(0,16)});if(ret)p.set('return',ret.slice(0,10));
+fetch('/api/offers?'+p).then(function(r){return r.json()}).catch(function(){return{live:false,offers:[]}}).then(function(j){
+if(my!==ofSeq)return;var h='',list=(j&&j.offers)||[];
+if(j&&j.live&&list.length){var lo=Math.min.apply(null,list.map(function(o){return o.price}));
+h+='<div class="s" style="margin:6px 0">'+list.length+' agenc'+(list.length===1?'y':'ies')+' \u00b7 price per adult \u00b7 live prices can change, confirm on the agency site.</div>';
+h+=list.map(function(o){return ofRow(o.agent,o.price,o.link,symOf(j.currency||$('cy').value),o.price===lo)}).join('')}
+else{var fo=g.offers.slice().sort(function(a,b){return Number(a.price)-Number(b.price)});
+h+='<div class="s" style="margin:6px 0">Offers from other agencies are not available for this flight right now. This is the best price found by our data source. Confirm the final fare on the booking site.</div>';
+h+=fo.map(function(o,i){return ofRow(agName(o),o.price,fbLink(o.link),sym,i===0)}).join('')}
+$('ofb').innerHTML=head+h})}
+$('ofx').addEventListener('click',closeOffers);
+$('ofm').addEventListener('click',function(e){if(e.target===$('ofm'))closeOffers()});
+document.addEventListener('keydown',function(e){var m=$('ofm');if(!m||m.hidden)return;if(e.key==='Escape'){closeOffers();return}
+if(e.key==='Tab'){var fs=[].slice.call(m.querySelectorAll('button,a[href]'));if(!fs.length)return;var first=fs[0],last=fs[fs.length-1];
+if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}}});
 function draw(){
-if(offerPage){drawOfferPage();return}
 var np=pax.a+pax.c,fc=(document.querySelector('input[name=sf]:checked').value!=='any'?1:0)+(document.querySelectorAll('#al input:not(:checked)').length?1:0)+($('so').value!=='price'?1:0)+(document.querySelectorAll('input[name=tf]:not(:checked)').length?1:0);$('fcnt').textContent=fc?fc+' active':'';
 var biz=$('cabin').value==='business',sf=document.querySelector('input[name=sf]:checked').value,so=$('so').value,h='',af=[].slice.call(document.querySelectorAll('#al input:checked')).map(function(i){return i.value}),tf=[].slice.call(document.querySelectorAll('input[name=tf]:checked')).map(function(i){return +i.value});
 visibleGroups={};
@@ -351,16 +381,17 @@ groups.forEach(function(g){var f=g.flight,rtrip=!!f.return_at,d=f.duration_to||(
 var key='g'+Object.keys(visibleGroups).length;visibleGroups[key]=g;
 var lay=f.layovers&&f.layovers.length?f.layovers.map(function(l){return Math.floor(l.minutes/60)+'h '+l.minutes%60+'m in '+(AP[l.airport]?AP[l.airport].n+' ('+l.airport+')':l.airport)}).join(', '):'';
 var tip=f.transfers===0?'':(lay?'Layover: '+lay:'1 stop. The layover airport and waiting time are shown on the booking site.'),tipB=(typeof f.return_transfers==='number'&&f.return_transfers>0)?'1 stop. The layover airport and waiting time are shown on the booking site.':'';
-h+='<div class="c"><div class="fm"><div class="al">'+logo(f.airline)+'<b>'+esc(f.airline_name||f.airline||'Airline')+'</b><span class="s">'+esc(f.flight_number?f.airline+' '+f.flight_number:'')+'</span></div>'
+h+='<div class="c fcard" data-open-offers="'+esc(key)+'" tabindex="0" role="button" aria-label="View agency offers"><div class="fm"><div class="al">'+logo(f.airline)+'<b>'+esc(f.airline_name||f.airline||'Airline')+'</b><span class="s">'+esc(f.flight_number?f.airline+' '+f.flight_number:'')+'</span></div>'
 +legHtml(rtrip?'Outbound':'',String(f.departure_at||'').slice(0,10),f.departure_at,arrInfo(f,q),oc,dc,fm(d),f.transfers,tip)
 +(rtrip?legHtml('Return',String(f.return_at).slice(0,10),f.return_at,arrBack(f,q),dc,oc,fm(db),f.return_transfers||0,tipB):'')
-+'<div><span class="tag">'+(f.transfers===0?'Direct':'1 stop')+'</span><span class="tag">'+(rtrip?'Round trip':'One way')+'</span><span class="tag">'+g.offers.length+' agency offer'+(g.offers.length===1?'':'s')+'</span></div></div>'
-+'<div class="pc"><div><div class="pr">'+sym+fmtN(g.best.price)+'</div><div class="s">Lowest agency offer · '+esc(g.best.gate||'Agency')+'</div></div><button type="button" class="bk" data-open-offers="'+esc(key)+'">Compare '+g.offers.length+' offer'+(g.offers.length===1?'':'s')+'</button></div></div>';
++'<div><span class="tag">'+(f.transfers===0?'Direct':'1 stop')+'</span><span class="tag">'+(rtrip?'Round trip':'One way')+'</span><span class="tag">Tap for agency offers</span></div></div>'
++'<div class="pc"><div><div class="pr">'+sym+fmtN(g.best.price)+'</div><div class="s">Best price found · '+esc(agName(g.best))+'</div></div><button type="button" class="bk" data-open-offers="'+esc(key)+'">View offers</button></div></div>';
 });
 h+='<div class="cmp"><b>Compare this trip on other sites</b><div class="s">Opens their own search. Prices there may differ.</div>'+cmp(q).map(function(l){return '<a href="'+esc(l[1])+'" target="_blank" rel="noopener noreferrer">'+l[0]+'</a>'}).join('')+'</div>';
 });
 show(h);data.forEach(function(x,xi){fillStrip(xi)})}
-$('res').addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-open-offers]');if(b){offerPage=b.dataset.openOffers;drawOfferPage();return}if(e.target.closest&&e.target.closest('[data-offer-back]')){offerPage=null;draw();return}});
+$('res').addEventListener('click',function(e){if(e.target.closest&&e.target.closest('a'))return;var b=e.target.closest&&e.target.closest('[data-open-offers]');if(b)openOffers(b.dataset.openOffers,b)});
+$('res').addEventListener('keydown',function(e){if((e.key==='Enter'||e.key===' ')&&e.target.classList&&e.target.classList.contains('fcard')){e.preventDefault();openOffers(e.target.dataset.openOffers,e.target)}});
 $('fl').addEventListener('change',draw);$('al').addEventListener('click',function(e){var o=e.target.closest&&e.target.closest('.only');if(!o)return;
 var all=[].slice.call(document.querySelectorAll('#al input')),solo=all.filter(function(i){return i.checked}).length===1&&all.some(function(i){return i.checked&&i.value===o.dataset.c});
 all.forEach(function(i){i.checked=solo?true:i.value===o.dataset.c});draw()});
@@ -383,8 +414,8 @@ if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();i=e.key==='ArrowDo
 else if(e.key==='Enter'&&its.length){e.preventDefault();cyPick(its[i>=0?i:0].dataset.c)}else if(e.key==='Escape'){box.classList.remove('on');cyUi()}});
 document.addEventListener('pointerdown',function(e){if(!e.target.closest('.acw'))cyUi()});
 cyUi();
-// Flexible whole-month search is enabled by default; travellers can uncheck it any time.
-$('mo').checked=true;
+// Flexible whole-month search is OFF by default; travellers can tick it any time.
+$('mo').checked=false;
 // ===== ADVERTISING BANNER: edit this list to change the ads =====
 // Fields: id (any short name), tag (label shown on the ad), title, text, cta (button text),
 // url (https://..., mailto:... or a path like /about.html), img (optional, e.g. '/ads/hotel.webp', or leave '').
