@@ -227,6 +227,8 @@ function addDays(iso,n){var p=iso.split('-');return new Date(Date.UTC(+p[0],+p[1
 function shortDate(d){var p=d.split('-');return new Date(+p[0],+p[1]-1,+p[2]).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})}
 var strips={};
 function fillStrip(xi){var x=data[xi],el=$('st'+xi);if(!el||!x)return;var q=x.q;
+// The one-month fare strip shows one-way outbound prices only: show it for one-way/multi-city when Flexible Dates is ticked, never for round trip.
+if(!q.mo||q.r){el.style.display='none';return}
 var base=q.d0||q.d;if(base.length===7){el.style.display='none';return}
 if(strips[xi]){paintStrip(xi);return}
 el.innerHTML='<div class="s">Loading the lowest fares around your date\u2026</div>';
@@ -293,7 +295,7 @@ if(q.f===q.t){show('<div class="m">Origin and destination must be different.</di
 if(!q.d||(type==='round'&&!q.r)){show('<div class="m">Please choose all dates.</div>');return}
 if(q.r&&q.r<q.d){show('<div class="m">The return date must be on or after the departure date.</div>');return}
 if(type==='multi'&&k>0&&q.d<reqs[k-1].d0){show('<div class="m">Each flight date must be on or after the previous flight date.</div>');return}
-q.d0=q.d;if(mo){q.d=q.d.slice(0,7);q.r=q.r?q.r.slice(0,7):''}}
+q.d0=q.d;q.mo=mo;if(mo){q.d=q.d.slice(0,7);q.r=q.r?q.r.slice(0,7):''}}
 var selectedCurrency=$('cy').value;show('<div class="m">Searching…</div>');$('lay').classList.add('nofl');
 Promise.all(reqs.map(function(q){var p=new URLSearchParams({origin:q.f,destination:q.t,date:q.d,currency:selectedCurrency});if(q.r)p.set('return',q.r);
 return fetch('/api/flights?'+p).then(function(r){return r.json()}).catch(function(){return{error:'Something went wrong. Please try again.'}})}))
