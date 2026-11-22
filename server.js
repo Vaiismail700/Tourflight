@@ -3,7 +3,6 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
-
 const PORT = process.env.PORT || 3000;
 const TOKEN = process.env.TP_TOKEN || '';
 const BASE = process.env.TP_BASE || 'https://api.travelpayouts.com';
@@ -16,7 +15,6 @@ const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || '')
   .filter(Boolean);
 const DEBUG = !!process.env.TP_DEBUG;
 const PUB = path.join(__dirname, 'public');
-
 const MIME = {
   '.html': 'text/html; charset=utf-8',
   '.png': 'image/png',
@@ -28,7 +26,6 @@ const MIME = {
   '.js': 'text/javascript; charset=utf-8',
   '.css': 'text/css; charset=utf-8'
 };
-
 const cache = new Map();
 const hits = new Map();
 const searches = new Map();
@@ -54,7 +51,6 @@ function setCors(req, res) {
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   }
 }
-
 function json(res, code, obj) {
   res.writeHead(code, {
     'Content-Type': 'application/json; charset=utf-8',
@@ -62,7 +58,6 @@ function json(res, code, obj) {
   });
   res.end(JSON.stringify(obj));
 }
-
 const NAMES = {
   "EK": "Emirates", "QR": "Qatar Airways", "EY": "Etihad Airways",
   "FZ": "flydubai", "G9": "Air Arabia", "SV": "Saudia",
@@ -118,9 +113,8 @@ const NAMES = {
     if (DEBUG) console.log('Airlines preload failed:', e.message);
   }
 })();
-
 const FALLBACK = {
-  USD: 1, BDT: 122, EUR: 0.92, GBP: 0.79, AED: 3.67,
+  USD: 1, BDT: 123, EUR: 0.92, GBP: 0.79, AED: 3.67,
   SAR: 3.75, INR: 84, MYR: 4.4, SGD: 1.34, THB: 36,
   QAR: 3.64, KWD: 0.31, BHD: 0.376, OMR: 0.385,
   const md5 = x => crypto.createHash('md5').update(x).digest('hex');
@@ -173,7 +167,6 @@ function tpHeaders(ip, body) {
   h['x-signature'] = body ? sign(body) : md5(TOKEN + ':' + MARKER);
   return h;
 }
-
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 function legOf(l) {
@@ -203,7 +196,6 @@ function normTicket(t, legs) {
   })).filter(p => p.id && Number.isFinite(p.price) && p.price > 0);
   return { segs, proposals };
 }
-
 async function runSearch(w, ip) {
   const directions = [{ origin: w.origin, destination: w.dest, date: w.date }];
   if (w.ret) directions.push({ origin: w.dest, destination: w.origin, date: w.ret });
@@ -254,7 +246,6 @@ async function runSearch(w, ip) {
     return fail();
   }
 }
-
 function bookingRedirect(req, res, url) {
   const raw = url.searchParams.get('link') || '';
   const src = (url.searchParams.get('src') || url.searchParams.get('ref') || 'site1')
@@ -301,14 +292,12 @@ function bookingRedirect(req, res, url) {
     src,
     host: target.hostname
   }));
-
   res.writeHead(302, {
     Location: target.toString(),
     'Cache-Control': 'no-store'
   });
   return res.end();
 }
-
 http.createServer(async (req, res) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
@@ -318,7 +307,6 @@ http.createServer(async (req, res) => {
     res.writeHead(204);
     return res.end();
   }
-
   let u;
   try {
     u = new URL(req.url, 'http://localhost');
@@ -328,7 +316,6 @@ http.createServer(async (req, res) => {
   }
 
   const ip = clientIp(req);
-
   if (u.pathname === '/health') {
     return json(res, 200, {
       ok: true,
