@@ -395,7 +395,7 @@ en:{
   of_fb:'Offers from other agencies are not available for this flight right now. This is the best price found by our data source. Confirm the final fare on the booking site.',
   of_book:'Book on {ag}',of_no_link:'Booking link unavailable',of_view_aria:'View agency offers'
 },
-  ar:{
+ar:{
   locale:'ar-EG',numLocale:'ar-EG',
   h1:'اكتشف · قارن · سافر',
   sub:'اعثر على أقل الأسعار من عمليات البحث الحديثة للمسافرين.',
@@ -670,18 +670,40 @@ function paxUi(){$('na').textContent=pax.a;$('nc').textContent=pax.c;$('ni').tex
 var parts=[pax.a+' '+(pax.a>1?t('adult_n'):t('adult_1'))];if(pax.c)parts.push(pax.c+' '+(pax.c>1?t('child_n'):t('child_1')));if(pax.i)parts.push(pax.i+' '+(pax.i>1?t('infant_n'):t('infant_1')));
 $('pxs').textContent=parts.join(', ');if(data.length)draw()}
 document.addEventListener('click',function(e){if(!$('pxd').contains(e.target))$('pxd').open=false});
-function setType(t,keepCalOpen){
+function setType(mode,keepCalOpen){
   var old=[],oldRet=$('rt')?$('rt').value:'';
-  for(var i=0;i<3;i++){if($('f'+i))old.push([$($('f'+i)).value,$($('t'+i)).value,$($('d'+i)).value])}
+  for(var i=0;i<3;i++){
+    var fi=$('f'+i),ti=$('t'+i),di=$('d'+i);
+    if(fi||ti||di){
+      old.push([fi?fi.value:'',ti?ti.value:'',di?di.value:'']);
+    }
+  }
   var wasOpen=!!(keepCalOpen&&cal.box&&cal.box.classList.contains('on')&&cal.inp);
   var openFor=wasOpen?cal.inp.dataset.for:null;
-  type=t;document.querySelectorAll('.t').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.t===t)});
-  var h='';if(t==='multi'){for(var i=0;i<nleg;i++)h+=row(i);h+=(nleg<3?'<button type="button" class="sm" onclick="addLeg(1)">'+esc(t('add_leg'))+'</button>':'')+(nleg>2?'<button type="button" class="sm" onclick="addLeg(-1)">'+esc(t('rem_leg'))+'</button>':'')}
-  else{h=row(0,t==='round')}
-  $('legs').innerHTML=h;old.forEach(function(o,i){if($('f'+i)){$('f'+i).value=o[0];$('t'+i).value=o[1];$('d'+i).value=o[2]}});
-  if(t==='round'&&$('rt')&&oldRet)$('rt').value=oldRet;
+  type=mode;
+  document.querySelectorAll('#tabs .t').forEach(function(b){
+    b.setAttribute('aria-pressed',b.dataset.t===mode?'true':'false');
+  });
+  var h='';
+  if(mode==='multi'){
+    for(var j=0;j<nleg;j++)h+=row(j,false);
+    h+=(nleg<3?'<button type="button" class="sm" onclick="addLeg(1)">'+esc(t('add_leg'))+'</button>':'');
+    h+=(nleg>2?'<button type="button" class="sm" onclick="addLeg(-1)">'+esc(t('rem_leg'))+'</button>':'');
+  }else{
+    h=row(0,mode==='round');
+  }
+  $('legs').innerHTML=h;
+  old.forEach(function(o,idx){
+    if($('f'+idx)&&o[0])$('f'+idx).value=o[0];
+    if($('t'+idx)&&o[1])$('t'+idx).value=o[1];
+    if($('d'+idx)&&o[2])$('d'+idx).value=o[2];
+  });
+  if(mode==='round'&&$('rt')&&oldRet)$('rt').value=oldRet;
   fixMins();syncDates();
-  if(wasOpen&&openFor){var ni=document.querySelector('.dpi[data-for="'+openFor+'"]');if(ni)openCal(ni)}
+  if(wasOpen&&openFor){
+    var ni=document.querySelector('.dpi[data-for="'+openFor+'"]');
+    if(ni)openCal(ni);
+  }
 }
 function fixMins(){if(type==='round'&&$('rt')){$('rt').min=$('d0').value||today}
 if(type==='multi'){for(var i=1;i<nleg;i++){var p=$('d'+(i-1)).value;$('d'+i).min=p||today}}}
@@ -776,8 +798,8 @@ var cn=tEl.closest('.cn');if(cn){cal.m+=+cn.dataset.n;if(cal.m<0){cal.m=11;cal.y
 var dd=tEl.closest('.dd');if(dd&&!dd.disabled){setDate(cal.inp,dd.dataset.v);return}
 if(tEl.closest('.cc'))setDate(cal.inp,'')});
 document.addEventListener('pointerdown',function(e){if(!e.target.closest('.acw'))closeCals()});
-function addLeg(n){nleg+=n;setType('multi')}
-$('tabs').onclick=function(e){if(e.target.dataset.t)setType(e.target.dataset.t)};
+function addLeg(n){nleg=Math.min(3,Math.max(2,nleg+n));setType('multi')}
+$('tabs').onclick=function(e){var btn=e.target.closest&&e.target.closest('.t[data-t]');if(btn)setType(btn.dataset.t)};
 function show(h){$('res').innerHTML=h}
 function normFlightItem(f,q,cur){
   var carrier=String(f.airline||f.carrier||'').toUpperCase();
@@ -793,8 +815,14 @@ function normFlightItem(f,q,cur){
   return out;
 }
 function search(){closeOffers();var reqs=[],mo=$('mo').checked;
-if(type==='multi'){for(var i=0;i<nleg;i++)reqs.push({f:codeOf($('f'+i).value),t:codeOf($('t'+i).value),d:$('d'+i).value,r:''})}
-else reqs.push({f:codeOf($('f0').value),t:codeOf($('t0').value),d:$('d0').value,r:type==='round'?$('rt').value:''});
+if(type==='multi'){
+  for(var i=0;i<nleg;i++){
+    var fEl=$('f'+i),tEl=$('t'+i),dEl=$('d'+i);
+    reqs.push({f:codeOf(fEl?fEl.value:''),t:codeOf(tEl?tEl.value:''),d:dEl?dEl.value:'',r:''});
+  }
+}else{
+  reqs.push({f:codeOf($('f0')?$('f0').value:''),t:codeOf($('t0')?$('t0').value:''),d:$('d0')?$('d0').value:'',r:type==='round'&&$('rt')?$('rt').value:''});
+}
 for(var k=0;k<reqs.length;k++){var q=reqs[k];
 if(!q.f||!q.t){show('<div class="m">'+esc(t('err_airports'))+'</div>');return}
 if(q.f===q.t){show('<div class="m">'+esc(t('err_same'))+'</div>');return}
