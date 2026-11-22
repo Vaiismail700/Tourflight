@@ -1,4 +1,4 @@
-<meta name='viewport' content='width=device-width, initial-scale=1'/><script>// Tourflight server: no dependencies, Node 18+
+// Tourflight server: no dependencies, Node 18+
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
@@ -27,11 +27,24 @@ const offerCache = new Map();
 const inflight = new Map();
 let clicks = 0;
 
+function setBounded(map, key, val, max = 500) {
+  if (!map.has(key) && map.size >= max) {
+    const firstKey = map.keys().next().value;
+    map.delete(firstKey);
+  }
+  map.set(key, val);
+}
+
+function clientIp(req) {
+  const x = String(req.headers['x-forwarded-for'] || '').split(',')[0].trim();
+  return x || req.socket.remoteAddress || '127.0.0.1';
+}
+
 function limited(ip) {
   const now = Date.now();
   const a = (hits.get(ip) || []).filter(t => now - t < 60000);
   a.push(now);
-  hits.set(ip, a);
+  setBounded(hits, ip, a, 2000);
   return a.length > 30;
 }
 
@@ -42,6 +55,7 @@ function json(res, code, obj) {
   });
   res.end(JSON.stringify(obj));
 }
+
 const NAMES = {
   "EK":"Emirates","QR":"Qatar Airways","EY":"Etihad Airways",
   "FZ":"flydubai","G9":"Air Arabia","SV":"Saudia",
@@ -87,7 +101,7 @@ const NAMES = {
     const r = await fetch('https://api.travelpayouts.com/data/en/airlines.json');
     if (r.ok) {
       for (const x of await r.json()) {
-        if (x.code && x.name && !NAMES[x.code]) {
+        if (x && x.code && x.name && !NAMES[x.code]) {
           NAMES[x.code] = x.name;
         }
       }
@@ -184,7 +198,7 @@ async function flights(q) {
         currency: String(j.currency || 'usd').toLowerCase(),
         data: Array.isArray(j.data) ? j.data : []
       };
-      cache.set(key, v);
+      setBounded(cache, key, v, 500);
     } catch (e) {
       return { code: 502, body: { error: 'Could not reach the price provider.' } };
     }
@@ -296,7 +310,7 @@ async function calendar(q) {
         }
       }
       v = { t: Date.now(), prices };
-      cache.set(key, v);
+      setBounded(cache, key, v, 500);
     } catch (e) {
       return { code: 200, body: { currency: cur, prices: {} } };
     }
@@ -332,11 +346,6 @@ function sign(body) {
   delete b.signature;
   delete b.marker;
   return md5([TOKEN, MARKER].concat(flat(b)).join(':'));
-}
-
-function clientIp(req) {
-  const x = String(req.headers['x-forwarded-for'] || '').split(',')[0].trim();
-  return x || req.socket.remoteAddress || '127.0.0.1';
 }
 
 async function tp(url, opt, ms) {
@@ -430,7 +439,7 @@ async function runSearch(w, ip) {
   const search_id = String(st.json.search_id);
   const ru = String(st.json.results_url);
   const base = new URL(/^https?:/i.test(ru) ? ru : 'https://' + ru).origin;
-  searches.set(search_id, { base, t: Date.now() });
+  setBounded(searches, search_id, { base, t: Date.now() }, 500);
 
   const tickets = [];
   const seen = new Map();
@@ -442,7 +451,7 @@ async function runSearch(w, ip) {
     const rb = { search_id, last_update_timestamp: last };
     const r = await tp(base + '/search/affiliate/results', {
       method: 'POST',
-      headers: tpHeaders(ip),
+      headers: tpHeaders(ip, rb),
       body: JSON.stringify(rb)
     });
 
@@ -531,7 +540,7 @@ async function offers(q, ip) {
         inflight.set(key, pr);
       }
       c = await pr;
-      offerCache.set(key, c);
+      setBounded(offerCache, key, c, 500);
     } catch (e) {
       if (DEBUG) console.log('offers error', e.message);
       return { code: 200, body: { live: false, reason: 'unavailable', offers: [] } };
@@ -607,7 +616,7 @@ async function goAgency(req, res, url) {
 
   try {
     const r = await tp(
-      meta.base + '/searches/' + sid + '/clicks/' + pid,
+      meta.base + '/searches/' + encodeURIComponent(sid) + '/clicks/' + encodeURIComponent(pid),
       { headers: tpHeaders(clientIp(req)) }
     );
     const j = r.json || {};
@@ -692,7 +701,7 @@ http.createServer(async (req, res) => {
     return res.end('Bad request');
   }
 
-  const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '';
+  const ip = clientIp(req);
 
   if (u.pathname === '/health') {
     return json(res, 200, {
@@ -731,7 +740,7 @@ http.createServer(async (req, res) => {
     if (limited(ip + '|off')) {
       return json(res, 429, { error: 'Too many requests. Please wait a minute.' });
     }
-    const r = await offers(u.searchParams, clientIp(req));
+    const r = await offers(u.searchParams, ip);
     return json(res, r.code, r.body);
   }
 
@@ -769,4 +778,3 @@ http.createServer(async (req, res) => {
 }).listen(PORT, () => {
   console.log('Tourflight running on port ' + PORT);
 });
-</script>
