@@ -1,69 +1,64 @@
-<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
-<html lang="en" dir="ltr"><head><meta charset="utf-8">
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Tourflight – Explore · Compare · Fly</title>
 <meta name="description" content="Search and compare flights. Tourflight never takes payments; you book on the partner site.">
+<script>(function(){var h=new Date().getHours(),t=(h>=6&&h<18)?'light':'dark';try{var o=JSON.parse(localStorage.getItem('tf-theme-v2')||'null');if(o&&o.p===t&&(o.t==='light'||o.t==='dark'))t=o.t}catch(e){}document.documentElement.setAttribute('data-theme',t)})()</script>
 <style>
-:root{--ink:#0a2a5e;--blue:#1458c7;--sun:#ff7a00;--line:#d9e1ea;--muted:#5d6f85}
-*{box-sizing:border-box}body{margin:0;background:#f2f5f9;color:var(--ink);font:15px/1.5 system-ui,Segoe UI,Roboto,sans-serif}
-header{background:linear-gradient(180deg,#0a2a5e,#1458c7);color:#fff;padding:16px 16px 60px}
+:root{--ink:#0a2a5e;--blue:#1458c7;--link:#1458c7;--sun:#ff7a00;--line:#d9e1ea;--muted:#5d6f85;--bg:#f2f5f9;--card:#fff;--field:#f3f6fb;--fb:#bccadc;--hb:#8fa6c4;--hov:#eef4ff;--hov2:#dbe8ff;--rng:#e6efff;--dis:#c3ccd8;--grn:#12805c;--grnbg:#e8f6ef;--grnbg2:#f2fbf6;--lbl:#33507a;--line2:#eef2f6;--tip:#0a2a5e;--ft:#0a2a5e;--h1:#0a2a5e;--h2:#1458c7;color-scheme:light}
+:root[data-theme=dark]{--ink:#e6edf7;--blue:#2f6fdc;--link:#7db0ff;--line:#2a3a52;--muted:#9bacc2;--bg:#0d1420;--card:#162131;--field:#1b2a3e;--fb:#3a4d68;--hb:#5d7597;--hov:#1f3350;--hov2:#2a4268;--rng:#1d3558;--dis:#4a5a72;--grn:#3ecf94;--grnbg:#12352a;--grnbg2:#0f2a22;--lbl:#a9bddb;--line2:#243348;--tip:#2b3a55;--ft:#0a0f19;--h1:#0b1a38;--h2:#143e86;color-scheme:dark}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,Segoe UI,Roboto,sans-serif}
+header{background:linear-gradient(180deg,var(--h1),var(--h2));color:#fff;padding:16px 16px 60px}
 .w{max-width:900px;margin:0 auto}.hr{display:flex;gap:16px;align-items:center}
 .hr img{width:104px;background:#fff;border-radius:16px;padding:6px}h1{font-size:22px;margin:0 0 4px}
-.htop{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
-.hctrls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.langsw{display:inline-flex;gap:4px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.28);border-radius:10px;padding:3px;flex-wrap:wrap}
-.langbtn{border:0;background:transparent;color:#fff;padding:5px 9px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;transition:.15s}
-.langbtn:hover{background:rgba(255,255,255,.16)}
-.langbtn[aria-pressed="true"]{background:#fff;color:var(--ink)}
-.thmbtn{border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.16);color:#fff;padding:6px 11px;border-radius:9px;font-size:12px;font-weight:600;cursor:pointer}
-.thmbtn:hover{background:rgba(255,255,255,.24)}
-.p{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;margin:0 0 16px;box-shadow:0 8px 24px rgba(10,30,60,.12)}
+.p{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin:0 0 16px;box-shadow:0 8px 24px rgba(10,30,60,.12)}
 .g{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:10px}
 label{display:block;font-size:12px;color:var(--muted);margin-bottom:2px}
-input,select{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;font:inherit;background:#fff;color:var(--ink)}
+input,select{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;font:inherit;background:var(--card);color:var(--ink)}
 button{font:inherit;cursor:pointer}.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
-.t{border:1px solid var(--line);background:#fff;color:var(--ink);padding:6px 14px;border-radius:20px}.t[aria-pressed=true]{background:var(--blue);color:#fff;border-color:var(--blue)}
+.t{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:6px 14px;border-radius:20px}.t[aria-pressed=true]{background:var(--blue);color:#fff;border-color:var(--link)}
 .go{margin-top:6px;width:100%;padding:12px;border:0;border-radius:10px;background:var(--sun);color:#2a1300;font-weight:600;font-size:16px}
-.sm{border:1px solid var(--line);background:#fff;color:var(--blue);border-radius:8px;padding:6px 12px;margin-right:6px}
+.sm{border:1px solid var(--line);background:var(--card);color:var(--link);border-radius:8px;padding:6px 12px;margin-right:6px}
 .tr{margin:12px 0 0;font-size:12px;color:var(--muted)}
 header .w{max-width:1280px;padding:0 16px}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}.g2 input{text-overflow:ellipsis}
-.cal{display:none;position:absolute;top:100%;left:0;z-index:40;width:292px;margin-top:6px;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 12px 32px rgba(10,30,60,.22);padding:12px}.cal.r{left:auto;right:0}.cal.on{display:block}
-.ch{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}.cn{width:32px;height:32px;border-radius:50%;border:0;background:#eef4ff;color:var(--blue);font-size:20px;line-height:1}.cn:hover{background:#dbe8ff}
+.cal{display:none;position:absolute;top:100%;left:0;z-index:40;width:292px;margin-top:6px;background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:0 12px 32px rgba(10,30,60,.22);padding:12px}.cal.r{left:auto;right:0}.cal.on{display:block}
+.ch{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}.cn{width:32px;height:32px;border-radius:50%;border:0;background:var(--hov);color:var(--link);font-size:20px;line-height:1}.cn:hover{background:var(--hov2)}
 .cg{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center}.cw{font-size:11px;color:var(--muted);padding:4px 0}
-.dd{height:36px;border:0;border-radius:50%;background:none;color:var(--ink);font-size:14px;cursor:pointer;padding:0}.dd:hover:not(:disabled){background:#eef4ff}.dd:disabled{color:#c3ccd8;cursor:not-allowed}
-.dd.rg{background:#e6efff;border-radius:0}.dd.sel,.dd.rs{background:var(--blue);color:#fff;font-weight:700}.dd.td:not(.sel){box-shadow:inset 0 0 0 1.5px var(--sun)}
-.cf{margin-top:8px;text-align:right}.cc{border:0;background:none;color:var(--blue);cursor:pointer;font-weight:600}.dpi{cursor:pointer}
-.acw{position:relative}.sug{display:none;position:absolute;left:0;right:0;top:100%;z-index:30;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 8px 24px rgba(10,30,60,.18);margin-top:4px;overflow:hidden}
-.sug.on{display:block}.si{padding:10px 12px;cursor:pointer;display:flex;justify-content:space-between;gap:8px;align-items:center;border-bottom:1px solid #eef2f6;min-height:48px}.si:last-child{border:0}.si:hover,.si.hl{background:#eef4ff}.si small{display:block;color:var(--muted);font-size:12px}.si .cd{font-weight:700;color:var(--blue)}
+.dd{height:36px;border:0;border-radius:50%;background:none;color:var(--ink);font-size:14px;cursor:pointer;padding:0}.dd:hover:not(:disabled){background:var(--hov)}.dd:disabled{color:var(--dis);cursor:not-allowed}
+.dd.rg{background:var(--rng);border-radius:0}.dd.sel,.dd.rs{background:var(--blue);color:#fff;font-weight:700}.dd.td:not(.sel){box-shadow:inset 0 0 0 1.5px var(--sun)}
+.cf{margin-top:8px;text-align:right}.cc{border:0;background:none;color:var(--link);cursor:pointer;font-weight:600}.dpi{cursor:pointer}
+.acw{position:relative}.sug{display:none;position:absolute;left:0;right:0;top:100%;z-index:30;background:var(--card);border:1px solid var(--line);border-radius:10px;box-shadow:0 8px 24px rgba(10,30,60,.18);margin-top:4px;overflow:hidden}
+.sug.on{display:block}.si{padding:10px 12px;cursor:pointer;display:flex;justify-content:space-between;gap:8px;align-items:center;border-bottom:1px solid var(--line2);min-height:48px}.si:last-child{border:0}.si:hover,.si.hl{background:var(--hov)}.si small{display:block;color:var(--muted);font-size:12px}.si .cd{font-weight:700;color:var(--link)}
 .top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:12px}.top .tabs{margin:0}
 .opts{display:flex;gap:8px;align-items:center;margin-left:auto}.opts select{width:auto}
-.pax{position:relative}.pax summary{list-style:none;border:1px solid var(--line);border-radius:8px;padding:8px 12px;cursor:pointer;background:#fff;white-space:nowrap}.pax summary::-webkit-details-marker{display:none}
-.paxbox{position:absolute;right:0;top:calc(100% + 6px);z-index:20;background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px;width:250px;box-shadow:0 8px 24px rgba(10,30,60,.18)}
+.pax{position:relative}.pax summary{list-style:none;border:1px solid var(--line);border-radius:8px;padding:8px 12px;cursor:pointer;background:var(--card);white-space:nowrap}.pax summary::-webkit-details-marker{display:none}
+.paxbox{position:absolute;right:0;top:calc(100% + 6px);z-index:20;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;width:250px;box-shadow:0 8px 24px rgba(10,30,60,.18)}
 .pr2{display:flex;justify-content:space-between;align-items:center;margin:8px 0}.pr2 small{display:block;color:var(--muted)}
-.stp{display:flex;gap:10px;align-items:center}.stp button{width:30px;height:30px;border-radius:50%;border:1px solid var(--line);background:#fff;color:var(--blue);font-size:18px;line-height:1}
+.stp{display:flex;gap:10px;align-items:center}.stp button{width:30px;height:30px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--link);font-size:18px;line-height:1}
 .page{max-width:1280px;margin:-40px auto 0;padding:0 16px;display:grid;grid-template-columns:260px minmax(0,1fr);gap:20px;align-items:start}
 .content{min-width:0}.content #res{margin:0 0 30px;padding:0;max-width:none}
-#fl{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px;position:sticky;top:12px;min-height:calc(100vh - 150px)}
+#fl{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;position:sticky;top:12px;min-height:calc(100vh - 150px)}
 #fl summary{font-weight:700;cursor:pointer}.fg{margin-top:14px}.fg b{display:block;margin-bottom:4px}
 .ck{display:flex;gap:8px;align-items:center;margin:5px 0;font-size:14px;color:var(--ink)}.ck input{width:auto;flex:none}
 #al{max-height:55vh;overflow:auto}
+
 h2{font-size:18px;margin:18px 0 8px}
-.c{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:10px;display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}
-.pr{font-size:20px;font-weight:700;color:var(--blue)}.s{color:var(--muted);font-size:13px}
+.c{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:10px;display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}
+.pr{font-size:20px;font-weight:700;color:var(--link)}.s{color:var(--muted);font-size:13px}
 .tag{display:inline-block;font-size:12px;padding:1px 9px;border-radius:10px;border:1px solid var(--line);margin:2px 4px 0 0}
-.bk{display:inline-block;margin-top:6px;padding:9px 16px;border-radius:8px;background:var(--blue);color:#fff;text-decoration:none;font-weight:600}.aglogo{width:34px;height:34px;object-fit:contain;border:1px solid var(--line);border-radius:8px;background:#fff;padding:3px;flex:none}.agmark{width:34px;height:34px;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;background:#eef4ff;color:var(--blue);font-weight:800;flex:none}
-.m{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px}
-.cmp{background:#fff;border:1px dashed var(--line);border-radius:12px;padding:12px;margin-bottom:10px}
-.cmp a{display:inline-block;margin:6px 6px 0 0;padding:6px 12px;border:1px solid var(--line);border-radius:8px;color:var(--blue);text-decoration:none}
-footer{background:#0a2a5e;color:#cfe0ff;padding:24px 16px;font-size:13px}footer a{color:#fff;margin-right:14px}footer p{margin:10px 0 0;opacity:.85}
+.bk{display:inline-block;margin-top:6px;padding:9px 16px;border-radius:8px;background:var(--blue);color:#fff;text-decoration:none;font-weight:600}.aglogo{width:34px;height:34px;object-fit:contain;border:1px solid var(--line);border-radius:8px;background:#fff;padding:3px;flex:none}.agmark{width:34px;height:34px;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;background:var(--hov);color:var(--link);font-weight:800;flex:none}
+.m{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px}
+.cmp{background:var(--card);border:1px dashed var(--line);border-radius:12px;padding:12px;margin-bottom:10px}
+.cmp a{display:inline-block;margin:6px 6px 0 0;padding:6px 12px;border:1px solid var(--line);border-radius:8px;color:var(--link);text-decoration:none}
+footer{background:var(--ft);color:#cfe0ff;padding:24px 16px;font-size:13px}footer a{color:#fff;margin-right:14px}footer p{margin:10px 0 0;opacity:.85}
 
 /* clearer boxes */
-input,select{background:#f3f6fb;border:1.5px solid #bccadc;border-radius:10px;padding:10px 12px;box-shadow:inset 0 1px 2px rgba(10,42,94,.06)}
-input:hover,select:hover{border-color:#8fa6c4}
-input:focus,select:focus{outline:none;border-color:var(--blue);background:#fff;box-shadow:0 0 0 3px rgba(20,88,199,.18)}
+input,select{background:var(--field);border:1.5px solid var(--fb);border-radius:10px;padding:10px 12px;box-shadow:inset 0 1px 2px rgba(10,42,94,.06)}
+input:hover,select:hover{border-color:var(--hb)}
+input:focus,select:focus{outline:none;border-color:var(--link);background:var(--card);box-shadow:0 0 0 3px rgba(20,88,199,.18)}
 input[type=checkbox],input[type=radio]{background:none;border:0;box-shadow:none;padding:0}
-.p label{font-weight:600;color:#33507a}.p{border:1px solid #c9d6e6}
+.p label{font-weight:600;color:var(--lbl)}.p{border:1px solid #c9d6e6}
 #fl summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:8px}#fl summary::-webkit-details-marker{display:none}
 .chev{display:none}.fcnt{background:var(--sun);color:#2a1300;border-radius:10px;padding:0 8px;font-size:12px;font-weight:700;margin-left:8px}.fcnt:empty{display:none}
 @media(max-width:859px){
@@ -72,7 +67,7 @@ input[type=checkbox],input[type=radio]{background:none;border:0;box-shadow:none;
 #fl{order:2;display:none;position:sticky;top:8px;z-index:25;padding:0;border:0;background:none;box-shadow:none;min-height:0;margin:0 0 12px}.page.has #fl{display:block}
 #fl summary{background:linear-gradient(90deg,#1458c7,#0a2a5e);color:#fff;padding:14px 16px;border-radius:12px;font-size:16px;box-shadow:0 8px 18px rgba(20,88,199,.4)}
 #fl details[open] summary{border-radius:12px 12px 0 0}.chev{display:inline}
-.fbody{background:#fff;border:1.5px solid #bccadc;border-top:0;border-radius:0 0 12px 12px;padding:2px 14px 14px;box-shadow:0 10px 20px rgba(10,30,60,.15);max-height:70vh;overflow:auto}
+.fbody{background:var(--card);border:1.5px solid var(--fb);border-top:0;border-radius:0 0 12px 12px;padding:2px 14px 14px;box-shadow:0 10px 20px rgba(10,30,60,.15);max-height:70vh;overflow:auto}
 }
 
 /* advertising banner */
@@ -81,54 +76,54 @@ input[type=checkbox],input[type=radio]{background:none;border:0;box-shadow:none;
 .adin{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding-top:14px}.adimg{width:64px;height:64px;object-fit:cover;border-radius:10px;background:#fff}
 .adtx{flex:1;min-width:180px}.adtx b{display:block;font-size:16px}.adtx span{font-size:13px;opacity:.9}
 .adcta{background:var(--sun);color:#2a1300;text-decoration:none;font-weight:700;border-radius:10px;padding:9px 16px;white-space:nowrap}
-.addots{position:absolute;right:12px;bottom:6px;display:flex;gap:6px}.addots button{width:8px;height:8px;border-radius:50%;border:0;padding:0;background:rgba(255,255,255,.45)}.addots button.on{background:#fff}
+.addots{position:absolute;right:12px;bottom:6px;display:flex;gap:6px}.addots button{width:8px;height:8px;border-radius:50%;border:0;padding:0;background:rgba(255,255,255,.45)}.addots button.on{background:var(--card)}
 @media(max-width:600px){.adcta{width:100%;text-align:center}}
 
 .cal.hasp .dd{height:46px;border-radius:10px;line-height:1.15;padding:2px 0}.dd small{display:block;font-size:10px;color:var(--muted);font-weight:500}
-.dd small.lo{color:#12805c;font-weight:700}.dd.sel small,.dd.rs small{color:#fff}.dd:disabled small{color:#c3ccd8}.cl{font-size:11px;color:var(--muted);margin-top:8px;line-height:1.35}
+.dd small.lo{color:var(--grn);font-weight:700}.dd.sel small,.dd.rs small{color:#fff}.dd:disabled small{color:var(--dis)}.cl{font-size:11px;color:var(--muted);margin-top:8px;line-height:1.35}
 
-.strip{margin:6px 0 12px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px}
+.strip{margin:6px 0 12px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px}
 .sh{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}.sh .s{flex:1;min-width:140px}
 .sw{display:flex;align-items:center;gap:6px}.chips{flex:1;min-width:0;position:relative;display:flex;gap:8px;overflow-x:auto;padding:2px 0;scrollbar-width:none;-ms-overflow-style:none;cursor:grab;user-select:none}.chips::-webkit-scrollbar{display:none}.chips.drag{cursor:grabbing}
-.arw{flex:none;width:36px;height:36px;border-radius:50%;border:1.5px solid #bccadc;background:#fff;color:var(--blue);font-size:22px;line-height:1;cursor:pointer;box-shadow:0 2px 6px rgba(10,30,60,.12);padding:0}.arw:hover:not(:disabled){background:#eef4ff}.arw:disabled{opacity:.35;cursor:default}
-.chip{flex:none;min-width:92px;border:1.5px solid #bccadc;background:#f3f6fb;border-radius:10px;padding:6px 8px;text-align:center;cursor:pointer;color:var(--ink);font:inherit}
-.chip b{display:block;font-size:12px}.chip span{font-size:14px;font-weight:700;color:var(--blue)}.chip small{display:block;font-size:10px;color:#12805c;font-weight:700;min-height:12px}
-.chip.lo{border-color:#12805c;background:#e8f6ef}.chip.lo span{color:#12805c}.chip.cur{outline:2px solid var(--blue)}
+.arw{flex:none;width:36px;height:36px;border-radius:50%;border:1.5px solid var(--fb);background:var(--card);color:var(--link);font-size:22px;line-height:1;cursor:pointer;box-shadow:0 2px 6px rgba(10,30,60,.12);padding:0}.arw:hover:not(:disabled){background:var(--hov)}.arw:disabled{opacity:.35;cursor:default}
+.chip{flex:none;min-width:92px;border:1.5px solid var(--fb);background:var(--field);border-radius:10px;padding:6px 8px;text-align:center;cursor:pointer;color:var(--ink);font:inherit}
+.chip b{display:block;font-size:12px}.chip span{font-size:14px;font-weight:700;color:var(--link)}.chip small{display:block;font-size:10px;color:var(--grn);font-weight:700;min-height:12px}
+.chip.lo{border-color:var(--grn);background:var(--grnbg)}.chip.lo span{color:var(--grn)}.chip.cur{outline:2px solid var(--blue)}
 
 /* flight card */
 .fm{flex:1;min-width:0}.al{display:flex;align-items:center;gap:8px}.lg{width:28px;height:28px;object-fit:contain;border-radius:6px;background:#fff;flex:none}
-.lg0{display:inline-flex;width:28px;height:28px;border-radius:6px;background:#e6efff;color:var(--blue);font-size:11px;font-weight:700;align-items:center;justify-content:center;flex:none}
+.lg0{display:inline-flex;width:28px;height:28px;border-radius:6px;background:var(--rng);color:var(--link);font-size:11px;font-weight:700;align-items:center;justify-content:center;flex:none}
 .rt{display:flex;align-items:center;gap:10px;margin:10px 0 6px}.ep{text-align:center;flex:none}.ep b{display:block;font-size:17px;font-family:Sora,system-ui,sans-serif}.ep sup{font-size:10px;color:var(--sun);margin-left:2px}
 .ln{flex:1;position:relative;min-width:60px;height:34px;display:flex;align-items:center}
 .ln .bar{flex:1;height:2px;background:linear-gradient(90deg,var(--blue),var(--sun))}
 .ln::after{content:'';border:6px solid transparent;border-left:9px solid var(--sun);border-right:0;margin-left:-1px}
 .dur{position:absolute;bottom:0;left:50%;transform:translateX(-50%);font-size:11px;color:var(--muted);white-space:nowrap}
-.stop{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:14px;height:14px;border-radius:50%;background:#fff;border:3px solid var(--sun);cursor:help;z-index:2}
+.stop{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:14px;height:14px;border-radius:50%;background:var(--card);border:3px solid var(--sun);cursor:help;z-index:2}
 .stop::before{content:'';position:absolute;left:50%;top:-17px;width:30px;height:14px;border:2px solid var(--sun);border-bottom:0;border-radius:16px 16px 0 0;transform:translateX(-50%);pointer-events:none}
-.stop:hover::after,.stop:focus::after{content:attr(data-tip);position:absolute;bottom:170%;left:50%;transform:translateX(-50%);background:#0a2a5e;color:#fff;font-size:12px;line-height:1.35;padding:7px 10px;border-radius:8px;width:max-content;max-width:230px;z-index:20;box-shadow:0 6px 16px rgba(10,30,60,.3);font-weight:400}
+.stop:hover::after,.stop:focus::after{content:attr(data-tip);position:absolute;bottom:170%;left:50%;transform:translateX(-50%);background:var(--tip);color:#fff;font-size:12px;line-height:1.35;padding:7px 10px;border-radius:8px;width:max-content;max-width:230px;z-index:20;box-shadow:0 6px 16px rgba(10,30,60,.3);font-weight:400}
 .stop:focus{outline:none}
 .pc{text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:2px}
 @media(max-width:600px){.pc{width:100%;flex-direction:row;align-items:center;justify-content:space-between;text-align:left}.ep b{font-size:15px}}
 .ar{display:flex;align-items:center;gap:6px;margin:6px 0}.ar .ck{flex:1;min-width:0;margin:0}.ar .an{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.ar .lg,.ar .lg0{width:22px;height:22px;font-size:9px}.ap{font-size:13px;font-weight:700;color:var(--blue);white-space:nowrap}
-.only{border:1px solid var(--line);background:#fff;color:var(--blue);border-radius:8px;font-size:11px;padding:2px 8px;cursor:pointer}.only:hover{background:#eef4ff}
+.ar .lg,.ar .lg0{width:22px;height:22px;font-size:9px}.ap{font-size:13px;font-weight:700;color:var(--link);white-space:nowrap}
+.only{border:1px solid var(--line);background:var(--card);color:var(--link);border-radius:8px;font-size:11px;padding:2px 8px;cursor:pointer}.only:hover{background:var(--hov)}
 #res,.content{min-width:0;max-width:100%}.strip{overflow:hidden;max-width:100%}.sw{min-width:0;max-width:100%}
 @media(max-width:600px){.arw{width:30px;height:30px;font-size:18px}.chip{min-width:78px;padding:5px 6px}.chip b{font-size:11px}.chip span{font-size:13px}.sw{gap:4px}.sh b{font-size:14px}}
 
 .tfg{display:grid;grid-template-columns:1fr 1fr;gap:8px}.tfc{position:relative;display:block;cursor:pointer}
 .tfc input{position:absolute;opacity:0;inset:0;width:100%;height:100%;margin:0;padding:0;border:0;cursor:pointer}
-.tfb{display:flex;flex-direction:column;align-items:center;gap:3px;border:1.5px solid #bccadc;background:#f3f6fb;border-radius:12px;padding:8px 4px;text-align:center;transition:.15s}
+.tfb{display:flex;flex-direction:column;align-items:center;gap:3px;border:1.5px solid var(--fb);background:var(--field);border-radius:12px;padding:8px 4px;text-align:center;transition:.15s}
 .tfb svg{width:32px;height:32px}.tfb .s{font-size:11px;line-height:1.2}
-.tfc input:checked+.tfb{border-color:var(--blue);background:#e6efff;box-shadow:0 0 0 2px rgba(20,88,199,.15)}
+.tfc input:checked+.tfb{border-color:var(--link);background:var(--rng);box-shadow:0 0 0 2px rgba(20,88,199,.15)}
 .tfc input:not(:checked)+.tfb{opacity:.5;filter:grayscale(.7)}.tfc input:focus-visible+.tfb{outline:2px solid var(--sun);outline-offset:2px}
 
 /* departure-time icon tiles */
 .tfg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.tf{position:relative;display:flex;flex-direction:column;align-items:center;gap:3px;border:1.5px solid #bccadc;background:#f3f6fb;border-radius:12px;padding:8px 4px;cursor:pointer;font-size:11px;color:var(--muted);text-align:center;user-select:none}
+.tf{position:relative;display:flex;flex-direction:column;align-items:center;gap:3px;border:1.5px solid var(--fb);background:var(--field);border-radius:12px;padding:8px 4px;cursor:pointer;font-size:11px;color:var(--muted);text-align:center;user-select:none}
 .tf input{position:absolute;inset:0;width:100%;height:100%;opacity:0;margin:0;cursor:pointer}
 .tf svg{width:32px;height:32px;opacity:.38;filter:grayscale(1);transition:opacity .15s}
-.tf input:checked~svg{opacity:1;filter:none}.tf input:checked~span{color:var(--blue);font-weight:700}
-.tf:has(input:checked){border-color:var(--blue);background:#e6efff}.tf:hover{border-color:#8fa6c4}
+.tf input:checked~svg{opacity:1;filter:none}.tf input:checked~span{color:var(--link);font-weight:700}
+.tf:has(input:checked){border-color:var(--link);background:var(--rng)}.tf:hover{border-color:var(--hb)}
 .tf input:focus-visible~svg{outline:2px solid var(--sun);outline-offset:2px;border-radius:6px}
 @media(max-width:859px){.tfg{grid-template-columns:repeat(4,1fr)}.tf{font-size:10px;padding:8px 2px}}
 
@@ -148,365 +143,115 @@ html,body{max-width:100%;overflow-x:clip}
 
 /* offers popup */
 .ovl{position:fixed;inset:0;z-index:100;background:rgba(10,30,60,.55);display:flex;align-items:center;justify-content:center;padding:16px}.ovl[hidden]{display:none}
-.ofd{background:#fff;color:var(--ink);width:100%;max-width:640px;max-height:88vh;display:flex;flex-direction:column;border-radius:16px;box-shadow:0 20px 50px rgba(0,0,0,.35);overflow:hidden}
+.ofd{background:var(--card);color:var(--ink);width:100%;max-width:640px;max-height:88vh;display:flex;flex-direction:column;border-radius:16px;box-shadow:0 20px 50px rgba(0,0,0,.35);overflow:hidden}
 .ofh{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding:14px 14px 10px;border-bottom:1px solid var(--line)}.ofh h3{margin:0;font-size:17px;line-height:1.3}
-.ofx{flex:none;width:38px;height:38px;border-radius:50%;border:1.5px solid #bccadc;background:#fff;color:var(--ink);font-size:18px;line-height:1;cursor:pointer;padding:0}.ofx:hover{background:#eef4ff}
+.ofx{flex:none;width:38px;height:38px;border-radius:50%;border:1.5px solid var(--fb);background:var(--card);color:var(--ink);font-size:18px;line-height:1;cursor:pointer;padding:0}.ofx:hover{background:var(--hov)}
 .ofb{overflow:auto;padding:12px 14px 16px;-webkit-overflow-scrolling:touch}
-.ofr{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-top:8px}.ofr.lo{border-color:#12805c;background:#f2fbf6}
+.ofr{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-top:8px}.ofr.lo{border-color:var(--grn);background:var(--grnbg2)}
 .ofr .l{display:flex;align-items:center;gap:10px;min-width:0}.ofr .l b{overflow-wrap:anywhere}.ofr .bk{margin-top:0}
-.fcard{cursor:pointer}.fcard:hover{border-color:#8fa6c4}.fcard:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.fcard{cursor:pointer}.fcard:hover{border-color:var(--hb)}.fcard:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
 @media(max-width:600px){.ovl{align-items:flex-end;padding:0}.ofd{max-width:none;border-radius:16px 16px 0 0;max-height:92vh}.ofr .bk{width:100%;text-align:center}}
 
-/* Dark mode */
-html.dark body{background:#0b1320;color:#e6eefc}
-html.dark .p,html.dark #fl,html.dark .fbody,html.dark .c,html.dark .m,html.dark .cmp,html.dark .strip,html.dark .chip,html.dark .ofd,html.dark .ofr,html.dark .cal,html.dark .sug,html.dark .paxbox,html.dark input,html.dark select,html.dark .pax summary,html.dark .t:not([aria-pressed=true]),html.dark .sm,html.dark .only{background:#121d30;color:#e6eefc;border-color:#263854}
-html.dark .p label,html.dark .s,html.dark label,html.dark .tr,html.dark .cw,html.dark .cl,html.dark .dur,html.dark .lgl{color:#9ab0cf}
-html.dark .chip.lo{border-color:#19a978;background:#102b24}
-html.dark .ofr.lo{border-color:#19a978;background:#102b24}
-html.dark .dd:disabled,html.dark .dd:disabled small{color:#475a78}
-html.dark .dd.rg{background:#1a2b47}
-html.dark .si:hover,.dark .si.hl,.dark .cn:hover,.dark .arw:hover:not(:disabled),.dark .only:hover,.dark .ofx:hover{background:#1b2d4a}
+/* theme toggle */
+.thm{margin-left:auto;flex:none;padding:0;border:0;background:none;align-self:flex-start;cursor:pointer;border-radius:22px}
+.thm:focus-visible{outline:2px solid var(--sun);outline-offset:3px}
+.tk{position:relative;display:block;width:88px;height:38px;border-radius:19px;overflow:hidden;background:linear-gradient(180deg,#4fb0ff 0%,#a9dcff 70%,#ffe3b0 100%);border:2px solid rgba(255,255,255,.6);box-shadow:inset 0 2px 6px rgba(0,40,100,.3);transition:background .4s}
+:root[data-theme=dark] .tk{background:linear-gradient(180deg,#040916 0%,#17265a 100%)}
+.tk .tx{position:absolute;top:50%;right:11px;transform:translateY(-50%);font:700 10px/1 system-ui,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#0a3b7a;transition:color .3s}
+:root[data-theme=dark] .tk .tx{right:auto;left:11px;color:#dbe4ff}
+.tk .st{position:absolute;left:30px;top:9px;width:2px;height:2px;border-radius:50%;background:#fff;box-shadow:10px 7px 0 #fff,-2px 14px 0 #fff,18px -1px 0 #fff,24px 15px 0 #fff;opacity:0;transition:opacity .4s}
+:root[data-theme=dark] .tk .st{opacity:.9}
+.tk .kn{position:absolute;top:3px;left:3px;width:28px;height:28px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff0a8,#ffae1f 70%);box-shadow:0 0 0 4px rgba(255,200,80,.28),0 0 14px rgba(255,160,30,.75);transition:transform .45s cubic-bezier(.5,1.6,.4,1),background .3s,box-shadow .3s}
+:root[data-theme=dark] .tk .kn{transform:translateX(50px);background:radial-gradient(circle at 35% 35%,#fff,#c9d4f0 75%);box-shadow:0 0 0 4px rgba(200,215,255,.14),0 0 12px rgba(190,205,255,.55)}
+.tk .kn::before,.tk .kn::after{content:'';position:absolute;border-radius:50%;background:rgba(110,125,170,.45);opacity:0;transition:opacity .3s}
+.tk .kn::before{width:7px;height:7px;top:5px;left:14px}.tk .kn::after{width:5px;height:5px;top:16px;left:7px}
+:root[data-theme=dark] .tk .kn::before,:root[data-theme=dark] .tk .kn::after{opacity:1}
+@media(prefers-reduced-motion:reduce){.tk,.tk .kn,.tk .st,.tk .tx{transition:none}}
+:root[data-theme=dark] .p,:root[data-theme=dark] #fl,:root[data-theme=dark] .c{box-shadow:none}
 
-/* RTL support for Arabic */
-html[dir="rtl"] .opts{margin-left:0;margin-right:auto}
-html[dir="rtl"] .paxbox{right:auto;left:0}
-html[dir="rtl"] .sm{margin-right:0;margin-left:6px}
-html[dir="rtl"] .tag{margin:2px 0 0 4px}
-html[dir="rtl"] .pc{text-align:left;align-items:flex-start}
-html[dir="rtl"] footer a{margin-right:0;margin-left:14px}
-html[dir="rtl"] .cal.r{right:auto;left:0}
-html[dir="rtl"] .ln::after{border-left:0;border-right:9px solid var(--sun);margin-left:0;margin-right:-1px}
-html[dir="rtl"] .ln .bar{background:linear-gradient(270deg,var(--blue),var(--sun))}
-html[dir="rtl"] .adtag{left:auto;right:12px}
-html[dir="rtl"] .addots{right:auto;left:12px}
-@media(max-width:600px){html[dir="rtl"] .pc{text-align:right}}
-</style>
-</head><body>
-<header><div class="w htop"><div class="hr"><img src="/logo.png" alt="Tourflight" onerror="this.style.display='none'"><div><h1 data-i18n="h1">Explore · Compare · Fly</h1><div data-i18n="sub">Find the lowest fares from recent traveller searches.</div></div></div><div class="hctrls"><div class="langsw" role="group" aria-label="Language"><button type="button" class="langbtn" data-lang="en" aria-pressed="true">English</button><button type="button" class="langbtn" data-lang="ar" aria-pressed="false">العربية</button><button type="button" class="langbtn" data-lang="es" aria-pressed="false">Español</button><button type="button" class="langbtn" data-lang="hi" aria-pressed="false">हिन्दी</button></div><button type="button" class="thmbtn" id="thmbtn" onclick="toggleTheme()">🌙 Dark</button></div></div><div class="w"><div class="ad" id="ad" aria-label="Advertisement"></div></div></header>
-<div class="page" id="lay"><aside id="fl"><details id="fd" open><summary><span>☰ <span data-i18n="filters">Filters &amp; sort</span><span class="fcnt" id="fcnt"></span></span><span class="chev">▾</span></summary><div class="fbody">
-<div class="fg"><b data-i18n="stops">Stops</b><label class="ck"><input type="radio" name="sf" value="any" checked><span data-i18n="stops_any">Direct and 1 stop</span></label><label class="ck"><input type="radio" name="sf" value="0"><span data-i18n="stops_0">Direct only</span></label><label class="ck"><input type="radio" name="sf" value="1"><span data-i18n="stops_1">1 stop only</span></label></div>
-<div class="fg"><b data-i18n="dep_time">Departure time</b><div class="tfg"><label class="tf" data-title-key="tf_0_title"><input type="checkbox" name="tf" value="0" checked data-aria-key="tf_0_aria"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M21.5 5A11.5 11.5 0 1 0 27 22.5 9 9 0 0 1 21.5 5z" fill="#7a86e0"/><circle cx="25" cy="8.5" r="1.4" fill="#f2b705"/><circle cx="28.5" cy="14" r="1" fill="#f2b705"/></svg><span data-i18n="tf_0">12 AM – 6 AM</span></label><label class="tf" data-title-key="tf_1_title"><input type="checkbox" name="tf" value="1" checked data-aria-key="tf_1_aria"><svg viewBox="0 0 32 32" aria-hidden="true"><g stroke="#ffb020" stroke-width="2" stroke-linecap="round"><path d="M16 7v3M7.5 11.5l2 2M24.5 11.5l-2 2M3.5 20h3M25.5 20h3"/></g><path d="M9 21a7 7 0 0 1 14 0z" fill="#ffb020"/><path d="M5 21h22" stroke="#0a2a5e" stroke-width="2" stroke-linecap="round"/><path d="M16 29v-5M13.5 26.5L16 24l2.5 2.5" stroke="#0a2a5e" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span data-i18n="tf_1">6 AM – 12 PM</span></label><label class="tf" data-title-key="tf_2_title"><input type="checkbox" name="tf" value="2" checked data-aria-key="tf_2_aria"><svg viewBox="0 0 32 32" aria-hidden="true"><g stroke="#ffb020" stroke-width="2.2" stroke-linecap="round"><path d="M16 3v4M16 25v4M3 16h4M25 16h4M6.8 6.8l2.8 2.8M22.4 22.4l2.8 2.8M25.2 6.8l-2.8 2.8M9.6 22.4l-2.8 2.8"/></g><circle cx="16" cy="16" r="6" fill="#ffb020"/></svg><span data-i18n="tf_2">12 PM – 6 PM</span></label><label class="tf" data-title-key="tf_3_title"><input type="checkbox" name="tf" value="3" checked data-aria-key="tf_3_aria"><svg viewBox="0 0 32 32" aria-hidden="true"><g stroke="#ff6a3d" stroke-width="2" stroke-linecap="round"><path d="M16 7v3M7.5 11.5l2 2M24.5 11.5l-2 2M3.5 20h3M25.5 20h3"/></g><path d="M9 21a7 7 0 0 1 14 0z" fill="#ff6a3d"/><path d="M5 21h22" stroke="#0a2a5e" stroke-width="2" stroke-linecap="round"/><path d="M16 24v5M13.5 26.5L16 29l2.5-2.5" stroke="#0a2a5e" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span data-i18n="tf_3">6 PM – 12 AM</span></label></div><div class="s" style="margin-top:4px" data-i18n="tf_hint">Tap an icon to include or leave out that time.</div></div>
-<div class="fg"><b data-i18n="airlines">Airlines</b><button type="button" class="sm" onclick="selAll(true)" data-i18n="all">All</button><button type="button" class="sm" onclick="selAll(false)" data-i18n="none">None</button><div id="al"><div class="s" data-i18n="al_empty">Search to see airlines</div></div></div>
-<div class="fg"><b data-i18n="sort_by">Sort by</b><select id="so"><option value="price" data-i18n="sort_price">Price: low to high</option><option value="dur" data-i18n="sort_dur">Shortest flight</option><option value="dep" data-i18n="sort_dep">Earliest departure</option></select></div>
+/* offers popup: ticket look */
+.ovl{backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);animation:offade .2s ease}
+.ofd{border:0;box-shadow:0 24px 60px rgba(0,0,0,.45);animation:ofpop .3s cubic-bezier(.2,.9,.3,1.2)}
+.ofh{position:relative;align-items:center;padding:16px 16px 18px;border:0;background:linear-gradient(135deg,var(--h1),var(--h2));color:#fff;overflow:hidden}
+.ofh::after{content:'';position:absolute;right:-34px;top:-40px;width:130px;height:130px;border-radius:50%;background:rgba(255,255,255,.08);pointer-events:none}
+.ofh>div:first-child{position:relative;z-index:1;min-width:0}
+.ofe{font-size:10px;letter-spacing:.14em;text-transform:uppercase;opacity:.75;margin-bottom:3px}
+.ofh h3{color:#fff;font-size:17px}
+.ofx{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;width:40px;height:40px;border:1.5px solid rgba(255,255,255,.55);background:rgba(255,255,255,.14);color:#fff;transition:transform .25s,background .2s,border-color .2s,color .2s}
+.ofx svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round}
+.ofx:hover,.ofx:focus-visible{background:var(--sun);border-color:var(--sun);color:#2a1300;transform:rotate(90deg)}
+.ofx:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.ofb{background:var(--bg)}
+.tkt{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 14px 12px;margin-bottom:14px;box-shadow:0 4px 14px rgba(10,30,60,.08)}
+.tkr{display:flex;align-items:center;gap:10px}
+.tkc{min-width:0}.tkc b{display:block;font-size:26px;line-height:1;letter-spacing:.03em}.tkc span{display:block;margin-top:3px;font-size:12px;color:var(--muted)}.tkc.r{text-align:right}
+.tkl{flex:1;display:flex;align-items:center;gap:6px;color:var(--sun);min-width:40px}
+.tkl::before,.tkl::after{content:'';flex:1;border-top:2px dotted var(--fb)}
+.tkl svg{width:22px;height:22px;fill:currentColor;transform:rotate(90deg);flex:none}
+.tkd{position:relative;display:flex;gap:6px 22px;flex-wrap:wrap;margin-top:14px;padding-top:12px;border-top:2px dashed var(--line)}
+.tkd::before,.tkd::after{content:'';position:absolute;top:-11px;width:20px;height:20px;border-radius:50%;background:var(--bg)}
+.tkd::before{left:-25px}.tkd::after{right:-25px}
+.tkd small{display:block;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}.tkd b{font-size:14px}
+.ofr{border-radius:12px;padding:12px;transition:transform .15s,box-shadow .15s}
+.ofr:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(10,30,60,.14)}
+.ofr.lo{position:relative;margin-top:18px}
+.ofr.lo::before{content:'Best price';position:absolute;top:-10px;left:12px;background:var(--grn);color:#fff;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:2px 9px;border-radius:8px}
+:root[data-theme=dark] .ofr.lo::before{color:#062b1e}
+.ofr .pr{font-size:19px}
+.ofr .bk{background:var(--sun);color:#2a1300}
+@keyframes ofpop{from{opacity:0;transform:translateY(14px) scale(.96)}to{opacity:1;transform:none}}
+@keyframes ofsheet{from{transform:translateY(100%)}to{transform:none}}
+@keyframes offade{from{opacity:0}to{opacity:1}}
+@media(max-width:600px){.ofd{animation:ofsheet .3s cubic-bezier(.2,.9,.3,1)}.tkc b{font-size:23px}}
+@media(prefers-reduced-motion:reduce){.ovl,.ofd{animation:none}.ofx,.ofr{transition:none}}
+
+/* airline name + logo on each leg and in the offers ticket */
+.lgl{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.tka{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--muted);margin-top:3px}
+.tka .lg,.tka .lg0{width:16px;height:16px;font-size:8px;border-radius:4px}
+.lgl .tka{margin:0 0 0 auto;text-transform:none;letter-spacing:0;font-weight:600;color:var(--ink)}
+.lgl .tka .lg,.lgl .tka .lg0{width:20px;height:20px;font-size:9px}
+.tkh{display:flex;align-items:center;gap:10px;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--line2)}
+.tkh .lg,.tkh .lg0{width:40px;height:40px;font-size:13px;border:1px solid var(--line);padding:3px;border-radius:10px}
+.tkh>div b{display:block;font-size:15px;line-height:1.2}.tkh>div span{font-size:12px;color:var(--muted)}
+.tkh .tkb{margin-left:auto;font-size:11px;font-weight:700;color:var(--link);background:var(--hov);border-radius:10px;padding:3px 10px;white-space:nowrap}
+
+/* route line: dotted, arrow for direct flights, plane + layover for 1-stop */
+.ln{min-width:84px;height:auto;flex-direction:column;align-items:stretch;justify-content:center;gap:3px}
+.ln::after{content:none}
+.ln .dur{position:static;transform:none;text-align:center;font-size:11px;color:var(--muted);white-space:nowrap}
+.ln .lrow{display:flex;align-items:center;gap:6px}
+.ln .dl{flex:1;min-width:12px;border-top:2px dotted var(--hb)}
+.ln:not(.st) .lrow::after{content:'';flex:none;border:6px solid transparent;border-left:10px solid var(--sun);border-right:0;margin-left:-4px}
+.ln .pl{position:relative;flex:none;width:30px;height:30px;border-radius:50%;background:var(--card);border:2px solid var(--sun);color:var(--sun);display:flex;align-items:center;justify-content:center;cursor:help}
+.ln .pl svg{width:16px;height:16px;fill:currentColor;transform:rotate(90deg)}
+.ln .pl:focus{outline:none}.ln .pl:focus-visible{box-shadow:0 0 0 3px rgba(255,122,0,.35)}
+.ln .pl:hover::after,.ln .pl:focus::after{content:attr(data-tip);position:absolute;bottom:130%;left:50%;transform:translateX(-50%);background:var(--tip);color:#fff;font-size:12px;line-height:1.35;padding:7px 10px;border-radius:8px;width:max-content;max-width:230px;z-index:20;font-weight:400;box-shadow:0 6px 16px rgba(10,30,60,.3)}
+.ln .lay{align-self:center;text-align:center;font-weight:800;font-size:11px;line-height:1.25;color:#a84f00;background:rgba(255,122,0,.14);border-radius:10px;padding:2px 9px}
+.ln .lay small{font-weight:600;opacity:.8;font-size:10px}
+:root[data-theme=dark] .ln .lay{color:#ffb877;background:rgba(255,150,50,.16)}
+</style></head><body>
+<header><div class="w hr"><img src="/logo.png" alt="Tourflight" onerror="this.style.display='none'"><div><h1>Explore · Compare · Fly</h1><div>Find the lowest fares from recent traveller searches.</div></div><button type="button" class="thm" id="tg" role="switch" aria-checked="false" aria-label="Switch theme"><span class="tk"><i class="st"></i><b class="tx"></b><span class="kn"></span></span></button></div><div class="w"><div class="ad" id="ad" aria-label="Advertisement"></div></div></header>
+<div class="page" id="lay"><aside id="fl"><details id="fd" open><summary><span>☰ Filters &amp; sort<span class="fcnt" id="fcnt"></span></span><span class="chev">▾</span></summary><div class="fbody">
+<div class="fg"><b>Stops</b><label class="ck"><input type="radio" name="sf" value="any" checked> Direct and 1 stop</label><label class="ck"><input type="radio" name="sf" value="0"> Direct only</label><label class="ck"><input type="radio" name="sf" value="1"> 1 stop only</label></div>
+<div class="fg"><b>Departure time</b><div class="tfg"><label class="tf" title="Night: 12 AM – 6 AM"><input type="checkbox" name="tf" value="0" checked aria-label="Night, 12 AM – 6 AM"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M21.5 5A11.5 11.5 0 1 0 27 22.5 9 9 0 0 1 21.5 5z" fill="#7a86e0"/><circle cx="25" cy="8.5" r="1.4" fill="#f2b705"/><circle cx="28.5" cy="14" r="1" fill="#f2b705"/></svg><span>12 AM – 6 AM</span></label><label class="tf" title="Morning: 6 AM – 12 PM"><input type="checkbox" name="tf" value="1" checked aria-label="Morning, 6 AM – 12 PM"><svg viewBox="0 0 32 32" aria-hidden="true"><g stroke="#ffb020" stroke-width="2" stroke-linecap="round"><path d="M16 7v3M7.5 11.5l2 2M24.5 11.5l-2 2M3.5 20h3M25.5 20h3"/></g><path d="M9 21a7 7 0 0 1 14 0z" fill="#ffb020"/><path d="M5 21h22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M16 29v-5M13.5 26.5L16 24l2.5 2.5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span>6 AM – 12 PM</span></label><label class="tf" title="Afternoon: 12 PM – 6 PM"><input type="checkbox" name="tf" value="2" checked aria-label="Afternoon, 12 PM – 6 PM"><svg viewBox="0 0 32 32" aria-hidden="true"><g stroke="#ffb020" stroke-width="2.2" stroke-linecap="round"><path d="M16 3v4M16 25v4M3 16h4M25 16h4M6.8 6.8l2.8 2.8M22.4 22.4l2.8 2.8M25.2 6.8l-2.8 2.8M9.6 22.4l-2.8 2.8"/></g><circle cx="16" cy="16" r="6" fill="#ffb020"/></svg><span>12 PM – 6 PM</span></label><label class="tf" title="Evening: 6 PM – 12 AM"><input type="checkbox" name="tf" value="3" checked aria-label="Evening, 6 PM – 12 AM"><svg viewBox="0 0 32 32" aria-hidden="true"><g stroke="#ff6a3d" stroke-width="2" stroke-linecap="round"><path d="M16 7v3M7.5 11.5l2 2M24.5 11.5l-2 2M3.5 20h3M25.5 20h3"/></g><path d="M9 21a7 7 0 0 1 14 0z" fill="#ff6a3d"/><path d="M5 21h22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M16 24v5M13.5 26.5L16 29l2.5-2.5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span>6 PM – 12 AM</span></label></div><div class="s" style="margin-top:4px">Tap an icon to include or leave out that time.</div></div>
+<div class="fg"><b>Airlines</b><button class="sm" onclick="selAll(true)">All</button><button class="sm" onclick="selAll(false)">None</button><div id="al"><div class="s">Search to see airlines</div></div></div>
+<div class="fg"><b>Sort by</b><select id="so"><option value="price">Price: low to high</option><option value="dur">Shortest flight</option><option value="dep">Earliest departure</option></select></div>
 </div></details></aside><div class="content"><div class="p">
-<div class="top"><div class="tabs" id="tabs"><button type="button" class="t" data-t="oneway" aria-pressed="false" data-i18n="tab_oneway">One way</button><button type="button" class="t" data-t="round" aria-pressed="true" data-i18n="tab_round">Round trip</button><button type="button" class="t" data-t="multi" aria-pressed="false" data-i18n="tab_multi">Multi-city</button></div><div class="opts"><details class="pax" id="pxd"><summary id="pxs">1 Adult</summary><div class="paxbox"><div class="pr2"><div><span data-i18n="adults">Adults</span><small data-i18n="adults_sub">12+ years</small></div><div class="stp"><button type="button" data-aria-key="fewer_adults" onclick="chg('a',-1)">−</button><b id="na">1</b><button type="button" data-aria-key="more_adults" onclick="chg('a',1)">+</button></div></div><div class="pr2"><div><span data-i18n="children">Children</span><small data-i18n="children_sub">2–11 years</small></div><div class="stp"><button type="button" data-aria-key="fewer_children" onclick="chg('c',-1)">−</button><b id="nc">0</b><button type="button" data-aria-key="more_children" onclick="chg('c',1)">+</button></div></div><div class="pr2"><div><span data-i18n="infants">Infants</span><small data-i18n="infants_sub">Under 2 years</small></div><div class="stp"><button type="button" data-aria-key="fewer_infants" onclick="chg('i',-1)">−</button><b id="ni">0</b><button type="button" data-aria-key="more_infants" onclick="chg('i',1)">+</button></div></div></div></details><select id="cabin" data-aria-key="cabin_aria"><option value="economy" data-i18n="cabin_eco">Economy</option><option value="business" data-i18n="cabin_biz">Business</option></select></div></div>
+<div class="top"><div class="tabs" id="tabs"><button class="t" data-t="oneway" aria-pressed="false">One way</button><button class="t" data-t="round" aria-pressed="true">Round trip</button><button class="t" data-t="multi" aria-pressed="false">Multi-city</button></div><div class="opts"><details class="pax" id="pxd"><summary id="pxs">1 Adult</summary><div class="paxbox"><div class="pr2"><div>Adults<small>12+ years</small></div><div class="stp"><button type="button" aria-label="Fewer Adults" onclick="chg('a',-1)">−</button><b id="na">1</b><button type="button" aria-label="More Adults" onclick="chg('a',1)">+</button></div></div><div class="pr2"><div>Children<small>2–11 years</small></div><div class="stp"><button type="button" aria-label="Fewer Children" onclick="chg('c',-1)">−</button><b id="nc">0</b><button type="button" aria-label="More Children" onclick="chg('c',1)">+</button></div></div><div class="pr2"><div>Infants<small>Under 2 years</small></div><div class="stp"><button type="button" aria-label="Fewer Infants" onclick="chg('i',-1)">−</button><b id="ni">0</b><button type="button" aria-label="More Infants" onclick="chg('i',1)">+</button></div></div></div></details><select id="cabin" aria-label="Cabin class"><option value="economy">Economy</option><option value="business">Business</option></select></div></div>
 <div id="legs"></div>
-<div class="g"><div><label for="cyv" data-i18n="currency_lbl">Currency (type to search)</label><div class="acw"><input type="hidden" id="cy" value="bdt"><input id="cyv" autocomplete="off" spellcheck="false" data-ph-key="currency_ph"><div class="sug" id="cys" role="listbox"></div></div></div>
-<div style="align-self:end"><label style="display:flex;gap:8px;align-items:center;margin:0 0 8px"><input type="checkbox" id="mo" style="width:auto" checked><span data-i18n="month_flex">Cheapest across the whole month (flexible dates)</span></label><div class="s" style="margin-top:-5px" data-i18n="month_hint">On by default. Untick to search only the exact dates selected.</div></div></div>
-<button type="button" class="go" id="go" data-i18n="search_btn">Search flights</button>
-<div class="tr" data-i18n="trust">Tourflight never takes payments or card details. You book on the partner site. Prices come from recent searches and may have changed.</div>
+<div class="g"><div><label for="cyv">Currency (type to search)</label><div class="acw"><input type="hidden" id="cy" value="bdt"><input id="cyv" autocomplete="off" spellcheck="false" placeholder="Search currency"><div class="sug" id="cys" role="listbox"></div></div></div>
+<div style="align-self:end"><label style="display:flex;gap:8px;align-items:center;margin:0 0 8px"><input type="checkbox" id="mo" style="width:auto"> Flexible dates: show the cheapest across the whole month</label><div class="s" style="margin-top:-5px">Off by default, so results match the exact dates you select. Tick to see other dates in the month.</div></div></div>
+<button class="go" id="go">Search flights</button>
+<div class="tr">Tourflight never takes payments or card details. You book on the partner site. Prices come from recent searches and may have changed.</div>
 </div><main id="res"></main></div></div>
-<footer><div class="w"><a href="/about.html" data-i18n="f_about">About</a><a href="/terms.html" data-i18n="f_terms">Terms &amp; Conditions</a><a href="/privacy.html" data-i18n="f_privacy">Privacy Policy</a>
-<p data-i18n="f_disc">Tourflight is a flight search and comparison service. We do not sell tickets or take payments. Prices come from third-party sources, can change at any time and must be confirmed on the booking site. Baggage rules and fare conditions are set by the airline or booking site. We may earn a commission when you book through partner links.</p>
-<p data-i18n="f_copy">&copy; Tourflight. All rights reserved.</p></div></footer>
-<div class="ovl" id="ofm" hidden role="dialog" aria-modal="true" aria-labelledby="oft"><div class="ofd"><div class="ofh"><h3 id="oft">Offers</h3><button type="button" class="ofx" id="ofx" data-aria-key="close_aria">\u2715</button></div><div class="ofb" id="ofb"></div></div></div>
+<footer><div class="w"><a href="/about.html">About</a><a href="/terms.html">Terms &amp; Conditions</a><a href="/privacy.html">Privacy Policy</a>
+<p>Tourflight is a flight search and comparison service. We do not sell tickets or take payments. Prices come from third-party sources, can change at any time and must be confirmed on the booking site. Baggage rules and fare conditions are set by the airline or booking site. We may earn a commission when you book through partner links.</p>
+<p>&copy; Tourflight. All rights reserved.</p></div></footer>
+<div class="ovl" id="ofm" hidden role="dialog" aria-modal="true" aria-labelledby="oft"><div class="ofd"><div class="ofh"><div><div class="ofe">Flight offers</div><h3 id="oft">Offers</h3></div><button type="button" class="ofx" id="ofx" aria-label="Close offers" title="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div><div class="ofb" id="ofb"></div></div></div>
 <script>
 var $=function(i){return document.getElementById(i)};
 function esc(t){return String(t).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
-
-var LANG='en';
-var I18N={
-en:{
-  locale:'en-GB',numLocale:'en-US',
-  h1:'Explore · Compare · Fly',
-  sub:'Find the lowest fares from recent traveller searches.',
-  filters:'Filters & sort',
-  stops:'Stops',stops_any:'Direct and 1 stop',stops_0:'Direct only',stops_1:'1 stop only',
-  dep_time:'Departure time',
-  tf_0:'12 AM – 6 AM',tf_0_title:'Night: 12 AM – 6 AM',tf_0_aria:'Night, 12 AM – 6 AM',
-  tf_1:'6 AM – 12 PM',tf_1_title:'Morning: 6 AM – 12 PM',tf_1_aria:'Morning, 6 AM – 12 PM',
-  tf_2:'12 PM – 6 PM',tf_2_title:'Afternoon: 12 PM – 6 PM',tf_2_aria:'Afternoon, 12 PM – 6 PM',
-  tf_3:'6 PM – 12 AM',tf_3_title:'Evening: 6 PM – 12 AM',tf_3_aria:'Evening, 6 PM – 12 AM',
-  tf_hint:'Tap an icon to include or leave out that time.',
-  airlines:'Airlines',all:'All',none:'None',al_empty:'Search to see airlines',no_airlines:'No airlines',only:'only',
-  sort_by:'Sort by',sort_price:'Price: low to high',sort_dur:'Shortest flight',sort_dep:'Earliest departure',
-  tab_oneway:'One way',tab_round:'Round trip',tab_multi:'Multi-city',
-  adult_1:'Adult',adult_n:'Adults',adults:'Adults',adults_sub:'12+ years',
-  child_1:'Child',child_n:'Children',children:'Children',children_sub:'2–11 years',
-  infant_1:'Infant',infant_n:'Infants',infants:'Infants',infants_sub:'Under 2 years',
-  fewer_adults:'Fewer Adults',more_adults:'More Adults',fewer_children:'Fewer Children',more_children:'More Children',fewer_infants:'Fewer Infants',more_infants:'More Infants',
-  cabin_aria:'Cabin class',cabin_eco:'Economy',cabin_biz:'Business',
-  from_lbl:'From (city or airport)',from_ph:'e.g. Dhaka',to_lbl:'To (city or airport)',to_ph:'e.g. Dubai',
-  dep_date:'Departure date',ret_date:'Return date (round trip)',select_date:'Select date',
-  add_leg:'+ Add flight',rem_leg:'Remove last',
-  currency_lbl:'Currency (type to search)',currency_ph:'Search currency',no_match:'No match',
-  month_flex:'Cheapest across the whole month (flexible dates)',
-  month_hint:'On by default. Untick to search only the exact dates selected.',
-  search_btn:'Search flights',
-  trust:'Tourflight never takes payments or card details. You book on the partner site. Prices come from recent searches and may have changed.',
-  f_about:'About',f_terms:'Terms & Conditions',f_privacy:'Privacy Policy',
-  f_disc:'Tourflight is a flight search and comparison service. We do not sell tickets or take payments. Prices come from third-party sources, can change at any time and must be confirmed on the booking site. Baggage rules and fare conditions are set by the airline or booking site. We may earn a commission when you book through partner links.',
-  f_copy:'© Tourflight. All rights reserved.',
-  close_aria:'Close',
-  err_airports:'Choose both airports from the list, or type a 3-letter airport code.',
-  err_same:'Origin and destination must be different.',
-  err_dates:'Please choose all dates.',
-  err_ret_before:'The return date must be on or after the departure date.',
-  err_leg_order:'Each flight date must be on or after the previous flight date.',
-  searching:'Searching…',
-  err_net:'Something went wrong. Please try again.',
-  active_cnt:'{n} active',
-  biz_note:'The current price source does not confirm cabin-specific fares. Business-class availability and price must be checked on the booking website.',
-  cur_note:'The selected currency could not be applied. Please try again or choose another currency.',
-  no_res:'No recent prices found for these filters and selected date range. Try another date, or change the filters.',
-  direct:'Direct',stop_1:'1 stop',one_way:'One way',round_trip:'Round trip',outbound:'Outbound',return_leg:'Return',
-  airline_fb:'Airline',flight_fb:'Flight',tap_offers:'Tap for agency offers',best_price:'Best price found · {ag}',view_offers:'View offers',
-  cmp_title:'Compare this trip on other sites',cmp_sub:'Opens their own search. Prices there may differ.',
-  layover_prefix:'Layover: ',layover_fb:'1 stop. The layover airport and waiting time are shown on the booking site.',
-  strip_loading:'Loading the lowest fares around your date…',
-  strip_ret:'Return date: lowest fares around your return date',
-  strip_dep:'Departure date: lowest fares around your departure date',
-  strip_any:'Lowest fares around your date',
-  strip_range:' (10 days before, 20 days after)',
-  strip_none:'No recent fares found around these dates. Try another date or route.',
-  cheapest_lbl:'Cheapest: {d} · {p}',lowest:'Lowest',
-  sort_price_btn:'Sort by price',sort_date_btn:'Sort by date',
-  earlier:'Earlier dates',later:'Later dates',
-  strip_dir_ret:'Return-direction',strip_dir_out:'Outbound',
-  strip_foot:' {dir} fares from recent searches; may have changed. Tap a day to search it.',
-  prev_mo:'Previous month',next_mo:'Next month',clear:'Clear',
-  cal_leg:'Lowest recent fares in {cur} per person. Green is the cheapest day this month. Prices may have changed.',
-  wd:['Mo','Tu','We','Th','Fr','Sa','Su'],
-  of_dep:'Departure: {d}',of_ret:'Return: {d}',
-  of_loading:'Loading offers from agencies…',
-  of_live_1:'1 agency · price per adult · live prices can change, confirm on the agency site.',
-  of_live_n:'{n} agencies · price per adult · live prices can change, confirm on the agency site.',
-  of_fb:'Offers from other agencies are not available for this flight right now. This is the best price found by our data source. Confirm the final fare on the booking site.',
-  of_book:'Book on {ag}',of_no_link:'Booking link unavailable',of_view_aria:'View agency offers'
-},
-ar:{
-  locale:'ar-EG',numLocale:'ar-EG',
-  h1:'اكتشف · قارن · سافر',
-  sub:'اعثر على أقل الأسعار من عمليات البحث الحديثة للمسافرين.',
-  filters:'الفلاتر والترتيب',
-  stops:'التوقفات',stops_any:'مباشر وتوقف واحد',stops_0:'مباشر فقط',stops_1:'توقف واحد فقط',
-  dep_time:'وقت المغادرة',
-  tf_0:'12 ص – 6 ص',tf_0_title:'الليل: 12 ص – 6 ص',tf_0_aria:'الليل، 12 ص – 6 ص',
-  tf_1:'6 ص – 12 م',tf_1_title:'الصباح: 6 ص – 12 م',tf_1_aria:'الصباح، 6 ص – 12 م',
-  tf_2:'12 م – 6 م',tf_2_title:'بعد الظهر: 12 م – 6 م',tf_2_aria:'بعد الظهر، 12 م – 6 م',
-  tf_3:'6 م – 12 ص',tf_3_title:'المساء: 6 م – 12 ص',tf_3_aria:'المساء، 6 م – 12 ص',
-  tf_hint:'اضغط على الأيقونة لتضمين هذا الوقت أو استبعاده.',
-  airlines:'شركات الطيران',all:'الكل',none:'لا شيء',al_empty:'ابحث لعرض شركات الطيران',no_airlines:'لا توجد شركات طيران',only:'فقط',
-  sort_by:'ترتيب حسب',sort_price:'السعر: من الأقل إلى الأعلى',sort_dur:'أقصر رحلة',sort_dep:'أبكر مغادرة',
-  tab_oneway:'ذهاب فقط',tab_round:'ذهاب وعودة',tab_multi:'وجهات متعددة',
-  adult_1:'بالغ',adult_n:'بالغون',adults:'البالغون',adults_sub:'12+ سنة',
-  child_1:'طفل',child_n:'أطفال',children:'الأطفال',children_sub:'2–11 سنوات',
-  infant_1:'رضيع',infant_n:'رضع',infants:'الرضع',infants_sub:'أقل من سنتين',
-  fewer_adults:'تقليل عدد البالغين',more_adults:'زيادة عدد البالغين',fewer_children:'تقليل عدد الأطفال',more_children:'زيادة عدد الأطفال',fewer_infants:'تقليل عدد الرضع',more_infants:'زيادة عدد الرضع',
-  cabin_aria:'درجة السفر',cabin_eco:'السياحية',cabin_biz:'رجال الأعمال',
-  from_lbl:'من (مدينة أو مطار)',from_ph:'مثال: دبي أو القاهرة',to_lbl:'إلى (مدينة أو مطار)',to_ph:'مثال: لندن أو جدة',
-  dep_date:'تاريخ المغادرة',ret_date:'تاريخ العودة (ذهاب وعودة)',select_date:'اختر التاريخ',
-  add_leg:'+ إضافة رحلة',rem_leg:'إزالة الأخيرة',
-  currency_lbl:'العملة (اكتب للبحث)',currency_ph:'ابحث عن عملة',no_match:'لا توجد نتائج',
-  month_flex:'الأرخص خلال الشهر بالكامل (تواريخ مرنة)',
-  month_hint:'مفعّل افتراضياً. ألغِ التحديد للبحث في التواريخ المحددة فقط.',
-  search_btn:'بحث عن رحلات',
-  trust:'لا يجمع Tourflight أي مدفوعات أو بيانات بطاقات. يتم الحجز على موقع الشريك. الأسعار من عمليات بحث حديثة وقد تتغير.',
-  f_about:'حول الموقع',f_terms:'الشروط والأحكام',f_privacy:'سياسة الخصوصية',
-  f_disc:'Tourflight خدمة بحث ومقارنة رحلات الطيران. نحن لا نبيع التذاكر ولا نستلم مدفوعات. الأسعار من مصادر خارجية وقد تتغير في أي وقت ويجب تأكيدها على موقع الحجز. تحدد شركة الطيران أو موقع الحجز قواعد الأمتعة وشروط الأسعار. قد نحصل على عمولة عند الحجز عبر روابط الشركاء.',
-  f_copy:'© Tourflight. جميع الحقوق محفوظة.',
-  close_aria:'إغلاق',
-  err_airports:'اختر كلا المطارين من القائمة أو اكتب رمز مطار من 3 أحرف.',
-  err_same:'يجب أن تختلف نقطة المغادرة عن نقطة الوصول.',
-  err_dates:'يرجى اختيار جميع التواريخ.',
-  err_ret_before:'يجب أن يكون تاريخ العودة مساوياً لتاريخ المغادرة أو بعده.',
-  err_leg_order:'يجب أن يكون تاريخ كل رحلة مساوياً لتاريخ الرحلة السابقة أو بعدها.',
-  searching:'جارٍ البحث…',
-  err_net:'حدث خطأ ما. يرجى المحاولة مرة أخرى.',
-  active_cnt:'{n} نشط',
-  biz_note:'لا يؤكد مصدر الأسعار الحالي أسعار درجات سفر محددة. يجب التحقق من توفر درجة رجال الأعمال وسعرها على موقع الحجز.',
-  cur_note:'تعذر تطبيق العملة المحددة. يرجى المحاولة مرة أخرى أو اختيار عملة أخرى.',
-  no_res:'لم يتم العثور على أسعار حديثة لهذه الفلاتر ونطاق التاريخ المحدد. جرّب تاريخاً آخر أو غيّر الفلاتر.',
-  direct:'مباشر',stop_1:'توقف واحد',one_way:'ذهاب فقط',round_trip:'ذهاب وعودة',outbound:'الذهاب',return_leg:'العودة',
-  airline_fb:'شركة طيران',flight_fb:'رحلة',tap_offers:'اضغط لعروض الوكالات',best_price:'أفضل سعر · {ag}',view_offers:'عرض العروض',
-  cmp_title:'قارن هذه الرحلة على مواقع أخرى',cmp_sub:'يفتح بحثها الخاص. قد تختلف الأسعار هناك.',
-  layover_prefix:'توقف: ',layover_fb:'توقف واحد. يظهر مطار التوقف ومدة الانتظار على موقع الحجز.',
-  strip_loading:'جارٍ تحميل أقل الأسعار حول تاريخك…',
-  strip_ret:'تاريخ العودة: أقل الأسعار حول تاريخ العودة',
-  strip_dep:'تاريخ المغادرة: أقل الأسعار حول تاريخ المغادرة',
-  strip_any:'أقل الأسعار حول تاريخك',
-  strip_range:' (10 أيام قبل، 20 يوماً بعد)',
-  strip_none:'لم يتم العثور على أسعار حديثة حول هذه التواريخ. جرّب تاريخاً أو مساراً آخر.',
-  cheapest_lbl:'الأرخص: {d} · {p}',lowest:'الأقل',
-  sort_price_btn:'ترتيب حسب السعر',sort_date_btn:'ترتيب حسب التاريخ',
-  earlier:'أيام سابقة',later:'أيام لاحقة',
-  strip_dir_ret:'العودة',strip_dir_out:'الذهاب',
-  strip_foot:' أسعار {dir} من عمليات بحث حديثة؛ قد تتغير. اضغط على يوم للبحث فيه.',
-  prev_mo:'الشهر السابق',next_mo:'الشهر التالي',clear:'مسح',
-  cal_leg:'أقل الأسعار الحديثة بعملة {cur} للشخص الواحد. الأخضر هو أرخص يوم هذا الشهر. قد تتغير الأسعار.',
-  wd:['إث','ث','أر','خ','جم','س','أح'],
-  of_dep:'المغادرة: {d}',of_ret:'العودة: {d}',
-  of_loading:'جارٍ تحميل العروض من الوكالات…',
-  of_live_1:'وكالة واحدة · السعر للبالغ · الأسعار المباشرة قابلة للتغيير، أكّد على موقع الوكالة.',
-  of_live_n:'{n} وكالات · السعر للبالغ · الأسعار المباشرة قابلة للتغيير، أكّد على موقع الوكالة.',
-  of_fb:'عروض الوكالات الأخرى غير متاحة لهذه الرحلة حالياً. هذا أفضل سعر وجده مصدر البيانات لدينا. أكّد السعر النهائي على موقع الحجز.',
-  of_book:'احجز عبر {ag}',of_no_link:'رابط الحجز غير متاح',of_view_aria:'عرض عروض الوكالات'
-},
-es:{
-  locale:'es-ES',numLocale:'es-ES',
-  h1:'Explora · Compara · Vuela',
-  sub:'Encuentra las tarifas más bajas de búsquedas recientes de viajeros.',
-  filters:'Filtros y orden',
-  stops:'Escalas',stops_any:'Directo y 1 escala',stops_0:'Solo directo',stops_1:'Solo 1 escala',
-  dep_time:'Hora de salida',
-  tf_0:'12 AM – 6 AM',tf_0_title:'Noche: 12 AM – 6 AM',tf_0_aria:'Noche, 12 AM – 6 AM',
-  tf_1:'6 AM – 12 PM',tf_1_title:'Mañana: 6 AM – 12 PM',tf_1_aria:'Mañana, 6 AM – 12 PM',
-  tf_2:'12 PM – 6 PM',tf_2_title:'Tarde: 12 PM – 6 PM',tf_2_aria:'Tarde, 12 PM – 6 PM',
-  tf_3:'6 PM – 12 AM',tf_3_title:'Noche tarde: 6 PM – 12 AM',tf_3_aria:'Noche tarde, 6 PM – 12 AM',
-  tf_hint:'Toca un icono para incluir o excluir esa franja horaria.',
-  airlines:'Aerolíneas',all:'Todas',none:'Ninguna',al_empty:'Busca para ver aerolíneas',no_airlines:'Sin aerolíneas',only:'solo',
-  sort_by:'Ordenar por',sort_price:'Precio: de menor a mayor',sort_dur:'Vuelo más corto',sort_dep:'Salida más temprana',
-  tab_oneway:'Solo ida',tab_round:'Ida y vuelta',tab_multi:'Multidestino',
-  adult_1:'Adulto',adult_n:'Adultos',adults:'Adultos',adults_sub:'12+ años',
-  child_1:'Niño',child_n:'Niños',children:'Niños',children_sub:'2–11 años',
-  infant_1:'Bebé',infant_n:'Bebés',infants:'Bebés',infants_sub:'Menores de 2 años',
-  fewer_adults:'Menos adultos',more_adults:'Más adultos',fewer_children:'Menos niños',more_children:'Más niños',fewer_infants:'Menos bebés',more_infants:'Más bebés',
-  cabin_aria:'Clase de cabina',cabin_eco:'Económica',cabin_biz:'Business',
-  from_lbl:'Origen (ciudad o aeropuerto)',from_ph:'ej. Madrid o Dubái',to_lbl:'Destino (ciudad o aeropuerto)',to_ph:'ej. Ciudad de México o Londres',
-  dep_date:'Fecha de salida',ret_date:'Fecha de regreso (ida y vuelta)',select_date:'Seleccionar fecha',
-  add_leg:'+ Añadir vuelo',rem_leg:'Quitar último',
-  currency_lbl:'Moneda (escribe para buscar)',currency_ph:'Buscar moneda',no_match:'Sin coincidencias',
-  month_flex:'Más barato en todo el mes (fechas flexibles)',
-  month_hint:'Activado por defecto. Desmárcalo para buscar solo en las fechas exactas.',
-  search_btn:'Buscar vuelos',
-  trust:'Tourflight nunca cobra ni pide datos de tarjeta. Reservas en el sitio del socio. Los precios provienen de búsquedas recientes y pueden haber cambiado.',
-  f_about:'Acerca de',f_terms:'Términos y condiciones',f_privacy:'Política de privacidad',
-  f_disc:'Tourflight es un servicio de búsqueda y comparación de vuelos. No vendemos boletos ni procesamos pagos. Los precios provienen de fuentes externas, pueden cambiar en cualquier momento y deben confirmarse en el sitio de reserva. Las reglas de equipaje y condiciones tarifarias las establecen la aerolínea o el sitio de reserva. Podemos recibir una comisión al reservar a través de enlaces asociados.',
-  f_copy:'© Tourflight. Todos los derechos reservados.',
-  close_aria:'Cerrar',
-  err_airports:'Elige ambos aeropuertos de la lista o escribe un código IATA de 3 letras.',
-  err_same:'El origen y el destino deben ser diferentes.',
-  err_dates:'Por favor, elige todas las fechas.',
-  err_ret_before:'La fecha de regreso debe ser igual o posterior a la de salida.',
-  err_leg_order:'La fecha de cada vuelo debe ser igual o posterior a la del vuelo anterior.',
-  searching:'Buscando…',
-  err_net:'Algo salió mal. Por favor, inténtalo de nuevo.',
-  active_cnt:'{n} activos',
-  biz_note:'La fuente actual de precios no confirma tarifas específicas por cabina. Debes consultar la disponibilidad y el precio en clase Business en el sitio de reserva.',
-  cur_note:'No se pudo aplicar la moneda seleccionada. Inténtalo de nuevo o elige otra moneda.',
-  no_res:'No se encontraron precios recientes para estos filtros y rango de fechas. Prueba otra fecha o cambia los filtros.',
-  direct:'Directo',stop_1:'1 escala',one_way:'Solo ida',round_trip:'Ida y vuelta',outbound:'Ida',return_leg:'Vuelta',
-  airline_fb:'Aerolínea',flight_fb:'Vuelo',tap_offers:'Toca para ver ofertas de agencias',best_price:'Mejor precio · {ag}',view_offers:'Ver ofertas',
-  cmp_title:'Compara este viaje en otros sitios',cmp_sub:'Abre su propia búsqueda. Los precios allí pueden variar.',
-  layover_prefix:'Escala: ',layover_fb:'1 escala. El aeropuerto de escala y el tiempo de espera se muestran en el sitio de reserva.',
-  strip_loading:'Cargando las tarifas más bajas cerca de tu fecha…',
-  strip_ret:'Fecha de regreso: tarifas más bajas cerca de tu regreso',
-  strip_dep:'Fecha de salida: tarifas más bajas cerca de tu salida',
-  strip_any:'Tarifas más bajas cerca de tu fecha',
-  strip_range:' (10 días antes, 20 días después)',
-  strip_none:'No se encontraron tarifas recientes cerca de estas fechas. Prueba otra fecha o ruta.',
-  cheapest_lbl:'Más barato: {d} · {p}',lowest:'Mínimo',
-  sort_price_btn:'Ordenar por precio',sort_date_btn:'Ordenar por fecha',
-  earlier:'Días anteriores',later:'Días posteriores',
-  strip_dir_ret:'Regreso',strip_dir_out:'Ida',
-  strip_foot:' Tarifas de {dir} de búsquedas recientes; pueden cambiar. Toca un día para buscarlo.',
-  prev_mo:'Mes anterior',next_mo:'Mes siguiente',clear:'Borrar',
-  cal_leg:'Tarifas recientes más bajas en {cur} por persona. El verde es el día más barato de este mes. Los precios pueden cambiar.',
-  wd:['Lu','Ma','Mi','Ju','Vi','Sá','Do'],
-  of_dep:'Salida: {d}',of_ret:'Regreso: {d}',
-  of_loading:'Cargando ofertas de agencias…',
-  of_live_1:'1 agencia · precio por adulto · las tarifas en vivo pueden cambiar, confírmalo en la agencia.',
-  of_live_n:'{n} agencias · precio por adulto · las tarifas en vivo pueden cambiar, confírmalo en la agencia.',
-  of_fb:'Las ofertas de otras agencias no están disponibles para este vuelo ahora mismo. Este es el mejor precio encontrado por nuestra fuente. Confirma la tarifa final en el sitio de reserva.',
-  of_book:'Reservar en {ag}',of_no_link:'Enlace de reserva no disponible',of_view_aria:'Ver ofertas de agencias'
-},
-hi:{
-  locale:'hi-IN',numLocale:'hi-IN',
-  h1:'खोजें · तुलना करें · उड़ान भरें',
-  sub:'हाल की यात्री खोजों से सबसे कम किराए पाएं।',
-  filters:'फ़िल्टर और क्रम',
-  stops:'स्टॉप',stops_any:'सीधी और 1 स्टॉप',stops_0:'केवल सीधी',stops_1:'केवल 1 स्टॉप',
-  dep_time:'प्रस्थान का समय',
-  tf_0:'12 AM – 6 AM',tf_0_title:'रात: 12 AM – 6 AM',tf_0_aria:'रात, 12 AM – 6 AM',
-  tf_1:'6 AM – 12 PM',tf_1_title:'सुबह: 6 AM – 12 PM',tf_1_aria:'सुबह, 6 AM – 12 PM',
-  tf_2:'12 PM – 6 PM',tf_2_title:'दोपहर: 12 PM – 6 PM',tf_2_aria:'दोपहर, 12 PM – 6 PM',
-  tf_3:'6 PM – 12 AM',tf_3_title:'शाम: 6 PM – 12 AM',tf_3_aria:'शाम, 6 PM – 12 AM',
-  tf_hint:'उस समय को शामिल या बाहर रखने के लिए आइकन टैप करें।',
-  airlines:'एयरलाइंस',all:'सभी',none:'कोई नहीं',al_empty:'एयरलाइंस देखने के लिए खोजें',no_airlines:'कोई एयरलाइन नहीं',only:'केवल',
-  sort_by:'क्रमबद्ध करें',sort_price:'कीमत: कम से ज़्यादा',sort_dur:'सबसे छोटी उड़ान',sort_dep:'सबसे जल्दी प्रस्थान',
-  tab_oneway:'वन-वे',tab_round:'राउंड ट्रिप',tab_multi:'मल्टी-सिटी',
-  adult_1:'वयस्क',adult_n:'वयस्क',adults:'वयस्क',adults_sub:'12+ वर्ष',
-  child_1:'बच्चा',child_n:'बच्चे',children:'बच्चे',children_sub:'2–11 वर्ष',
-  infant_1:'शिशु',infant_n:'शिशु',infants:'शिशु',infants_sub:'2 वर्ष से कम',
-  fewer_adults:'वयस्क घटाएं',more_adults:'वयस्क बढ़ाएं',fewer_children:'बच्चे घटाएं',more_children:'बच्चे बढ़ाएं',fewer_infants:'शिशु घटाएं',more_infants:'शिशु बढ़ाएं',
-  cabin_aria:'केबिन क्लास',cabin_eco:'इकॉनमी',cabin_biz:'बिज़नेस',
-  from_lbl:'कहाँ से (शहर या हवाई अड्डा)',from_ph:'जैसे दिल्ली या दुबई',to_lbl:'कहाँ तक (शहर या हवाई अड्डा)',to_ph:'जैसे मुंबई या लंदन',
-  dep_date:'प्रस्थान की तारीख',ret_date:'वापसी की तारीख (राउंड ट्रिप)',select_date:'तारीख चुनें',
-  add_leg:'+ उड़ान जोड़ें',rem_leg:'आखिरी हटाएं',
-  currency_lbl:'मुद्रा (खोजने के लिए लिखें)',currency_ph:'मुद्रा खोजें',no_match:'कोई मेल नहीं',
-  month_flex:'पूरे महीने में सबसे सस्ता (लचीली तारीखें)',
-  month_hint:'डिफ़ॉल्ट रूप से चालू। केवल चुनी गई तारीखों के लिए अनचेक करें।',
-  search_btn:'उड़ानें खोजें',
-  trust:'Tourflight कभी भुगतान या कार्ड विवरण नहीं लेता। आप पार्टनर साइट पर बुकिंग करते हैं। कीमतें हाल की खोजों से हैं और बदल सकती हैं।',
-  f_about:'हमारे बारे में',f_terms:'नियम व शर्तें',f_privacy:'गोपनीयता नीति',
-  f_disc:'Tourflight एक उड़ान खोज और तुलना सेवा है। हम टिकट नहीं बेचते या भुगतान नहीं लेते। कीमतें तीसरे पक्ष के स्रोतों से आती हैं, कभी भी बदल सकती हैं और बुकिंग साइट पर पुष्टि होनी चाहिए। सामान के नियम और किराया शर्तें एयरलाइन या बुकिंग साइट तय करती हैं। पार्टनर लिंक से बुकिंग करने पर हमें कमीशन मिल सकता है।',
-  f_copy:'© Tourflight. सर्वाधिकार सुरक्षित।',
-  close_aria:'बंद करें',
-  err_airports:'सूची से दोनों हवाई अड्डे चुनें या 3 अक्षरों का एयरपोर्ट कोड लिखें।',
-  err_same:'प्रस्थान और गंतव्य अलग होने चाहिए।',
-  err_dates:'कृपया सभी तारीखें चुनें।',
-  err_ret_before:'वापसी की तारीख प्रस्थान की तारीख या उसके बाद की होनी चाहिए।',
-  err_leg_order:'प्रत्येक उड़ान की तारीख पिछली उड़ान की तारीख या उसके बाद की होनी चाहिए।',
-  searching:'खोजा जा रहा है…',
-  err_net:'कुछ गलत हो गया। कृपया पुनः प्रयास करें।',
-  active_cnt:'{n} सक्रिय',
-  biz_note:'मौजूदा कीमत स्रोत केबिन-विशिष्ट किराए की पुष्टि नहीं करता। बिज़नेस क्लास की उपलब्धता और कीमत बुकिंग वेबसाइट पर जांचें।',
-  cur_note:'चयनित मुद्रा लागू नहीं हो सकी। कृपया पुनः प्रयास करें या दूसरी मुद्रा चुनें।',
-  no_res:'इन फ़िल्टर और चुनी गई तारीखों के लिए हाल की कोई कीमत नहीं मिली। दूसरी तारीख आज़माएं या फ़िल्टर बदलें।',
-  direct:'सीधी',stop_1:'1 स्टॉप',one_way:'वन-वे',round_trip:'राउंड ट्रिप',outbound:'जाना',return_leg:'वापसी',
-  airline_fb:'एयरलाइन',flight_fb:'उड़ान',tap_offers:'एजेंसी ऑफ़र के लिए टैप करें',best_price:'सबसे अच्छी कीमत · {ag}',view_offers:'ऑफ़र देखें',
-  cmp_title:'अन्य साइटों पर इस यात्रा की तुलना करें',cmp_sub:'उनकी अपनी खोज खुलती है। वहां कीमतें अलग हो सकती हैं।',
-  layover_prefix:'ठहराव: ',layover_fb:'1 स्टॉप। ठहराव हवाई अड्डा और प्रतीक्षा समय बुकिंग साइट पर दिखता है।',
-  strip_loading:'आपकी तारीख के आसपास सबसे कम किराए लोड हो रहे हैं…',
-  strip_ret:'वापसी की तारीख: आपकी वापसी के आसपास सबसे कम किराए',
-  strip_dep:'प्रस्थान की तारीख: आपके प्रस्थान के आसपास सबसे कम किराए',
-  strip_any:'आपकी तारीख के आसपास सबसे कम किराए',
-  strip_range:' (10 दिन पहले, 20 दिन बाद)',
-  strip_none:'इन तारीखों के आसपास हाल के कोई किराए नहीं मिले। दूसरी तारीख या रूट आज़माएं।',
-  cheapest_lbl:'सबसे सस्ता: {d} · {p}',lowest:'सबसे कम',
-  sort_price_btn:'कीमत के अनुसार क्रमबद्ध करें',sort_date_btn:'तारीख के अनुसार क्रमबद्ध करें',
-  earlier:'पिछली तारीखें',later:'आगे की तारीखें',
-  strip_dir_ret:'वापसी',strip_dir_out:'जाना',
-  strip_foot:' हाल की खोजों से {dir} किराए; बदल सकते हैं। खोजने के लिए किसी दिन पर टैप करें।',
-  prev_mo:'पिछला महीना',next_mo:'अगला महीना',clear:'साफ़ करें',
-  cal_leg:'प्रति व्यक्ति {cur} में हाल के सबसे कम किराए। हरा इस महीने का सबसे सस्ता दिन है। कीमतें बदल सकती हैं।',
-  wd:['सो','मं','बु','गु','शु','श','र'],
-  of_dep:'प्रस्थान: {d}',of_ret:'वापसी: {d}',
-  of_loading:'एजेंसियों से ऑफ़र लोड हो रहे हैं…',
-  of_live_1:'1 एजेंसी · प्रति वयस्क कीमत · लाइव कीमतें बदल सकती हैं, एजेंसी साइट पर पुष्टि करें।',
-  of_live_n:'{n} एजेंसियां · प्रति वयस्क कीमत · लाइव कीमतें बदल सकती हैं, एजेंसी साइट पर पुष्टि करें।',
-  of_fb:'इस उड़ान के लिए अन्य एजेंसियों के ऑफ़र अभी उपलब्ध नहीं हैं। यह हमारे डेटा स्रोत से मिली सबसे अच्छी कीमत है। बुकिंग साइट पर अंतिम किराए की पुष्टि करें।',
-  of_book:'{ag} पर बुक करें',of_no_link:'बुकिंग लिंक उपलब्ध नहीं है',of_view_aria:'एजेंसी ऑफ़र देखें'
-}
-};
-function t(k,vars){var d=I18N[LANG]||I18N.en,s=(d[k]!==undefined?d[k]:I18N.en[k]);if(typeof s!=='string')return s;if(vars)Object.keys(vars).forEach(function(vk){s=s.replace(new RegExp('\\{'+vk+'\\}','g'),vars[vk])});return s}
-function applyLang(l){
-  LANG=I18N[l]?l:'en';
-  var isRtl=LANG==='ar';
-  document.documentElement.lang=LANG;
-  document.documentElement.dir=isRtl?'rtl':'ltr';
-  document.querySelectorAll('.langbtn').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.lang===LANG?'true':'false')});
-  document.querySelectorAll('[data-i18n]').forEach(function(el){el.textContent=t(el.dataset.i18n)});
-  document.querySelectorAll('[data-title-key]').forEach(function(el){el.title=t(el.dataset.titleKey)});
-  document.querySelectorAll('[data-ph-key]').forEach(function(el){el.placeholder=t(el.dataset.phKey)});
-  document.querySelectorAll('[data-aria-key]').forEach(function(el){el.setAttribute('aria-label',t(el.dataset.ariaKey))});
-  setType(type,true);
-  paxUi();
-  cyUi();
-  if(cal.inp&&cal.box&&cal.box.classList.contains('on'))renderCal();
-  if(data.length){
-    var al={},mn2={};
-    data.forEach(function(x){(x.j.data||[]).forEach(function(f){if(f.airline){al[f.airline]=f.airline_name||f.airline;mn2[f.airline]=Math.min(mn2[f.airline]||1e18,f.price)}})});
-    var cs=null;data.forEach(function(x){if(!cs&&x.j&&x.j.currency)cs=x.j.currency});var sy=symOf(cs||'usd');
-    var checked={};document.querySelectorAll('#al input:checked').forEach(function(i){checked[i.value]=1});
-    var hasAnyChecked=document.querySelectorAll('#al input').length>0;
-    if(hasAnyChecked){
-      $('al').innerHTML=Object.keys(al).sort(function(a,b){return mn2[a]-mn2[b]}).map(function(c){return '<div class="ar"><label class="ck"><input type="checkbox" value="'+esc(c)+'"'+(checked[c]?' checked':'')+'>'+logo(c)+'<span class="an">'+esc(al[c])+'</span></label><span class="ap">'+sy+fmtN(mn2[c])+'</span><button type="button" class="only" data-c="'+esc(c)+'">'+esc(t('only'))+'</button></div>'}).join('')||'<div class="s">'+esc(t('no_airlines'))+'</div>';
-    }
-    draw();
-  }
-}
-
 var AIRP="DAC|Dhaka|Bangladesh|Hazrat Shahjalal Intl|Asia/Dhaka;CGP|Chattogram|Bangladesh|Shah Amanat Intl|Asia/Dhaka;ZYL|Sylhet|Bangladesh|Osmani Intl|Asia/Dhaka;CXB|Cox\'s Bazar|Bangladesh|Cox\'s Bazar Airport|Asia/Dhaka;DEL|Delhi|India|Indira Gandhi Intl|Asia/Kolkata;BOM|Mumbai|India|Chhatrapati Shivaji Intl|Asia/Kolkata;CCU|Kolkata|India|Netaji Subhas Chandra Bose Intl|Asia/Kolkata;MAA|Chennai|India|Chennai Intl|Asia/Kolkata;BLR|Bengaluru|India|Kempegowda Intl|Asia/Kolkata;HYD|Hyderabad|India|Rajiv Gandhi Intl|Asia/Kolkata;KTM|Kathmandu|Nepal|Tribhuvan Intl|Asia/Kathmandu;CMB|Colombo|Sri Lanka|Bandaranaike Intl|Asia/Colombo;MLE|Male|Maldives|Velana Intl|Indian/Maldives;ISB|Islamabad|Pakistan|Islamabad Intl|Asia/Karachi;KHI|Karachi|Pakistan|Jinnah Intl|Asia/Karachi;LHE|Lahore|Pakistan|Allama Iqbal Intl|Asia/Karachi;SIN|Singapore|Singapore|Changi|Asia/Singapore;KUL|Kuala Lumpur|Malaysia|Kuala Lumpur Intl|Asia/Kuala_Lumpur;BKK|Bangkok|Thailand|Suvarnabhumi|Asia/Bangkok;HKT|Phuket|Thailand|Phuket Intl|Asia/Bangkok;CGK|Jakarta|Indonesia|Soekarno-Hatta|Asia/Jakarta;DPS|Bali|Indonesia|Ngurah Rai|Asia/Makassar;MNL|Manila|Philippines|Ninoy Aquino Intl|Asia/Manila;SGN|Ho Chi Minh City|Vietnam|Tan Son Nhat|Asia/Ho_Chi_Minh;HAN|Hanoi|Vietnam|Noi Bai|Asia/Ho_Chi_Minh;HKG|Hong Kong|Hong Kong|Hong Kong Intl|Asia/Hong_Kong;PEK|Beijing|China|Beijing Capital|Asia/Shanghai;PVG|Shanghai|China|Pudong|Asia/Shanghai;CAN|Guangzhou|China|Baiyun|Asia/Shanghai;TPE|Taipei|Taiwan|Taoyuan|Asia/Taipei;ICN|Seoul|South Korea|Incheon|Asia/Seoul;NRT|Tokyo|Japan|Narita|Asia/Tokyo;KIX|Osaka|Japan|Kansai|Asia/Tokyo;DXB|Dubai|UAE|Dubai Intl|Asia/Dubai;AUH|Abu Dhabi|UAE|Zayed Intl|Asia/Dubai;SHJ|Sharjah|UAE|Sharjah Intl|Asia/Dubai;DOH|Doha|Qatar|Hamad Intl|Asia/Qatar;JED|Jeddah|Saudi Arabia|King Abdulaziz Intl|Asia/Riyadh;RUH|Riyadh|Saudi Arabia|King Khalid Intl|Asia/Riyadh;DMM|Dammam|Saudi Arabia|King Fahd Intl|Asia/Riyadh;MED|Madinah|Saudi Arabia|Prince Mohammad bin Abdulaziz|Asia/Riyadh;KWI|Kuwait City|Kuwait|Kuwait Intl|Asia/Kuwait;BAH|Bahrain|Bahrain|Bahrain Intl|Asia/Bahrain;MCT|Muscat|Oman|Muscat Intl|Asia/Muscat;AMM|Amman|Jordan|Queen Alia Intl|Asia/Amman;BEY|Beirut|Lebanon|Rafic Hariri Intl|Asia/Beirut;TLV|Tel Aviv|Israel|Ben Gurion|Asia/Jerusalem;IST|Istanbul|Turkey|Istanbul Airport|Europe/Istanbul;SAW|Istanbul Sabiha Gokcen|Turkey|Sabiha Gokcen|Europe/Istanbul;LHR|London Heathrow|UK|Heathrow|Europe/London;LGW|London Gatwick|UK|Gatwick|Europe/London;MAN|Manchester|UK|Manchester Airport|Europe/London;CDG|Paris|France|Charles de Gaulle|Europe/Paris;AMS|Amsterdam|Netherlands|Schiphol|Europe/Amsterdam;FRA|Frankfurt|Germany|Frankfurt Airport|Europe/Berlin;MUC|Munich|Germany|Munich Airport|Europe/Berlin;BER|Berlin|Germany|Brandenburg|Europe/Berlin;MAD|Madrid|Spain|Barajas|Europe/Madrid;BCN|Barcelona|Spain|El Prat|Europe/Madrid;FCO|Rome|Italy|Fiumicino|Europe/Rome;MXP|Milan|Italy|Malpensa|Europe/Rome;ZRH|Zurich|Switzerland|Zurich Airport|Europe/Zurich;VIE|Vienna|Austria|Vienna Intl|Europe/Vienna;BRU|Brussels|Belgium|Brussels Airport|Europe/Brussels;CPH|Copenhagen|Denmark|Kastrup|Europe/Copenhagen;ARN|Stockholm|Sweden|Arlanda|Europe/Stockholm;OSL|Oslo|Norway|Gardermoen|Europe/Oslo;HEL|Helsinki|Finland|Helsinki-Vantaa|Europe/Helsinki;DUB|Dublin|Ireland|Dublin Airport|Europe/Dublin;LIS|Lisbon|Portugal|Humberto Delgado|Europe/Lisbon;ATH|Athens|Greece|Eleftherios Venizelos|Europe/Athens;WAW|Warsaw|Poland|Chopin|Europe/Warsaw;PRG|Prague|Czechia|Vaclav Havel|Europe/Prague;BUD|Budapest|Hungary|Ferenc Liszt|Europe/Budapest;MOW|Moscow|Russia|All Moscow airports|Europe/Moscow;CAI|Cairo|Egypt|Cairo Intl|Africa/Cairo;ADD|Addis Ababa|Ethiopia|Bole Intl|Africa/Addis_Ababa;NBO|Nairobi|Kenya|Jomo Kenyatta Intl|Africa/Nairobi;JNB|Johannesburg|South Africa|O.R. Tambo Intl|Africa/Johannesburg;CPT|Cape Town|South Africa|Cape Town Intl|Africa/Johannesburg;CMN|Casablanca|Morocco|Mohammed V Intl|Africa/Casablanca;LOS|Lagos|Nigeria|Murtala Muhammed Intl|Africa/Lagos;ACC|Accra|Ghana|Kotoka Intl|Africa/Accra;JFK|New York JFK|USA|John F. Kennedy Intl|America/New_York;EWR|Newark|USA|Newark Liberty Intl|America/New_York;LAX|Los Angeles|USA|Los Angeles Intl|America/Los_Angeles;SFO|San Francisco|USA|San Francisco Intl|America/Los_Angeles;ORD|Chicago|USA|O\'Hare Intl|America/Chicago;ATL|Atlanta|USA|Hartsfield-Jackson|America/New_York;DFW|Dallas|USA|Dallas/Fort Worth Intl|America/Chicago;MIA|Miami|USA|Miami Intl|America/New_York;IAD|Washington|USA|Dulles Intl|America/New_York;BOS|Boston|USA|Logan Intl|America/New_York;SEA|Seattle|USA|Seattle-Tacoma Intl|America/Los_Angeles;YYZ|Toronto|Canada|Pearson Intl|America/Toronto;YVR|Vancouver|Canada|Vancouver Intl|America/Vancouver;MEX|Mexico City|Mexico|Benito Juarez Intl|America/Mexico_City;GRU|Sao Paulo|Brazil|Guarulhos Intl|America/Sao_Paulo;GIG|Rio de Janeiro|Brazil|Galeao Intl|America/Sao_Paulo;EZE|Buenos Aires|Argentina|Ezeiza Intl|America/Argentina/Buenos_Aires;SCL|Santiago|Chile|Arturo Merino Benitez|America/Santiago;BOG|Bogota|Colombia|El Dorado Intl|America/Bogota;LIM|Lima|Peru|Jorge Chavez Intl|America/Lima;SYD|Sydney|Australia|Kingsford Smith|Australia/Sydney;MEL|Melbourne|Australia|Tullamarine|Australia/Melbourne;BNE|Brisbane|Australia|Brisbane Airport|Australia/Brisbane;PER|Perth|Australia|Perth Airport|Australia/Perth;AKL|Auckland|New Zealand|Auckland Airport|Pacific/Auckland;NAN|Nadi|Fiji|Nadi Intl|Pacific/Fiji",AP={},DL='';
 AIRP.split(';').forEach(function(s){var p=s.split('|');AP[p[0]]={n:p[1],c:p[2],a:p[3],tz:p[4]};DL+='<option value="'+p[1]+', '+p[2]+' ('+p[0]+')" label="'+p[3]+'">'});
 
@@ -525,29 +270,18 @@ box.innerHTML=r.map(function(c){var a=AP[c];return '<div class="si" role="option
 function pick(inp,c){var a=AP[c];inp.value=a.n+', '+a.c+' ('+c+')';inp.parentNode.querySelector('.sug').classList.remove('on');inp.dispatchEvent(new Event('change',{bubbles:true}))}
 var cnt={},mn={},type='round',nleg=2,data=[],today=new Date().toISOString().slice(0,10),offerPage=null,visibleGroups={};
 (function(){try{var z=Intl.DateTimeFormat().resolvedOptions().timeZone,m={'Asia/Dhaka':'bdt','Asia/Kolkata':'inr','Asia/Calcutta':'inr','Asia/Dubai':'aed','Asia/Riyadh':'sar','Asia/Qatar':'qar','Asia/Kuwait':'kwd','Asia/Bahrain':'bhd','Asia/Muscat':'omr','Asia/Karachi':'pkr','Asia/Colombo':'lkr','Asia/Kathmandu':'npr','Asia/Kuala_Lumpur':'myr','Asia/Singapore':'sgd','Asia/Bangkok':'thb','Asia/Jakarta':'idr','Asia/Manila':'php','Asia/Ho_Chi_Minh':'vnd','Asia/Tokyo':'jpy','Asia/Shanghai':'cny','Asia/Seoul':'krw','Asia/Hong_Kong':'hkd','Australia/Sydney':'aud','Australia/Melbourne':'aud','America/Toronto':'cad','America/Vancouver':'cad','Pacific/Auckland':'nzd','Europe/Zurich':'chf','Europe/Istanbul':'try','Africa/Cairo':'egp','Africa/Johannesburg':'zar','Africa/Lagos':'ngn','Europe/Moscow':'rub','America/Sao_Paulo':'brl','America/Mexico_City':'mxn','Europe/London':'gbp','Europe/Berlin':'eur','Europe/Paris':'eur','Europe/Rome':'eur','Europe/Madrid':'eur','Europe/Amsterdam':'eur','America/New_York':'usd','America/Chicago':'usd','America/Los_Angeles':'usd'},l=(navigator.language||'').toLowerCase();$('cy').value=m[z]||(l.indexOf('bn')===0?'bdt':'bdt')}catch(e){}})();
-function row(i,ret){return '<div class="g2"><div><label for="f'+i+'">'+esc(t('from_lbl'))+'</label><div class="acw"><input id="f'+i+'" data-ac="1" autocomplete="off" autocapitalize="words" spellcheck="false" placeholder="'+esc(t('from_ph'))+'"><div class="sug" role="listbox"></div></div></div><div><label for="t'+i+'">'+esc(t('to_lbl'))+'</label><div class="acw"><input id="t'+i+'" data-ac="1" autocomplete="off" autocapitalize="words" spellcheck="false" placeholder="'+esc(t('to_ph'))+'"><div class="sug" role="listbox"></div></div></div></div><div class="g2">'+dField('d'+i,t('dep_date'))+(ret?dField('rt',t('ret_date')):'')+'</div>'}
+function row(i,ret){return '<div class="g2"><div><label for="f'+i+'">From (city or airport)</label><div class="acw"><input id="f'+i+'" data-ac="1" autocomplete="off" autocapitalize="words" spellcheck="false" placeholder="e.g. Dhaka"><div class="sug" role="listbox"></div></div></div><div><label for="t'+i+'">To (city or airport)</label><div class="acw"><input id="t'+i+'" data-ac="1" autocomplete="off" autocapitalize="words" spellcheck="false" placeholder="e.g. Dubai"><div class="sug" role="listbox"></div></div></div></div><div class="g2">'+dField('d'+i,'Departure date')+(ret?dField('rt','Return date (round trip)'):'')+'</div>'}
 var pax={a:1,c:0,i:0};
 function chg(k,d){var n=pax[k]+d,tot=pax.a+pax.c+pax.i;if(d>0&&tot>=9)return;if(n<0||(k==='a'&&(n<1||n<pax.i))||(k==='i'&&n>pax.a))return;pax[k]=n;paxUi()}
 function paxUi(){$('na').textContent=pax.a;$('nc').textContent=pax.c;$('ni').textContent=pax.i;
-var parts=[pax.a+' '+(pax.a>1?t('adult_n'):t('adult_1'))];
-if(pax.c)parts.push(pax.c+' '+(pax.c>1?t('child_n'):t('child_1')));
-if(pax.i)parts.push(pax.i+' '+(pax.i>1?t('infant_n'):t('infant_1')));
-$('pxs').textContent=parts.join(', ');if(data.length)draw()}
+var t=[pax.a+(pax.a>1?' Adults':' Adult')];if(pax.c)t.push(pax.c+(pax.c>1?' Children':' Child'));if(pax.i)t.push(pax.i+(pax.i>1?' Infants':' Infant'));
+$('pxs').textContent=t.join(', ');if(data.length)draw()}
 document.addEventListener('click',function(e){if(!$('pxd').contains(e.target))$('pxd').open=false});
-function setType(t,keepCalOpen){
-  var old=[],oldRet=$('rt')?$('rt').value:'';
-  for(var i=0;i<3;i++){if($('f'+i))old.push([$($('f'+i)).value,$($('t'+i)).value,$($('d'+i)).value])}
-  var wasOpen=!!(keepCalOpen&&cal.box&&cal.box.classList.contains('on')&&cal.inp);
-  var openFor=wasOpen?cal.inp.dataset.for:null;
-  type=t;document.querySelectorAll('.t').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.t===t)});
-  var h='';if(t==='multi'){for(var i=0;i<nleg;i++)h+=row(i);h+=(nleg<3?'<button type="button" class="sm" onclick="addLeg(1)">'+esc(t('add_leg'))+'</button>':'')+(nleg>2?'<button type="button" class="sm" onclick="addLeg(-1)">'+esc(t('rem_leg'))+'</button>':'')}
-  else{h=row(0,t==='round')}
-  $('legs').innerHTML=h;
-  old.forEach(function(o,i){if($('f'+i)){$('f'+i).value=o[0];$('t'+i).value=o[1];$('d'+i).value=o[2]}});
-  if(t==='round'&&$('rt')&&oldRet)$('rt').value=oldRet;
-  fixMins();syncDates();
-  if(wasOpen&&openFor){var ni=document.querySelector('.dpi[data-for="'+openFor+'"]');if(ni)openCal(ni)}
-}
+function setType(t){var old=[];for(var i=0;i<3;i++){if($('f'+i))old.push([$('f'+i).value,$('t'+i).value,$('d'+i).value])}
+type=t;document.querySelectorAll('.t').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.t===t)});
+var h='';if(t==='multi'){for(var i=0;i<nleg;i++)h+=row(i);h+=(nleg<3?'<button class="sm" onclick="addLeg(1)">+ Add flight</button>':'')+(nleg>2?'<button class="sm" onclick="addLeg(-1)">Remove last</button>':'')}
+else{h=row(0,t==='round')}
+$('legs').innerHTML=h;old.forEach(function(o,i){if($('f'+i)){$('f'+i).value=o[0];$('t'+i).value=o[1];$('d'+i).value=o[2]}});fixMins();syncDates()}
 function fixMins(){if(type==='round'&&$('rt')){$('rt').min=$('d0').value||today}
 if(type==='multi'){for(var i=1;i<nleg;i++){var p=$('d'+(i-1)).value;$('d'+i).min=p||today}}}
 $('legs').addEventListener('change',function(e){var id=e.target.id||'';
@@ -562,35 +296,34 @@ var its=box.querySelectorAll('.si'),i=parseInt(box.dataset.i||'-1',10);
 if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();i=e.key==='ArrowDown'?Math.min(i+1,its.length-1):Math.max(i-1,0);its.forEach(function(x,k){x.classList.toggle('hl',k===i)});box.dataset.i=i}
 else if(e.key==='Enter'&&its.length){e.preventDefault();pick(inp,its[i>=0?i:0].dataset.c)}else if(e.key==='Escape')box.classList.remove('on')});
 document.addEventListener('pointerdown',function(e){if(!e.target.closest('.acw'))document.querySelectorAll('.sug.on').forEach(function(b){b.classList.remove('on')})});
-var DESK=!!(window.matchMedia&&window.matchMedia('(hover:hover) and (pointer:fine)').matches),cal={y:0,m:0,inp:null,box:null};
-function moName(m){try{return new Date(2024,m,1).toLocaleDateString(t('locale'),{month:'long'})}catch(e){return String(m+1)}}
+var DESK=!!(window.matchMedia&&window.matchMedia('(hover:hover) and (pointer:fine)').matches),MN=['January','February','March','April','May','June','July','August','September','October','November','December'],cal={y:0,m:0,inp:null,box:null};
 function iso(y,m,d){return y+'-'+('0'+(m+1)).slice(-2)+'-'+('0'+d).slice(-2)}
-function fmt(v){if(!v)return'';var p=v.split('-');try{return new Date(+p[0],+p[1]-1,+p[2]).toLocaleDateString(t('locale'),{weekday:'short',day:'numeric',month:'short',year:'numeric'})}catch(e){return v}}
-function dField(id,label){if(!DESK)return '<div><label for="'+id+'">'+esc(label)+'</label><input id="'+id+'" type="date" min="'+today+'"></div>';
-return '<div class="acw"><label for="v_'+id+'">'+esc(label)+'</label><input type="hidden" id="'+id+'" min="'+today+'"><input id="v_'+id+'" class="dpi" data-for="'+id+'" readonly placeholder="'+esc(t('select_date'))+'" autocomplete="off"><div class="cal'+(id==='rt'?' r':'')+'"></div></div>'}
-function syncDates(){document.querySelectorAll('.dpi').forEach(function(i){i.value=fmt($(i.dataset.for).value);i.placeholder=t('select_date')})}
+function fmt(v){if(!v)return'';var p=v.split('-');return new Date(+p[0],+p[1]-1,+p[2]).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'})}
+function dField(id,label){if(!DESK)return '<div><label for="'+id+'">'+label+'</label><input id="'+id+'" type="date" min="'+today+'"></div>';
+return '<div class="acw"><label for="v_'+id+'">'+label+'</label><input type="hidden" id="'+id+'" min="'+today+'"><input id="v_'+id+'" class="dpi" data-for="'+id+'" readonly placeholder="Select date" autocomplete="off"><div class="cal'+(id==='rt'?' r':'')+'"></div></div>'}
+function syncDates(){document.querySelectorAll('.dpi').forEach(function(i){i.value=fmt($(i.dataset.for).value)})}
 var SYM={usd:'$',eur:'\u20ac',gbp:'\u00a3',inr:'\u20b9',bdt:'\u09f3',jpy:'\u00a5',cny:'CN\u00a5',krw:'\u20a9',php:'\u20b1',vnd:'\u20ab',try:'\u20ba',egp:'E\u00a3',ngn:'\u20a6',rub:'\u20bd',brl:'R$',mxn:'MX$',hkd:'HK$',aud:'A$',cad:'C$',nzd:'NZ$',sgd:'S$',zar:'R ',chf:'CHF ',sar:'SR ',qar:'QR ',pkr:'Rs ',lkr:'Rs ',npr:'Rs ',myr:'RM ',thb:'\u0e3f',idr:'Rp '};
 function symOf(c){c=String(c).toLowerCase();return SYM[c]||c.toUpperCase()+' '}
-function fmtN(n){try{return Math.round(n).toLocaleString(t('numLocale'))}catch(e){return String(Math.round(n))}}
-function addDays(isoStr,n){var p=isoStr.split('-');return new Date(Date.UTC(+p[0],+p[1]-1,+p[2]+n)).toISOString().slice(0,10)}
-function shortDate(d){var p=d.split('-');try{return new Date(+p[0],+p[1]-1,+p[2]).toLocaleDateString(t('locale'),{weekday:'short',day:'numeric',month:'short'})}catch(e){return d}}
+function fmtN(n){return Math.round(n).toLocaleString('en-US')}
+function addDays(iso,n){var p=iso.split('-');return new Date(Date.UTC(+p[0],+p[1]-1,+p[2]+n)).toISOString().slice(0,10)}
+function shortDate(d){var p=d.split('-');return new Date(+p[0],+p[1]-1,+p[2]).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})}
 var strips={};
 function fillStrip(xi,back){var k=(back?'b':'')+xi,x=data[xi],el=$('st'+k);if(!el||!x)return;var q=x.q;
 var base=back?q.r0:(q.d0||q.d);if(!base||base.length===7){el.style.display='none';return}
 if(strips[k]){paintStrip(xi,back);return}
-el.innerHTML='<div class="s">'+esc(t('strip_loading'))+'</div>';
+el.innerHTML='<div class="s">Loading the lowest fares around your date\u2026</div>';
 var start=addDays(base,-10);if(start<today)start=today;if(back&&q.d0&&start<q.d0)start=q.d0;var end=addDays(base,20);if(end<start)end=start;var months=[],mc=start.slice(0,7);while(mc<=end.slice(0,7)){months.push(mc);var pp=mc.split('-');mc=new Date(Date.UTC(+pp[0],+pp[1],1)).toISOString().slice(0,7)}
 Promise.all(months.map(function(mo){return fetch('/api/calendar?origin='+(back?q.t:q.f)+'&destination='+(back?q.f:q.t)+'&month='+mo+'&currency='+$('cy').value).then(function(r){return r.json()}).catch(function(){return{prices:{}}})})).then(function(rs){
 var pr={};rs.forEach(function(r){Object.keys(r.prices||{}).forEach(function(k){pr[k]=r.prices[k]})});
 strips[k]={start:start,end:end,pr:pr,cy:(rs[0]&&rs[0].currency)||$('cy').value,sort:'date'};paintStrip(xi,back)})}
-function paintStrip(xi,back){var k=(back?'b':'')+xi,st=strips[k],el=$('st'+k);if(!st||!el)return;var q=data[xi].q,days=[],lo=null,loD='',cur=back?q.r0:(q.d0||q.d),ttl=(back?t('strip_ret'):(q.r0?t('strip_dep'):t('strip_any')))+t('strip_range');
+function paintStrip(xi,back){var k=(back?'b':'')+xi,st=strips[k],el=$('st'+k);if(!st||!el)return;var q=data[xi].q,days=[],lo=null,loD='',cur=back?q.r0:(q.d0||q.d),ttl=(back?'Return date: lowest fares around your return date':(q.r0?'Departure date: lowest fares around your departure date':'Lowest fares around your date'))+' (10 days before, 20 days after)';
 for(var d=st.start;d<=st.end;d=addDays(d,1)){var p=st.pr[d]||0;days.push({d:d,p:p});if(p&&(lo===null||p<lo)){lo=p;loD=d}}
-if(lo===null){el.innerHTML='<div class="s">'+esc(t('strip_none'))+'</div>';return}
+if(lo===null){el.innerHTML='<div class="s">No recent fares found around these dates. Try another date or route.</div>';return}
 if(st.sort==='price')days.sort(function(a,b){return(a.p||1e12)-(b.p||1e12)});
-var sym=symOf(st.cy),dirTxt=back?t('strip_dir_ret'):t('strip_dir_out');
-el.innerHTML='<div class="sh"><b>'+esc(ttl)+'</b><span class="s">'+esc(t('cheapest_lbl',{d:shortDate(loD),p:sym+fmtN(lo)}))+'</span><button type="button" class="sm ssort" data-x="'+xi+'" data-b="'+(back?1:0)+'" data-k="'+k+'">'+esc(st.sort==='date'?t('sort_price_btn'):t('sort_date_btn'))+'</button></div><div class="sw"><button type="button" class="arw" data-dir="-1" aria-label="'+esc(t('earlier'))+'">\u2039</button><div class="chips">'
-+days.map(function(o){return '<button type="button" class="chip'+(o.p&&o.p===lo?' lo':'')+(o.d===cur?' cur':'')+'" data-x="'+xi+'" data-b="'+(back?1:0)+'" data-d="'+o.d+'"><b>'+esc(shortDate(o.d))+'</b><span>'+(o.p?sym+fmtN(o.p):'\u2014')+'</span><small>'+(o.p&&o.p===lo?esc(t('lowest')):'')+'</small></button>'}).join('')
-+'</div><button type="button" class="arw" data-dir="1" aria-label="'+esc(t('later'))+'">\u203a</button></div><div class="s">'+esc(t('strip_foot',{dir:dirTxt}))+'</div>';var ch=el.querySelector('.chips'),cu=el.querySelector('.chip.cur');if(ch){if(cu)ch.scrollLeft=cu.offsetLeft-ch.clientWidth/2+cu.offsetWidth/2;arwState(el);ch.addEventListener('scroll',function(){arwState(el)})}}
+var sym=symOf(st.cy);
+el.innerHTML='<div class="sh"><b>'+esc(ttl)+'</b><span class="s">Cheapest: '+esc(shortDate(loD))+' \u00b7 '+sym+fmtN(lo)+'</span><button type="button" class="sm ssort" data-x="'+xi+'" data-b="'+(back?1:0)+'" data-k="'+k+'">'+(st.sort==='date'?'Sort by price':'Sort by date')+'</button></div><div class="sw"><button type="button" class="arw" data-dir="-1" aria-label="Earlier dates">\u2039</button><div class="chips">'
++days.map(function(o){return '<button type="button" class="chip'+(o.p&&o.p===lo?' lo':'')+(o.d===cur?' cur':'')+'" data-x="'+xi+'" data-b="'+(back?1:0)+'" data-d="'+o.d+'"><b>'+esc(shortDate(o.d))+'</b><span>'+(o.p?sym+fmtN(o.p):'\u2014')+'</span><small>'+(o.p&&o.p===lo?'Lowest':'')+'</small></button>'}).join('')
++'</div><button type="button" class="arw" data-dir="1" aria-label="Later dates">\u203a</button></div><div class="s">'+(back?'Return-direction':'Outbound')+' fares from recent searches; may have changed. Tap a day to search it.</div>';var ch=el.querySelector('.chips'),cu=el.querySelector('.chip.cur');if(ch){if(cu)ch.scrollLeft=cu.offsetLeft-ch.clientWidth/2+cu.offsetWidth/2;arwState(el);ch.addEventListener('scroll',function(){arwState(el)})}}
 function arwState(el){var ch=el.querySelector('.chips'),b=el.querySelectorAll('.arw');if(!ch||b.length<2)return;b[0].disabled=ch.scrollLeft<=2;b[1].disabled=ch.scrollLeft+ch.clientWidth>=ch.scrollWidth-2}
 var drag=null,lastDrag=0;
 $('res').addEventListener('pointerdown',function(e){if(e.pointerType!=='mouse'||e.button!==0)return;var ch=e.target.closest&&e.target.closest('.chips');if(ch)drag={ch:ch,x:e.clientX,l:ch.scrollLeft,moved:false}});
@@ -614,11 +347,11 @@ function fmtP(n){return n>=10000?Math.round(n/1000)+'k':String(Math.round(n))}
 function renderCal(){var inp=cal.inp,hid=$(inp.dataset.for),min=hid.min||today,val=hid.value,dep=hid.id==='rt'?$('d0').value:'',y=cal.y,m=cal.m;
 var pr=getPrices(inp,y,m),mo2=y+'-'+('0'+(m+1)).slice(-2),lo=null,hasp=false;if(pr){var vs=[];Object.keys(pr).forEach(function(k){if(k.slice(0,7)===mo2&&k>=min)vs.push(pr[k])});if(vs.length){lo=Math.min.apply(null,vs);hasp=true}}
 var off=(new Date(y,m,1).getDay()+6)%7,days=new Date(y,m+1,0).getDate();
-var h='<div class="ch"><button type="button" class="cn" data-n="-1" aria-label="'+esc(t('prev_mo'))+'">‹</button><b>'+esc(moName(m))+' '+y+'</b><button type="button" class="cn" data-n="1" aria-label="'+esc(t('next_mo'))+'">›</button></div><div class="cg">'+t('wd').map(function(x){return '<span class="cw">'+esc(x)+'</span>'}).join('');
+var h='<div class="ch"><button type="button" class="cn" data-n="-1" aria-label="Previous month">‹</button><b>'+MN[m]+' '+y+'</b><button type="button" class="cn" data-n="1" aria-label="Next month">›</button></div><div class="cg">'+['Mo','Tu','We','Th','Fr','Sa','Su'].map(function(x){return '<span class="cw">'+x+'</span>'}).join('');
 for(var i=0;i<off;i++)h+='<span></span>';
 for(var d=1;d<=days;d++){var v=iso(y,m,d),c='dd'+(v===val?' sel':'')+(v===today?' td':'')+(dep&&v===dep&&v!==val?' rs':'')+(dep&&val&&v>dep&&v<val?' rg':'');
 h+='<button type="button" class="'+c+'" data-v="'+v+'"'+(v<min?' disabled':'')+'>'+d+(hasp&&pr[v]&&v>=min?'<small'+(pr[v]===lo?' class="lo"':'')+'>'+fmtP(pr[v])+'</small>':'')+'</button>'}
-h+='</div>'+(hasp?'<div class="cl">'+esc(t('cal_leg',{cur:$('cy').value.toUpperCase()}))+'</div>':'')+'<div class="cf"><button type="button" class="cc">'+esc(t('clear'))+'</button></div>';cal.box.classList.toggle('hasp',hasp);cal.box.innerHTML=h}
+h+='</div>'+(hasp?'<div class="cl">Lowest recent fares in '+esc($('cy').value.toUpperCase())+' per person. Green is the cheapest day this month. Prices may have changed.</div>':'')+'<div class="cf"><button type="button" class="cc">Clear</button></div>';cal.box.classList.toggle('hasp',hasp);cal.box.innerHTML=h}
 function closeCals(){document.querySelectorAll('.cal.on').forEach(function(b){b.classList.remove('on')})}
 function openCal(inp){closeCals();var hid=$(inp.dataset.for),base=hid.value||(hid.id==='rt'&&$('d0').value)||hid.min||today,p=base.split('-');
 cal.y=+p[0];cal.m=+p[1]-1;cal.inp=inp;cal.box=inp.parentNode.querySelector('.cal');cal.box.classList.add('on');renderCal()}
@@ -638,42 +371,42 @@ function search(){closeOffers();var reqs=[],mo=$('mo').checked;
 if(type==='multi'){for(var i=0;i<nleg;i++)reqs.push({f:codeOf($('f'+i).value),t:codeOf($('t'+i).value),d:$('d'+i).value,r:''})}
 else reqs.push({f:codeOf($('f0').value),t:codeOf($('t0').value),d:$('d0').value,r:type==='round'?$('rt').value:''});
 for(var k=0;k<reqs.length;k++){var q=reqs[k];
-if(!q.f||!q.t){show('<div class="m">'+esc(t('err_airports'))+'</div>');return}
-if(q.f===q.t){show('<div class="m">'+esc(t('err_same'))+'</div>');return}
-if(!q.d||(type==='round'&&!q.r)){show('<div class="m">'+esc(t('err_dates'))+'</div>');return}
-if(q.r&&q.r<q.d){show('<div class="m">'+esc(t('err_ret_before'))+'</div>');return}
-if(type==='multi'&&k>0&&q.d<reqs[k-1].d0){show('<div class="m">'+esc(t('err_leg_order'))+'</div>');return}
+if(!q.f||!q.t){show('<div class="m">Choose both airports from the list, or type a 3-letter airport code.</div>');return}
+if(q.f===q.t){show('<div class="m">Origin and destination must be different.</div>');return}
+if(!q.d||(type==='round'&&!q.r)){show('<div class="m">Please choose all dates.</div>');return}
+if(q.r&&q.r<q.d){show('<div class="m">The return date must be on or after the departure date.</div>');return}
+if(type==='multi'&&k>0&&q.d<reqs[k-1].d0){show('<div class="m">Each flight date must be on or after the previous flight date.</div>');return}
 q.d0=q.d;q.r0=q.r;q.mo=mo;if(mo){q.d=q.d.slice(0,7);q.r=q.r?q.r.slice(0,7):''}}
-var selectedCurrency=$('cy').value;show('<div class="m">'+esc(t('searching'))+'</div>');$('lay').classList.add('nofl');
+var selectedCurrency=$('cy').value;show('<div class="m">Searching…</div>');$('lay').classList.add('nofl');
 Promise.all(reqs.map(function(q){var p=new URLSearchParams({origin:q.f,destination:q.t,date:q.d,currency:selectedCurrency});if(q.r)p.set('return',q.r);
-return fetch('/api/flights?'+p).then(function(r){return r.json()}).catch(function(){return{error:t('err_net')}})}))
+return fetch('/api/flights?'+p).then(function(r){return r.json()}).catch(function(){return{error:'Something went wrong. Please try again.'}})}))
 .then(function(js){strips={};offerPage=null;data=js.map(function(j,i){return{q:reqs[i],j:j}});var al={};
 cnt={};mn={};data.forEach(function(x){(x.j.data||[]).forEach(function(f){if(f.airline){al[f.airline]=f.airline_name||f.airline;cnt[f.airline]=(cnt[f.airline]||0)+1;mn[f.airline]=Math.min(mn[f.airline]||1e18,f.price)}})});
 var cs=null;data.forEach(function(x){if(!cs&&x.j&&x.j.currency)cs=x.j.currency});var sy=symOf(cs||'usd');
-$('al').innerHTML=Object.keys(al).sort(function(a,b){return mn[a]-mn[b]}).map(function(c){return '<div class="ar"><label class="ck"><input type="checkbox" value="'+esc(c)+'" checked>'+logo(c)+'<span class="an">'+esc(al[c])+'</span></label><span class="ap">'+sy+fmtN(mn[c])+'</span><button type="button" class="only" data-c="'+esc(c)+'">'+esc(t('only'))+'</button></div>'}).join('')||'<div class="s">'+esc(t('no_airlines'))+'</div>';
+$('al').innerHTML=Object.keys(al).sort(function(a,b){return mn[a]-mn[b]}).map(function(c){return '<div class="ar"><label class="ck"><input type="checkbox" value="'+esc(c)+'" checked>'+logo(c)+'<span class="an">'+esc(al[c])+'</span></label><span class="ap">'+sy+fmtN(mn[c])+'</span><button type="button" class="only" data-c="'+esc(c)+'">only</button></div>'}).join('')||'<div class="s">No airlines</div>';
 $('lay').classList.add('has');$('lay').classList.remove('nofl');draw()})}
-function cmp(q){var f=q.f,t2=q.t,d=q.d.length===7?q.d+'-01':q.d,r=q.r?(q.r.length===7?q.r+'-01':q.r):'';
+function cmp(q){var f=q.f,t=q.t,d=q.d.length===7?q.d+'-01':q.d,r=q.r?(q.r.length===7?q.r+'-01':q.r):'';
 var y=function(x){return x.slice(2,4)+x.slice(5,7)+x.slice(8,10)},tail=(r?'/'+r:'')+($('cabin').value==='business'?'/business':'')+(pax.a>1?'/'+pax.a+'adults':'');
-return [['Google Flights','https://www.google.com/travel/flights?q='+encodeURIComponent('Flights from '+f+' to '+t2+' on '+d+(r?' through '+r:'')+($('cabin').value==='business'?' business class':''))],
-['Skyscanner','https://www.skyscanner.net/transport/flights/'+f.toLowerCase()+'/'+t2.toLowerCase()+'/'+y(d)+'/'+(r?y(r)+'/':'')+'?adultsv2='+pax.a+'&cabinclass='+($('cabin').value==='business'?'business':'economy')],
-['Kayak','https://www.kayak.com/flights/'+f+'-'+t2+'/'+d+tail],['Momondo','https://www.momondo.com/flight-search/'+f+'-'+t2+'/'+d+tail],['Cheapflights','https://www.cheapflights.com/flight-search/'+f+'-'+t2+'/'+d+tail]]}
+return [['Google Flights','https://www.google.com/travel/flights?q='+encodeURIComponent('Flights from '+f+' to '+t+' on '+d+(r?' through '+r:'')+($('cabin').value==='business'?' business class':''))],
+['Skyscanner','https://www.skyscanner.net/transport/flights/'+f.toLowerCase()+'/'+t.toLowerCase()+'/'+y(d)+'/'+(r?y(r)+'/':'')+'?adultsv2='+pax.a+'&cabinclass='+($('cabin').value==='business'?'business':'economy')],
+['Kayak','https://www.kayak.com/flights/'+f+'-'+t+'/'+d+tail],['Momondo','https://www.momondo.com/flight-search/'+f+'-'+t+'/'+d+tail],['Cheapflights','https://www.cheapflights.com/flight-search/'+f+'-'+t+'/'+d+tail]]}
 function t12(h,m){return ((h%12)||12)+':'+('0'+m).slice(-2)+' '+(h>=12?'PM':'AM')}
-function depT(isoStr){var h=+isoStr.slice(11,13),m=+isoStr.slice(14,16);return isNaN(h)||isNaN(m)?'':t12(h,m)}
+function depT(iso){var h=+iso.slice(11,13),m=+iso.slice(14,16);return isNaN(h)||isNaN(m)?'':t12(h,m)}
 function arrCalc(depIso,d,codes){if(!(d>0)||!depIso)return null;var tz='';
 for(var i=0;i<codes.length;i++){if(codes[i]&&AP[codes[i]]&&AP[codes[i]].tz){tz=AP[codes[i]].tz;break}}if(!tz)return null;
-var dt=new Date(new Date(depIso).getTime()+d*60000);if(isNaN(dt.getTime()))return null;
-try{var tf=new Intl.DateTimeFormat('en-US',{timeZone:tz,hour:'numeric',minute:'2-digit',hour12:true}).format(dt).replace(/[\u202f\u00a0]/g,' ');
-var dd=new Intl.DateTimeFormat('en-CA',{timeZone:tz,year:'numeric',month:'2-digit',day:'2-digit'}).format(dt),dp=String(depIso).slice(0,10);
+var t=new Date(new Date(depIso).getTime()+d*60000);if(isNaN(t.getTime()))return null;
+try{var tf=new Intl.DateTimeFormat('en-US',{timeZone:tz,hour:'numeric',minute:'2-digit',hour12:true}).format(t).replace(/[\u202f\u00a0]/g,' ');
+var dd=new Intl.DateTimeFormat('en-CA',{timeZone:tz,year:'numeric',month:'2-digit',day:'2-digit'}).format(t),dp=String(depIso).slice(0,10);
 return{t:tf,d:Math.round((Date.parse(dd+'T00:00:00Z')-Date.parse(dp+'T00:00:00Z'))/86400000)}}catch(e){return null}}
 function arrInfo(f,q){return arrCalc(f.departure_at,f.duration_to||(f.return_at?0:f.duration),[f.destination_airport,f.destination,q.t])}
 function arrBack(f,q){return arrCalc(f.return_at,f.duration_back||0,[f.origin_airport,f.origin,q.f])}
-function legHtml(label,dateIso,depIso,arr,fromC,toC,du,stops,tip){
-return (label?'<div class="lgl">'+esc(label)+(dateIso?' \u00b7 '+esc(shortDate(dateIso)):'')+'</div>':'')
+function legHtml(label,dateIso,depIso,arr,fromC,toC,du,stops,tip,air,lay){
+return (label?'<div class="lgl">'+esc(label)+(dateIso?' \u00b7 '+esc(shortDate(dateIso)):'')+(air?'<span class="tka">'+air+'</span>':'')+'</div>':'')
 +'<div class="rt"><div class="ep"><b>'+esc(depT(String(depIso||''))||'\u2014')+'</b><span class="s">'+esc(fromC)+'</span></div>'
-+'<div class="ln"><span class="bar"></span>'+(stops>0?'<span class="stop" tabindex="0" role="img" aria-label="'+esc(tip)+'" data-tip="'+esc(tip)+'"></span>':'')+'<span class="dur">'+esc(du)+'</span></div>'
++(stops>0?'<div class="ln st"><span class="dur">'+esc(du)+'</span><span class="lrow"><span class="dl"></span><span class="pl" tabindex="0" role="img" aria-label="'+esc(tip)+'" data-tip="'+esc(tip)+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"/></svg></span><span class="dl"></span></span><span class="lay">'+(lay?'<small>Layover</small> '+esc(lay):'1 stop')+'</span></div>':'<div class="ln"><span class="dur">'+esc(du)+'</span><span class="lrow"><span class="dl"></span></span></div>')
 +'<div class="ep"><b>'+(arr?esc(arr.t)+(arr.d?'<sup>'+(arr.d>0?'+':'')+arr.d+'</sup>':''):'\u2014')+'</b><span class="s">'+esc(toC)+'</span></div></div>'}
 function logo(c){c=String(c||'');return c?'<img class="lg" data-c="'+esc(c)+'" src="https://pics.avs.io/64/64/'+encodeURIComponent(c)+'.png" alt="" loading="lazy" referrerpolicy="no-referrer">':''}
-document.addEventListener('error',function(e){var el=e.target;if(el&&el.classList&&el.classList.contains('lg')){var sp=document.createElement('span');sp.className='lg0';sp.textContent=el.dataset.c||'';el.replaceWith(sp)}},true);
+document.addEventListener('error',function(e){var t=e.target;if(t&&t.classList&&t.classList.contains('lg')){var sp=document.createElement('span');sp.className='lg0';sp.textContent=t.dataset.c||'';t.replaceWith(sp)}},true);
 function tfOk(f,tf){var h=+String(f.departure_at||'').slice(11,13);return isNaN(h)||tf.indexOf(Math.floor(h/6))>=0}
 function flightKey(f){
 return [f.airline||'',f.flight_number||'',f.origin_airport||f.origin||'',f.destination_airport||f.destination||'',String(f.departure_at||''),String(f.return_at||''),f.transfers==null?'':f.transfers,f.return_transfers==null?'':f.return_transfers].join('|')}
@@ -685,26 +418,27 @@ var initials=n.split(/\s+/).filter(Boolean).slice(0,2).map(function(x){return x.
 var ofLast=null,ofSeq=0;
 function agName(o){return String((o&&o.gate)||'Aviasales')}
 function fbLink(l){l=String(l||'');if(/^https:\/\//i.test(l))return l;if(l.charAt(0)==='/'&&l.charAt(1)!=='/')return '/out?link='+encodeURIComponent(l);return ''}
-function ofRow(name,price,link,sym,lo){return '<div class="ofr'+(lo?' lo':'')+'"><div class="l">'+agencyLogo(name)+'<b>'+esc(name)+'</b></div><div class="pc"><div class="pr">'+sym+fmtN(price)+'</div>'+(link?'<a class="bk" href="'+esc(link)+'" target="_blank" rel="noopener noreferrer sponsored">'+esc(t('of_book',{ag:name}))+'</a>':'<span class="s">'+esc(t('of_no_link'))+'</span>')+'</div></div>'}
+function ofRow(name,price,link,sym,lo){return '<div class="ofr'+(lo?' lo':'')+'"><div class="l">'+agencyLogo(name)+'<b>'+esc(name)+'</b></div><div class="pc"><div class="pr">'+sym+fmtN(price)+'</div>'+(link?'<a class="bk" href="'+esc(link)+'" target="_blank" rel="noopener noreferrer sponsored">Book on '+esc(name)+'</a>':'<span class="s">Booking link unavailable</span>')+'</div></div>'}
 function closeOffers(){var m=$('ofm');if(!m||m.hidden)return;m.hidden=true;document.body.style.overflow='';ofSeq++;offerPage=null;if(ofLast&&ofLast.focus)ofLast.focus()}
 function openOffers(key,btn){var g=visibleGroups[key];if(!g)return;var q=g.q,f=g.flight,my=++ofSeq;ofLast=btn||null;offerPage=key;
 var dep=String(f.departure_at||''),ret=f.return_at?String(f.return_at):'',sym=symOf(g.currency||$('cy').value);
 var oc=f.origin_airport||f.origin||q.f,dc=f.destination_airport||f.destination||q.t;
-$('oft').textContent=(f.airline_name||f.airline||t('flight_fb'))+(f.flight_number?' \u00b7 '+(f.airline||'')+' '+f.flight_number:'');
-var head='<div class="m" style="margin-bottom:6px"><b>'+esc(nm(oc))+' \u2192 '+esc(nm(dc))+'</b>'
-+'<div class="s">'+esc(t('of_dep',{d:shortDate(dep.slice(0,10))+(depT(dep)?' \u00b7 '+depT(dep):'')}))+'</div>'
-+(ret?'<div class="s">'+esc(t('of_ret',{d:shortDate(ret.slice(0,10))+(depT(ret)?' \u00b7 '+depT(ret):'')}))+'</div>':'<div class="s">'+esc(t('one_way'))+'</div>')
-+'<div class="s">'+esc(f.transfers===0?t('direct'):t('stop_1'))+'</div></div>';
-$('ofb').innerHTML=head+'<div class="s" id="ofl">'+esc(t('of_loading'))+'</div>';
+$('oft').textContent=(f.airline_name||f.airline||'Flight')+(f.flight_number?' \u00b7 '+(f.airline||'')+' '+f.flight_number:'');
+var air=f.airline_name||f.airline||'Airline',airH=logo(f.airline)+'<span>'+esc(air)+'</span>';
+var head='<div class="tkt"><div class="tkh">'+logo(f.airline)+'<div><b>'+esc(air)+'</b><span>'+esc(f.flight_number?f.airline+' '+f.flight_number:'')+'</span></div><span class="tkb">'+(ret?'Round trip':'One way')+'</span></div><div class="tkr"><div class="tkc"><b>'+esc(oc)+'</b><span>'+esc(AP[oc]?AP[oc].n:'')+'</span></div><div class="tkl"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"/></svg></div><div class="tkc r"><b>'+esc(dc)+'</b><span>'+esc(AP[dc]?AP[dc].n:'')+'</span></div></div>'
++'<div class="tkd"><div><small>Departure</small><b>'+esc(shortDate(dep.slice(0,10)))+(depT(dep)?' \u00b7 '+esc(depT(dep)):'')+'</b><span class="tka">'+airH+'</span></div>'
++(ret?'<div><small>Return</small><b>'+esc(shortDate(ret.slice(0,10)))+(depT(ret)?' \u00b7 '+esc(depT(ret)):'')+'</b><span class="tka">'+airH+'</span></div>':'<div><small>Trip</small><b>One way</b></div>')
++'<div><small>Stops</small><b>'+(f.transfers===0?'Direct':'1 stop')+'</b></div></div></div>';
+$('ofb').innerHTML=head+'<div class="s" id="ofl">Loading offers from agencies\u2026</div>';
 $('ofm').hidden=false;document.body.style.overflow='hidden';$('ofx').focus();
 var p=new URLSearchParams({origin:q.f,destination:q.t,date:dep.slice(0,10),currency:$('cy').value,cabin:$('cabin').value,airline:f.airline||'',dep:dep.slice(0,16)});if(ret)p.set('return',ret.slice(0,10));
 fetch('/api/offers?'+p).then(function(r){return r.json()}).catch(function(){return{live:false,offers:[]}}).then(function(j){
 if(my!==ofSeq)return;var h='',list=(j&&j.offers)||[];
 if(j&&j.live&&list.length){var lo=Math.min.apply(null,list.map(function(o){return o.price}));
-h+='<div class="s" style="margin:6px 0">'+esc(list.length===1?t('of_live_1'):t('of_live_n',{n:list.length}))+'</div>';
+h+='<div class="s" style="margin:6px 0">'+list.length+' agenc'+(list.length===1?'y':'ies')+' \u00b7 price per adult \u00b7 live prices can change, confirm on the agency site.</div>';
 h+=list.map(function(o){return ofRow(o.agent,o.price,o.link,symOf(j.currency||$('cy').value),o.price===lo)}).join('')}
 else{var fo=g.offers.slice().sort(function(a,b){return Number(a.price)-Number(b.price)});
-h+='<div class="s" style="margin:6px 0">'+esc(t('of_fb'))+'</div>';
+h+='<div class="s" style="margin:6px 0">Offers from other agencies are not available for this flight right now. This is the best price found by our data source. Confirm the final fare on the booking site.</div>';
 h+=fo.map(function(o,i){return ofRow(agName(o),o.price,fbLink(o.link),sym,i===0)}).join('')}
 $('ofb').innerHTML=head+h})}
 $('ofx').addEventListener('click',closeOffers);
@@ -713,31 +447,34 @@ document.addEventListener('keydown',function(e){var m=$('ofm');if(!m||m.hidden)r
 if(e.key==='Tab'){var fs=[].slice.call(m.querySelectorAll('button,a[href]'));if(!fs.length)return;var first=fs[0],last=fs[fs.length-1];
 if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}}});
 function draw(){
-var fc=(document.querySelector('input[name=sf]:checked').value!=='any'?1:0)+(document.querySelectorAll('#al input:not(:checked)').length?1:0)+($('so').value!=='price'?1:0)+(document.querySelectorAll('input[name=tf]:not(:checked)').length?1:0);$('fcnt').textContent=fc?t('active_cnt',{n:fc}):'';
+var np=pax.a+pax.c,fc=(document.querySelector('input[name=sf]:checked').value!=='any'?1:0)+(document.querySelectorAll('#al input:not(:checked)').length?1:0)+($('so').value!=='price'?1:0)+(document.querySelectorAll('input[name=tf]:not(:checked)').length?1:0);$('fcnt').textContent=fc?fc+' active':'';
 var biz=$('cabin').value==='business',sf=document.querySelector('input[name=sf]:checked').value,so=$('so').value,h='',af=[].slice.call(document.querySelectorAll('#al input:checked')).map(function(i){return i.value}),tf=[].slice.call(document.querySelectorAll('input[name=tf]:checked')).map(function(i){return +i.value});
 visibleGroups={};
 data.forEach(function(x,xi){var q=x.q,j=x.j;
 h+='<h2>'+esc(nm(q.f))+' → '+esc(nm(q.t))+'</h2><div class="strip" id="st'+xi+'"></div>'+(q.r0?'<div class="strip" id="stb'+xi+'"></div>':'');
 if(j.error){h+='<div class="m">'+esc(j.error)+'</div>';return}
 var sym=symOf(j.currency||$('cy').value);
-if(biz)h+='<div class="m" style="margin-bottom:10px">'+esc(t('biz_note'))+'</div>';
-if(j.currency!==j.requested)h+='<div class="m" style="margin-bottom:10px">'+esc(t('cur_note'))+'</div>';
+if(biz)h+='<div class="m" style="margin-bottom:10px">The current price source does not confirm cabin-specific fares. Business-class availability and price must be checked on the booking website.</div>';
+if(j.currency!==j.requested)h+='<div class="m" style="margin-bottom:10px">The selected currency could not be applied. Please try again or choose another currency.</div>';
 var list=(j.data||[]).filter(function(f){return(sf==='any'||String(f.transfers)===sf)&&(af.indexOf(f.airline)>=0)&&tfOk(f,tf)});
+if(!q.mo){list=list.filter(function(f){var dd=String(f.departure_at||'').slice(0,10);if(dd&&q.d0&&dd!==q.d0)return false;if(q.r0){var rr=String(f.return_at||'').slice(0,10);if(rr&&rr!==q.r0)return false}return true})}
 var grouped={};list.forEach(function(f){var k=flightKey(f);if(!grouped[k])grouped[k]={key:k,q:q,flight:f,offers:[],currency:j.currency};grouped[k].offers.push(f)});
 var groups=Object.keys(grouped).map(function(k){var g=grouped[k],byAgency={};g.offers.forEach(function(o){var agency=String(o.gate||'Travel agency');if(!byAgency[agency]||Number(o.price)<Number(byAgency[agency].price))byAgency[agency]=o});g.offers=Object.keys(byAgency).map(function(a){return byAgency[a]});g.best=g.offers.reduce(function(a,b){return !a||Number(b.price)<Number(a.price)?b:a},null);return g});
 groups.sort(function(a,b){return so==='price'?Number(a.best.price)-Number(b.best.price):so==='dur'?(a.flight.duration_to||a.flight.duration||0)-(b.flight.duration_to||b.flight.duration||0):String(a.flight.departure_at).localeCompare(String(b.flight.departure_at))});
-if(!groups.length)h+='<div class="m">'+esc(t('no_res'))+'</div>';
+if(!groups.length)h+='<div class="m">'+(q.mo?'No recent prices found for these filters and selected date range. Try another date, or change the filters.':'No recent prices found for exactly these dates. Pick a cheaper nearby day from the dates above, tick flexible dates, or change the filters.')+'</div>';
+if(q.mo&&groups.length)h+='<div class="s" style="margin-bottom:8px">Flexible dates is on: the flights below can be from any day in the month, not only the dates you picked.</div>';
 groups.forEach(function(g){var f=g.flight,rtrip=!!f.return_at,d=f.duration_to||(rtrip?0:f.duration),db=f.duration_back||0,fm=function(m){return m>0?Math.floor(m/60)+'h '+m%60+'m':''},oc=f.origin_airport||f.origin||q.f,dc=f.destination_airport||f.destination||q.t;
-var key='g'+Object.keys(visibleGroups).length;visibleGroups[key]=g;
+var key='g'+Object.keys(visibleGroups).length;visibleGroups[key]=g;var airH=logo(f.airline)+'<span>'+esc(f.airline_name||f.airline||'Airline')+'</span>';
 var lay=f.layovers&&f.layovers.length?f.layovers.map(function(l){return Math.floor(l.minutes/60)+'h '+l.minutes%60+'m in '+(AP[l.airport]?AP[l.airport].n+' ('+l.airport+')':l.airport)}).join(', '):'';
-var tip=f.transfers===0?'':(lay?t('layover_prefix')+lay:t('layover_fb')),tipB=(typeof f.return_transfers==='number'&&f.return_transfers>0)?t('layover_fb'):'';
-h+='<div class="c fcard" data-open-offers="'+esc(key)+'" tabindex="0" role="button" aria-label="'+esc(t('of_view_aria'))+'"><div class="fm"><div class="al">'+logo(f.airline)+'<b>'+esc(f.airline_name||f.airline||t('airline_fb'))+'</b><span class="s">'+esc(f.flight_number?f.airline+' '+f.flight_number:'')+'</span></div>'
-+legHtml(rtrip?t('outbound'):'',String(f.departure_at||'').slice(0,10),f.departure_at,arrInfo(f,q),oc,dc,fm(d),f.transfers,tip)
-+(rtrip?legHtml(t('return_leg'),String(f.return_at).slice(0,10),f.return_at,arrBack(f,q),dc,oc,fm(db),f.return_transfers||0,tipB):'')
-+'<div><span class="tag">'+esc(f.transfers===0?t('direct'):t('stop_1'))+'</span><span class="tag">'+esc(rtrip?t('round_trip'):t('one_way'))+'</span><span class="tag">'+esc(t('tap_offers'))+'</span></div></div>'
-+'<div class="pc"><div><div class="pr">'+sym+fmtN(g.best.price)+'</div><div class="s">'+esc(t('best_price',{ag:agName(g.best)}))+'</div></div><button type="button" class="bk" data-open-offers="'+esc(key)+'">'+esc(t('view_offers'))+'</button></div></div>';
+var layS=f.layovers&&f.layovers.length?f.layovers.map(function(l){return Math.floor(l.minutes/60)+'h '+l.minutes%60+'m \u00b7 '+l.airport}).join(', '):'';
+var tip=f.transfers===0?'':(lay?'Layover: '+lay:'1 stop. The layover airport and waiting time are shown on the booking site.'),tipB=(typeof f.return_transfers==='number'&&f.return_transfers>0)?'1 stop. The layover airport and waiting time are shown on the booking site.':'';
+h+='<div class="c fcard" data-open-offers="'+esc(key)+'" tabindex="0" role="button" aria-label="View agency offers"><div class="fm"><div class="al">'+logo(f.airline)+'<b>'+esc(f.airline_name||f.airline||'Airline')+'</b><span class="s">'+esc(f.flight_number?f.airline+' '+f.flight_number:'')+'</span></div>'
++legHtml(rtrip?'Outbound':'',String(f.departure_at||'').slice(0,10),f.departure_at,arrInfo(f,q),oc,dc,fm(d),f.transfers,tip,rtrip?airH:'',layS)
++(rtrip?legHtml('Return',String(f.return_at).slice(0,10),f.return_at,arrBack(f,q),dc,oc,fm(db),f.return_transfers||0,tipB,airH,''):'')
++'<div><span class="tag">'+(f.transfers===0?'Direct':'1 stop')+'</span><span class="tag">'+(rtrip?'Round trip':'One way')+'</span><span class="tag">Tap for agency offers</span></div></div>'
++'<div class="pc"><div><div class="pr">'+sym+fmtN(g.best.price)+'</div><div class="s">Best price found · '+esc(agName(g.best))+'</div></div><button type="button" class="bk" data-open-offers="'+esc(key)+'">View offers</button></div></div>';
 });
-h+='<div class="cmp"><b>'+esc(t('cmp_title'))+'</b><div class="s">'+esc(t('cmp_sub'))+'</div>'+cmp(q).map(function(l){return '<a href="'+esc(l[1])+'" target="_blank" rel="noopener noreferrer">'+l[0]+'</a>'}).join('')+'</div>';
+h+='<div class="cmp"><b>Compare this trip on other sites</b><div class="s">Opens their own search. Prices there may differ.</div>'+cmp(q).map(function(l){return '<a href="'+esc(l[1])+'" target="_blank" rel="noopener noreferrer">'+l[0]+'</a>'}).join('')+'</div>';
 });
 show(h);data.forEach(function(x,xi){fillStrip(xi);fillStrip(xi,true)})}
 $('res').addEventListener('click',function(e){if(e.target.closest&&e.target.closest('a'))return;var b=e.target.closest&&e.target.closest('[data-open-offers]');if(b)openOffers(b.dataset.openOffers,b)});
@@ -746,23 +483,14 @@ $('fl').addEventListener('change',draw);$('al').addEventListener('click',functio
 var all=[].slice.call(document.querySelectorAll('#al input')),solo=all.filter(function(i){return i.checked}).length===1&&all.some(function(i){return i.checked&&i.value===o.dataset.c});
 all.forEach(function(i){i.checked=solo?true:i.value===o.dataset.c});draw()});
 function selAll(v){document.querySelectorAll('#al input').forEach(function(i){i.checked=v});draw()}if(window.innerWidth<860)$('fd').open=false;
-$('cabin').onchange=function(){if(data.length)draw()};$('go').onclick=search;
-document.querySelectorAll('.langbtn').forEach(function(b){b.addEventListener('click',function(){applyLang(b.dataset.lang)})});
-function applyTheme(d){
-  document.documentElement.classList.toggle('dark',!!d);
-  if($('thmbtn'))$('thmbtn').textContent=d?'☀️ Light':'🌙 Dark';
-  try{localStorage.setItem('tf_theme',d?'dark':'light')}catch(e){}
-}
-function toggleTheme(){applyTheme(!document.documentElement.classList.contains('dark'))}
-(function(){var s='';try{s=localStorage.getItem('tf_theme')||''}catch(e){}applyTheme(s==='dark')})();
-setType('round');
+$('cabin').onchange=function(){if(data.length)draw()};$('go').onclick=search;setType('round');
 var CURS=[['bdt','Bangladeshi Taka'],['usd','US Dollar'],['eur','Euro'],['gbp','British Pound'],['aed','UAE Dirham'],['sar','Saudi Riyal'],['inr','Indian Rupee'],['myr','Malaysian Ringgit'],['sgd','Singapore Dollar'],['thb','Thai Baht'],['qar','Qatari Riyal'],['kwd','Kuwaiti Dinar'],['bhd','Bahraini Dinar'],['omr','Omani Rial'],['pkr','Pakistani Rupee'],['lkr','Sri Lankan Rupee'],['npr','Nepali Rupee'],['idr','Indonesian Rupiah'],['php','Philippine Peso'],['vnd','Vietnamese Dong'],['jpy','Japanese Yen'],['cny','Chinese Yuan'],['krw','South Korean Won'],['hkd','Hong Kong Dollar'],['aud','Australian Dollar'],['cad','Canadian Dollar'],['nzd','New Zealand Dollar'],['chf','Swiss Franc'],['try','Turkish Lira'],['egp','Egyptian Pound'],['zar','South African Rand'],['ngn','Nigerian Naira'],['rub','Russian Ruble'],['brl','Brazilian Real'],['mxn','Mexican Peso']],cyTyped=false;
 function cyName(c){for(var i=0;i<CURS.length;i++)if(CURS[i][0]===c)return CURS[i][1];return c.toUpperCase()}
-function cyUi(){var c=$('cy').value;$('cyv').value=c.toUpperCase()+' \u00b7 '+cyName(c);$('cyv').placeholder=t('currency_ph')}
+function cyUi(){var c=$('cy').value;$('cyv').value=c.toUpperCase()+' \u00b7 '+cyName(c)}
 function cyFind(q){q=(q||'').toLowerCase().trim();if(!q)return CURS.slice(0,6);var a=[],b=[];
 CURS.forEach(function(x){var n=x[1].toLowerCase();if(x[0].indexOf(q)===0||n.split(' ').some(function(w){return w.indexOf(q)===0}))a.push(x);else if(n.indexOf(q)>=0)b.push(x)});return a.concat(b).slice(0,6)}
 function cyShow(){var box=$('cys'),r=cyFind(cyTyped?$('cyv').value:'');
-box.innerHTML=r.map(function(x){return '<div class="si" role="option" data-c="'+x[0]+'"><div><b>'+x[0].toUpperCase()+'</b> <span>'+esc(symOf(x[0]).trim())+'</span><small>'+esc(x[1])+'</small></div></div>'}).join('')||'<div class="si"><div class="s">'+esc(t('no_match'))+'</div></div>';
+box.innerHTML=r.map(function(x){return '<div class="si" role="option" data-c="'+x[0]+'"><div><b>'+x[0].toUpperCase()+'</b> <span>'+esc(symOf(x[0]).trim())+'</span><small>'+esc(x[1])+'</small></div></div>'}).join('')||'<div class="si"><div class="s">No match</div></div>';
 box.classList.add('on');box.dataset.i='-1'}
 function cyPick(c){var old=$('cy').value;$('cy').value=c;cyUi();$('cys').classList.remove('on');if(c!==old&&data.length)search()}
 $('cyv').addEventListener('focus',function(){this.select();cyTyped=false;cyShow()});
@@ -773,27 +501,39 @@ if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();i=e.key==='ArrowDo
 else if(e.key==='Enter'&&its.length){e.preventDefault();cyPick(its[i>=0?i:0].dataset.c)}else if(e.key==='Escape'){box.classList.remove('on');cyUi()}});
 document.addEventListener('pointerdown',function(e){if(!e.target.closest('.acw'))cyUi()});
 cyUi();
-// Flexible whole-month search is ON by default; it stays on until the traveller unticks it.
-$('mo').checked=true;
+// Exact-date search is the default; flexible whole-month search only when the traveller ticks it.
+$('mo').checked=false;
 // ===== ADVERTISING BANNER: edit this list to change the ads =====
+// Fields: id (any short name), tag (label shown on the ad), title, text, cta (button text),
+// url (https://..., mailto:... or a path like /about.html), img (optional, e.g. '/ads/hotel.webp', or leave '').
 var ADS=[
 {id:'demo1',tag:'Ad',title:'Your ad could be here',text:'Reach travellers who are searching for flights right now.',cta:'Advertise with us',url:'mailto:ismailtasheel4@gmail.com?subject=Advertise%20on%20Tourflight',img:''},
 {id:'demo2',tag:'Ad',title:'Sample sponsored offer (demo)',text:'Hotels, visas, SIM cards or insurance: any travel brand can appear in this space.',cta:'Learn more',url:'/about.html',img:''}
 ];
 function adInit(){var box=$('ad');if(!box)return;if(!ADS.length){box.style.display='none';return}
 var i=0,timer=null,ok=function(u){return /^(https?:\/\/|mailto:|\/)/.test(u||'')};
-function drawAd(){var a=ADS[i];box.innerHTML='<span class="adtag">'+esc(a.tag||'Ad')+'</span><div class="adin">'+(a.img?'<img class="adimg" src="'+esc(a.img)+'" alt="" loading="lazy">':'')
+function draw(){var a=ADS[i];box.innerHTML='<span class="adtag">'+esc(a.tag||'Ad')+'</span><div class="adin">'+(a.img?'<img class="adimg" src="'+esc(a.img)+'" alt="" loading="lazy">':'')
 +'<div class="adtx"><b>'+esc(a.title||'')+'</b><span>'+esc(a.text||'')+'</span></div>'
 +(ok(a.url)?'<a class="adcta" href="'+esc(a.url)+'"'+(/^https?:/.test(a.url)?' target="_blank"':'')+' rel="sponsored noopener noreferrer" data-id="'+esc(a.id||'')+'">'+esc(a.cta||'Learn more')+'</a>':'')+'</div>'
 +(ADS.length>1?'<div class="addots">'+ADS.map(function(_,k){return '<button type="button" aria-label="Show ad '+(k+1)+'" data-k="'+k+'"'+(k===i?' class="on"':'')+'></button>'}).join('')+'</div>':'')}
-function go(n){i=(n+ADS.length)%ADS.length;drawAd()}
+function go(n){i=(n+ADS.length)%ADS.length;draw()}
 box.addEventListener('click',function(e){var d=e.target.closest&&e.target.closest('.addots button');if(d){go(+d.dataset.k);return}
 var c=e.target.closest&&e.target.closest('.adcta');if(c&&navigator.sendBeacon)navigator.sendBeacon('/adclick?id='+encodeURIComponent(c.dataset.id))});
-drawAd();
+draw();
 var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 if(ADS.length>1&&!reduce){var start=function(){stop();timer=setInterval(function(){go(i+1)},6000)},stop=function(){if(timer){clearInterval(timer);timer=null}};
 box.addEventListener('mouseenter',stop);box.addEventListener('mouseleave',start);box.addEventListener('focusin',stop);box.addEventListener('focusout',start);start()}}
 adInit();
-applyLang('en');
+</script><script>
+(function(){var r=document.documentElement,b=document.getElementById('tg'),K='tf-theme-v2';
+// Day = 6:00 AM to 5:59 PM (light), night = 6:00 PM to 5:59 AM (dark), by the visitor's own clock.
+function auto(){var h=new Date().getHours();return h>=6&&h<18?'light':'dark'}
+function ovr(){try{var o=JSON.parse(localStorage.getItem(K)||'null');if(o&&o.p===auto()&&(o.t==='light'||o.t==='dark'))return o.t}catch(e){}return null}
+function set(t){r.setAttribute('data-theme',t);b.querySelector('.tx').textContent=t==='dark'?'Night':'Day';b.setAttribute('aria-checked',t==='dark'?'true':'false');
+b.setAttribute('aria-label',t==='dark'?'Switch to light mode':'Switch to dark mode');b.title=b.getAttribute('aria-label')}
+set(ovr()||auto());
+b.addEventListener('click',function(){var n=r.getAttribute('data-theme')==='dark'?'light':'dark';set(n);try{localStorage.setItem(K,JSON.stringify({t:n,p:auto()}))}catch(e){}});
+setInterval(function(){set(ovr()||auto())},60000);
+document.addEventListener('visibilitychange',function(){if(!document.hidden)set(ovr()||auto())});})();
 </script><script src="/cookies.js" defer></script>
 </body></html>
