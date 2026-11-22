@@ -178,6 +178,13 @@ async function flights(q) {
     };
   }
 
+  if (ret && dep.length === 10 && ret.length === 10 && ret < dep) {
+    return {
+      code:400,
+      body:{ error:'The return date must be on or after the departure date.' }
+    };
+  }
+
   if (!TOKEN) {
     return {
       code:500,
@@ -433,6 +440,318 @@ async function calendar(q) {
   };
 }
 
+// ===== Live multi-agency offers (Travelpayouts real-time Flight Search API) =====
+// Needs: TP_TOKEN + TP_MARKER and Search API access on your Travelpayouts account.
+// Without them the site keeps working with the price data only.
+const crypto = require('crypto');
+const MARKER = process.env.TP_MARKER || '';
+const SITE_HOST = process.env.TP_HOST || 'tourflight.onrender.com';
+const SEARCH_BASE = process.env.TP_SEARCH_BASE || 'https://tickets-api.travelpayouts.com';
+const DEBUG = !!process.env.TP_DEBUG;
+const searches = new Map();   // search_id -> { results_url, t }
+const offerCache = new Map(); // route key -> { t, tickets, agents, search_id }
+const inflight = new Map();
+
+const md5 = x => crypto.createHash('md5').update(x).digest('hex');
+
+function flat(o) {
+  if (Array.isArray(o)) return o.flatMap(flat);
+  if (o && typeof o === 'object') {
+    return Object.keys(o).sort().flatMap(k => flat(o[k]));
+  }
+  return [String(o)];
+}
+
+// signature = md5(token:marker:all other values sorted by key, joined with ":")
+function sign(body) {
+  const b = Object.assign({}, body);
+  delete b.signature;
+  delete b.marker;
+  return md5([TOKEN, MARKER].concat(flat(b)).join(':'));
+}
+
+function clientIp(req) {
+  const x = String(req.headers['x-forwarded-for'] || '').split(',')[0].trim();
+  return x || req.socket.remoteAddress || '127.0.0.1';
+}
+
+async function tp(url, opt, ms) {
+  const ctl = new AbortController();
+  const to = setTimeout(() => ctl.abort(), ms || 15000);
+  try {
+    const r = await fetch(url, Object.assign({ signal: ctl.signal }, opt));
+    const txt = await r.text();
+    let j = null;
+    try { j = JSON.parse(txt); } catch (e) {}
+    if (DEBUG && !r.ok) {
+      console.log('TP', r.status, url.split('?')[0], txt.slice(0, 300));
+    }
+    return { ok: r.ok, status: r.status, json: j };
+  } finally {
+    clearTimeout(to);
+  }
+}
+
+function tpHeaders(ip, body) {
+  const h = {
+    'content-type': 'application/json',
+    'x-affiliate-user-id': TOKEN,
+    'x-real-host': SITE_HOST,
+    'x-user-ip': ip
+  };
+  h['x-signature'] = body ? sign(body) : md5(TOKEN + ':' + MARKER);
+  return h;
+}
+
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+function legOf(l) {
+  const c = l.operating_carrier_designator || l.marketing_carrier_designator || {};
+  return {
+    carrier: String(c.carrier || l.carrier || '').toUpperCase(),
+    dep: String(l.local_departure_date_time || l.departure_at || '')
+      .replace(' ', 'T').slice(0, 16)
+  };
+}
+
+function normTicket(t, legs) {
+  const segs = (t.segments || []).map(sg =>
+    (sg.flights || [])
+      .map(x => typeof x === 'number' ? legs[x] : x)
+      .filter(Boolean)
+      .map(legOf)
+  );
+  const proposals = (t.proposals || []).map(p => ({
+    id: String(p.id || ''),
+    agent_id: String(p.agent_id == null ? '' : p.agent_id),
+    price: Number(
+      p.price && typeof p.price === 'object'
+        ? (p.price.value != null ? p.price.value : p.price.amount)
+        : (p.price != null ? p.price : p.unified_price)
+    )
+  })).filter(p => p.id && p.price > 0);
+  return { segs, proposals };
+}
+
+async function runSearch(w, ip) {
+  const directions = [{ origin: w.origin, destination: w.dest, date: w.date }];
+  if (w.ret) directions.push({ origin: w.dest, destination: w.origin, date: w.ret });
+
+  const body = {
+    marker: MARKER,
+    locale: 'en',
+    currency_code: 'USD',
+    search_params: {
+      trip_class: w.cabin === 'business' ? 'C' : 'Y',
+      passengers: { adults: 1, children: 0, infants: 0 },
+      directions
+    }
+  };
+  body.signature = sign(body);
+
+  const st = await tp(SEARCH_BASE + '/search/affiliate/start', {
+    method: 'POST',
+    headers: tpHeaders(ip, body),
+    body: JSON.stringify(body)
+  });
+
+  if (!st.ok || !st.json || !st.json.search_id || !st.json.results_url) {
+    throw new Error('start failed ' + st.status);
+  }
+
+  const search_id = String(st.json.search_id);
+  const ru = String(st.json.results_url);
+  const base = new URL(/^https?:/i.test(ru) ? ru : 'https://' + ru).origin;
+  searches.set(search_id, { base, t: Date.now() });
+
+  const tickets = [];
+  const seen = new Map();
+  let agents = {};
+  let last = 0;
+  const t0 = Date.now();
+
+  while (Date.now() - t0 < 20000) {
+    const rb = { search_id, last_update_timestamp: last };
+    const r = await tp(base + '/search/affiliate/results', {
+      method: 'POST',
+      headers: tpHeaders(ip),
+      body: JSON.stringify(rb)
+    });
+
+    if (r.ok && r.json) {
+      const j = r.json;
+      if (j.agents && typeof j.agents === 'object') {
+        agents = Object.assign(agents, j.agents);
+      }
+      const legs = Array.isArray(j.flight_legs) ? j.flight_legs : [];
+      for (const t of (j.tickets || [])) {
+        const key = String(t.id || t.signature || tickets.length);
+        const nt = normTicket(t, legs);
+        if (seen.has(key)) {
+          // same ticket in a later chunk: merge in the new agency proposals
+          const old = seen.get(key);
+          const ids = new Map(old.proposals.map(x => [x.id, x]));
+          nt.proposals.forEach(x => ids.set(x.id, x));
+          old.proposals = Array.from(ids.values());
+          if (!old.segs.length) old.segs = nt.segs;
+          continue;
+        }
+        seen.set(key, nt);
+        tickets.push(nt);
+      }
+      if (j.last_update_timestamp) last = j.last_update_timestamp;
+      if (j.is_over) break;
+    } else if (r.status >= 400 && r.status !== 304) {
+      throw new Error('results failed ' + r.status);
+    }
+    await sleep(1500);
+  }
+
+  return { t: Date.now(), search_id, tickets, agents };
+}
+
+function agentName(id, agents) {
+  const a = agents && agents[id];
+  if (a && typeof a === 'object') {
+    return String(
+      a.label || a.name || a.gate_name || a.title || a.short_name || ''
+    ).trim();
+  }
+  return typeof a === 'string' ? a.trim() : '';
+}
+
+async function offers(q, ip) {
+  const origin = (q.get('origin') || '').toUpperCase();
+  const dest = (q.get('destination') || '').toUpperCase();
+  const date = (q.get('date') || '').slice(0, 10);
+  const ret = (q.get('return') || '').slice(0, 10);
+  const cur = (q.get('currency') || 'usd').toLowerCase();
+  const cabin = q.get('cabin') === 'business' ? 'business' : 'economy';
+  const airline = (q.get('airline') || '').toUpperCase();
+  const dep = String(q.get('dep') || '').replace(' ', 'T').slice(0, 16);
+  const ymd = /^\d{4}-\d{2}-\d{2}$/;
+
+  if (
+    !/^[A-Z]{3}$/.test(origin) || !/^[A-Z]{3}$/.test(dest) ||
+    origin === dest || !ymd.test(date) || (ret && !ymd.test(ret)) ||
+    (ret && ret < date) || !/^[a-z]{3}$/.test(cur)
+  ) {
+    return { code: 400, body: { error: 'Invalid request.' } };
+  }
+
+  if (!TOKEN || !MARKER) {
+    return { code: 200, body: { live: false, reason: 'not_configured', offers: [] } };
+  }
+
+  const w = { origin, dest, date, ret, cabin };
+  const key = [origin, dest, date, ret, cabin].join('|');
+  let c = offerCache.get(key);
+
+  if (!c || Date.now() - c.t > 480000) {
+    try {
+      let pr = inflight.get(key);
+      if (!pr) {
+        pr = runSearch(w, ip).finally(() => inflight.delete(key));
+        inflight.set(key, pr);
+      }
+      c = await pr;
+      offerCache.set(key, c);
+    } catch (e) {
+      if (DEBUG) console.log('offers error', e.message);
+      return { code: 200, body: { live: false, reason: 'unavailable', offers: [] } };
+    }
+  }
+
+  const matches = c.tickets.filter(t => {
+    const out = t.segs[0] && t.segs[0][0];
+    if (!out || (airline && out.carrier !== airline)) return false;
+    if (dep && out.dep !== dep) return false;
+    if (!dep && out.dep.slice(0, 10) !== date) return false;
+    if (ret) {
+      const back = t.segs[1] && t.segs[1][0];
+      if (!back || back.dep.slice(0, 10) !== ret) return false;
+    } else if (t.segs.length > 1) {
+      return false;
+    }
+    return true;
+  });
+
+  const best = new Map(); // one (cheapest) offer per agency
+  for (const t of matches) {
+    for (const p of t.proposals) {
+      const name = agentName(p.agent_id, c.agents);
+      if (!name) continue; // never show an agency without its real name
+      const k = name.toLowerCase();
+      if (!best.has(k) || p.price < best.get(k).usd) {
+        best.set(k, { id: p.id, agent: name, usd: p.price });
+      }
+    }
+  }
+
+  const R = await getRates();
+  const toRate = R.r[cur.toUpperCase()];
+  if (!toRate) {
+    return { code: 400, body: { error: 'The selected currency is not supported.' } };
+  }
+
+  const list = Array.from(best.values())
+    .sort((a, b) => a.usd - b.usd)
+    .slice(0, 10)
+    .map(o => ({
+      agent: o.agent,
+      price: Math.round(o.usd * toRate),
+      link: '/go?s=' + encodeURIComponent(c.search_id) +
+            '&p=' + encodeURIComponent(o.id)
+    }));
+
+  return {
+    code: 200,
+    body: {
+      live: true,
+      reason: list.length ? '' : 'no_match',
+      currency: cur,
+      rates: R.live ? 'live' : 'approximate',
+      offers: list
+    }
+  };
+}
+
+// Agency's own booking link, requested at click time (links are short-lived)
+async function goAgency(req, res, url) {
+  const sid = (url.searchParams.get('s') || '').replace(/[^A-Za-z0-9_-]/g, '');
+  const pid = (url.searchParams.get('p') || '').replace(/[^A-Za-z0-9_.:-]/g, '');
+  const meta = searches.get(sid);
+  const fail = msg => {
+    res.writeHead(410, { 'Content-Type': 'text/plain; charset=utf-8' });
+    res.end(msg || 'This booking link has expired. Please search again.');
+  };
+
+  if (!sid || !pid || !meta || !TOKEN || !MARKER) return fail();
+
+  try {
+    const r = await tp(
+      meta.base + '/searches/' + sid + '/clicks/' + pid,
+      { headers: tpHeaders(clientIp(req)) }
+    );
+    const j = r.json || {};
+    const raw = j.url || j.click_url || j.redirect_url || '';
+    const target = new URL(raw);
+    if (!r.ok || target.protocol !== 'https:' || target.username || target.password) {
+      return fail();
+    }
+    clicks++;
+    console.log(JSON.stringify({
+      click: clicks,
+      at: new Date().toISOString(),
+      host: target.hostname
+    }));
+    res.writeHead(302, { Location: target.toString(), 'Cache-Control': 'no-store' });
+    return res.end();
+  } catch (e) {
+    return fail();
+  }
+}
+
 // Booking redirect: preserve the actual provider URL
 function bookingRedirect(req, res, url) {
   const raw = url.searchParams.get('link') || '';
@@ -443,12 +762,21 @@ function bookingRedirect(req, res, url) {
     if (raw.startsWith('/')) {
       if (
         raw.startsWith('//') ||
-        !/^\/[A-Za-z0-9\/?=&_.%\-]*$/.test(raw)
+        /[\s\\\u0000-\u001f]/.test(raw) ||
+        raw.length > 1500
       ) {
         throw new Error('Invalid relative URL');
       }
 
       target = new URL(raw, 'https://www.aviasales.com');
+
+      if (target.hostname !== 'www.aviasales.com') {
+        throw new Error('Invalid host');
+      }
+
+      if (MARKER && !target.searchParams.has('marker')) {
+        target.searchParams.set('marker', MARKER);
+      }
 
     } else {
       target = new URL(raw);
@@ -532,7 +860,8 @@ http.createServer(async (req, res) => {
   if (u.pathname === '/health') {
     return json(res, 200, {
       ok:true,
-      tokenSet:!!TOKEN
+      tokenSet:!!TOKEN,
+      liveOffers:!!(TOKEN && MARKER)
     });
   }
 
@@ -568,6 +897,21 @@ http.createServer(async (req, res) => {
 
     const r = await flights(u.searchParams);
     return json(res, r.code, r.body);
+  }
+
+  if (u.pathname === '/api/offers') {
+    if (limited(ip + '|off')) {
+      return json(res, 429, {
+        error:'Too many requests. Please wait a minute.'
+      });
+    }
+
+    const r = await offers(u.searchParams, clientIp(req));
+    return json(res, r.code, r.body);
+  }
+
+  if (u.pathname === '/go') {
+    return goAgency(req, res, u);
   }
 
   if (u.pathname === '/out') {
