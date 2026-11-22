@@ -168,6 +168,42 @@ html,body{max-width:100%;overflow-x:clip}
 :root[data-theme=dark] .tk .kn::before,:root[data-theme=dark] .tk .kn::after{opacity:1}
 @media(prefers-reduced-motion:reduce){.tk,.tk .kn,.tk .st,.tk .tx{transition:none}}
 :root[data-theme=dark] .p,:root[data-theme=dark] #fl,:root[data-theme=dark] .c{box-shadow:none}
+
+/* offers popup: ticket look */
+.ovl{backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);animation:offade .2s ease}
+.ofd{border:0;box-shadow:0 24px 60px rgba(0,0,0,.45);animation:ofpop .3s cubic-bezier(.2,.9,.3,1.2)}
+.ofh{position:relative;align-items:center;padding:16px 16px 18px;border:0;background:linear-gradient(135deg,var(--h1),var(--h2));color:#fff;overflow:hidden}
+.ofh::after{content:'';position:absolute;right:-34px;top:-40px;width:130px;height:130px;border-radius:50%;background:rgba(255,255,255,.08);pointer-events:none}
+.ofh>div:first-child{position:relative;z-index:1;min-width:0}
+.ofe{font-size:10px;letter-spacing:.14em;text-transform:uppercase;opacity:.75;margin-bottom:3px}
+.ofh h3{color:#fff;font-size:17px}
+.ofx{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;width:40px;height:40px;border:1.5px solid rgba(255,255,255,.55);background:rgba(255,255,255,.14);color:#fff;transition:transform .25s,background .2s,border-color .2s,color .2s}
+.ofx svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round}
+.ofx:hover,.ofx:focus-visible{background:var(--sun);border-color:var(--sun);color:#2a1300;transform:rotate(90deg)}
+.ofx:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.ofb{background:var(--bg)}
+.tkt{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 14px 12px;margin-bottom:14px;box-shadow:0 4px 14px rgba(10,30,60,.08)}
+.tkr{display:flex;align-items:center;gap:10px}
+.tkc{min-width:0}.tkc b{display:block;font-size:26px;line-height:1;letter-spacing:.03em}.tkc span{display:block;margin-top:3px;font-size:12px;color:var(--muted)}.tkc.r{text-align:right}
+.tkl{flex:1;display:flex;align-items:center;gap:6px;color:var(--sun);min-width:40px}
+.tkl::before,.tkl::after{content:'';flex:1;border-top:2px dotted var(--fb)}
+.tkl svg{width:22px;height:22px;fill:currentColor;transform:rotate(90deg);flex:none}
+.tkd{position:relative;display:flex;gap:6px 22px;flex-wrap:wrap;margin-top:14px;padding-top:12px;border-top:2px dashed var(--line)}
+.tkd::before,.tkd::after{content:'';position:absolute;top:-11px;width:20px;height:20px;border-radius:50%;background:var(--bg)}
+.tkd::before{left:-25px}.tkd::after{right:-25px}
+.tkd small{display:block;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}.tkd b{font-size:14px}
+.ofr{border-radius:12px;padding:12px;transition:transform .15s,box-shadow .15s}
+.ofr:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(10,30,60,.14)}
+.ofr.lo{position:relative;margin-top:18px}
+.ofr.lo::before{content:'Best price';position:absolute;top:-10px;left:12px;background:var(--grn);color:#fff;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:2px 9px;border-radius:8px}
+:root[data-theme=dark] .ofr.lo::before{color:#062b1e}
+.ofr .pr{font-size:19px}
+.ofr .bk{background:var(--sun);color:#2a1300}
+@keyframes ofpop{from{opacity:0;transform:translateY(14px) scale(.96)}to{opacity:1;transform:none}}
+@keyframes ofsheet{from{transform:translateY(100%)}to{transform:none}}
+@keyframes offade{from{opacity:0}to{opacity:1}}
+@media(max-width:600px){.ofd{animation:ofsheet .3s cubic-bezier(.2,.9,.3,1)}.tkc b{font-size:23px}}
+@media(prefers-reduced-motion:reduce){.ovl,.ofd{animation:none}.ofx,.ofr{transition:none}}
 </style></head><body>
 <header><div class="w hr"><img src="/logo.png" alt="Tourflight" onerror="this.style.display='none'"><div><h1>Explore · Compare · Fly</h1><div>Find the lowest fares from recent traveller searches.</div></div><button type="button" class="thm" id="tg" role="switch" aria-checked="false" aria-label="Switch theme"><span class="tk"><i class="st"></i><b class="tx"></b><span class="kn"></span></span></button></div><div class="w"><div class="ad" id="ad" aria-label="Advertisement"></div></div></header>
 <div class="page" id="lay"><aside id="fl"><details id="fd" open><summary><span>☰ Filters &amp; sort<span class="fcnt" id="fcnt"></span></span><span class="chev">▾</span></summary><div class="fbody">
@@ -186,7 +222,7 @@ html,body{max-width:100%;overflow-x:clip}
 <footer><div class="w"><a href="/about.html">About</a><a href="/terms.html">Terms &amp; Conditions</a><a href="/privacy.html">Privacy Policy</a>
 <p>Tourflight is a flight search and comparison service. We do not sell tickets or take payments. Prices come from third-party sources, can change at any time and must be confirmed on the booking site. Baggage rules and fare conditions are set by the airline or booking site. We may earn a commission when you book through partner links.</p>
 <p>&copy; Tourflight. All rights reserved.</p></div></footer>
-<div class="ovl" id="ofm" hidden role="dialog" aria-modal="true" aria-labelledby="oft"><div class="ofd"><div class="ofh"><h3 id="oft">Offers</h3><button type="button" class="ofx" id="ofx" aria-label="Close">\u2715</button></div><div class="ofb" id="ofb"></div></div></div>
+<div class="ovl" id="ofm" hidden role="dialog" aria-modal="true" aria-labelledby="oft"><div class="ofd"><div class="ofh"><div><div class="ofe">Flight offers</div><h3 id="oft">Offers</h3></div><button type="button" class="ofx" id="ofx" aria-label="Close offers" title="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div><div class="ofb" id="ofb"></div></div></div>
 <script>
 var $=function(i){return document.getElementById(i)};
 function esc(t){return String(t).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
@@ -362,10 +398,10 @@ function openOffers(key,btn){var g=visibleGroups[key];if(!g)return;var q=g.q,f=g
 var dep=String(f.departure_at||''),ret=f.return_at?String(f.return_at):'',sym=symOf(g.currency||$('cy').value);
 var oc=f.origin_airport||f.origin||q.f,dc=f.destination_airport||f.destination||q.t;
 $('oft').textContent=(f.airline_name||f.airline||'Flight')+(f.flight_number?' \u00b7 '+(f.airline||'')+' '+f.flight_number:'');
-var head='<div class="m" style="margin-bottom:6px"><b>'+esc(nm(oc))+' \u2192 '+esc(nm(dc))+'</b>'
-+'<div class="s">Departure: '+esc(shortDate(dep.slice(0,10)))+(depT(dep)?' \u00b7 '+esc(depT(dep)):'')+'</div>'
-+(ret?'<div class="s">Return: '+esc(shortDate(ret.slice(0,10)))+(depT(ret)?' \u00b7 '+esc(depT(ret)):'')+'</div>':'<div class="s">One way</div>')
-+'<div class="s">'+(f.transfers===0?'Direct':'1 stop')+'</div></div>';
+var head='<div class="tkt"><div class="tkr"><div class="tkc"><b>'+esc(oc)+'</b><span>'+esc(AP[oc]?AP[oc].n:'')+'</span></div><div class="tkl"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"/></svg></div><div class="tkc r"><b>'+esc(dc)+'</b><span>'+esc(AP[dc]?AP[dc].n:'')+'</span></div></div>'
++'<div class="tkd"><div><small>Departure</small><b>'+esc(shortDate(dep.slice(0,10)))+(depT(dep)?' \u00b7 '+esc(depT(dep)):'')+'</b></div>'
++(ret?'<div><small>Return</small><b>'+esc(shortDate(ret.slice(0,10)))+(depT(ret)?' \u00b7 '+esc(depT(ret)):'')+'</b></div>':'<div><small>Trip</small><b>One way</b></div>')
++'<div><small>Stops</small><b>'+(f.transfers===0?'Direct':'1 stop')+'</b></div></div></div>';
 $('ofb').innerHTML=head+'<div class="s" id="ofl">Loading offers from agencies\u2026</div>';
 $('ofm').hidden=false;document.body.style.overflow='hidden';$('ofx').focus();
 var p=new URLSearchParams({origin:q.f,destination:q.t,date:dep.slice(0,10),currency:$('cy').value,cabin:$('cabin').value,airline:f.airline||'',dep:dep.slice(0,16)});if(ret)p.set('return',ret.slice(0,10));
