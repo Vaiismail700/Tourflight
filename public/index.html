@@ -3,7 +3,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Tourflight – Explore · Compare · Fly</title>
 <meta name="description" content="Search and compare flights. Tourflight never takes payments; you book on the partner site.">
-<script>(function(){var h=new Date().getHours(),t=(h>=6&&h<18)?'light':'dark';try{var o=JSON.parse(localStorage.getItem('tf-theme-v2')||'null');if(o&&o.p===t&&(o.t==='light'||o.t==='dark'))t=o.t}catch(e){}document.documentElement.setAttribute('data-theme',t);try{var l=localStorage.getItem('tf-lang')||'en';if(['en','ar','es','hi'].indexOf(l)>=0){document.documentElement.lang=l;if(l==='ar')document.documentElement.dir='rtl'}}catch(e){}})()</script>
+<script>(function(){var h=new Date().getHours(),t=(h>=6&&h<18)?'light':'dark';try{var o=JSON.parse(localStorage.getItem('tf-theme-v2')||'null');if(o&&o.manual&&(o.t==='light'||o.t==='dark'))t=o.t}catch(e){}document.documentElement.setAttribute('data-theme',t);try{var l=localStorage.getItem('tf-lang')||'en';if(['en','ar','es','hi'].indexOf(l)>=0){document.documentElement.lang=l;if(l==='ar')document.documentElement.dir='rtl'}}catch(e){}})()</script>
 <style>
 :root{--ink:#0a2a5e;--blue:#1458c7;--link:#1458c7;--sun:#ff7a00;--line:#d9e1ea;--muted:#5d6f85;--bg:#f2f5f9;--card:#fff;--field:#f3f6fb;--fb:#bccadc;--hb:#8fa6c4;--hov:#eef4ff;--hov2:#dbe8ff;--rng:#e6efff;--dis:#c3ccd8;--grn:#12805c;--grnbg:#e8f6ef;--grnbg2:#f2fbf6;--lbl:#33507a;--line2:#eef2f6;--tip:#0a2a5e;--ft:#0a2a5e;--h1:#0a2a5e;--h2:#1458c7;color-scheme:light}
 :root[data-theme=dark]{--ink:#e6edf7;--blue:#2f6fdc;--link:#7db0ff;--line:#2a3a52;--muted:#9bacc2;--bg:#0d1420;--card:#162131;--field:#1b2a3e;--fb:#3a4d68;--hb:#5d7597;--hov:#1f3350;--hov2:#2a4268;--rng:#1d3558;--dis:#4a5a72;--grn:#3ecf94;--grnbg:#12352a;--grnbg2:#0f2a22;--lbl:#a9bddb;--line2:#243348;--tip:#2b3a55;--ft:#0a0f19;--h1:#0b1a38;--h2:#143e86;color-scheme:dark}
@@ -22,6 +22,12 @@ button{font:inherit;cursor:pointer}.tabs{display:flex;gap:6px;flex-wrap:wrap;mar
 .tr{margin:12px 0 0;font-size:12px;color:var(--muted)}
 header .w{max-width:1280px;padding:0 16px}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}.g2 input{text-overflow:ellipsis}
+.rtrow{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:8px;align-items:end;margin-bottom:10px}.rtrow input{text-overflow:ellipsis}
+.swpbtn{width:40px;height:40px;border-radius:50%;border:1.5px solid var(--fb);background:var(--field);color:var(--link);display:inline-flex;align-items:center;justify-content:center;padding:0;flex:none;transition:transform .25s,background .2s,border-color .2s}
+.swpbtn:hover{background:var(--hov);border-color:var(--link)}
+.swpbtn:active{transform:rotate(180deg)}
+.swpbtn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+@media(max-width:640px){.rtrow{grid-template-columns:minmax(0,1fr);gap:8px}.swpbtn{justify-self:center;width:36px;height:36px}}
 .cal{display:none;position:absolute;top:100%;left:0;z-index:40;width:292px;margin-top:6px;background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:0 12px 32px rgba(10,30,60,.22);padding:12px}.cal.r{left:auto;right:0}.cal.on{display:block}
 .ch{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}.cn{width:32px;height:32px;border-radius:50%;border:0;background:var(--hov);color:var(--link);font-size:20px;line-height:1}.cn:hover{background:var(--hov2)}
 .cg{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center}.cw{font-size:11px;color:var(--muted);padding:4px 0}
@@ -274,7 +280,7 @@ html[dir="rtl"] .addots{right:auto;left:12px}
 </div></details></aside><div class="content"><div class="p">
 <div class="top"><div class="tabs" id="tabs"><button type="button" class="t" data-t="oneway" aria-pressed="false" data-i18n="tab_oneway">One way</button><button type="button" class="t" data-t="round" aria-pressed="true" data-i18n="tab_round">Round trip</button><button type="button" class="t" data-t="multi" aria-pressed="false" data-i18n="tab_multi">Multi-city</button></div><div class="opts"><details class="pax" id="pxd"><summary id="pxs">1 Adult</summary><div class="paxbox"><div class="pr2"><div><span data-i18n="adults">Adults</span><small data-i18n="adults_sub">12+ years</small></div><div class="stp"><button type="button" data-aria-key="fewer_adults" aria-label="Fewer Adults" onclick="chg('a',-1)">−</button><b id="na">1</b><button type="button" data-aria-key="more_adults" aria-label="More Adults" onclick="chg('a',1)">+</button></div></div><div class="pr2"><div><span data-i18n="children">Children</span><small data-i18n="children_sub">2–11 years</small></div><div class="stp"><button type="button" data-aria-key="fewer_children" aria-label="Fewer Children" onclick="chg('c',-1)">−</button><b id="nc">0</b><button type="button" data-aria-key="more_children" aria-label="More Children" onclick="chg('c',1)">+</button></div></div><div class="pr2"><div><span data-i18n="infants">Infants</span><small data-i18n="infants_sub">Under 2 years</small></div><div class="stp"><button type="button" data-aria-key="fewer_infants" aria-label="Fewer Infants" onclick="chg('i',-1)">−</button><b id="ni">0</b><button type="button" data-aria-key="more_infants" aria-label="More Infants" onclick="chg('i',1)">+</button></div></div></div></details><select id="cabin" data-aria-key="cabin_aria" aria-label="Cabin class"><option value="economy" data-i18n="cabin_eco">Economy</option><option value="business" data-i18n="cabin_biz">Business</option></select></div></div>
 <div id="legs"></div>
-<div class="g"><div><label for="cyv" data-i18n="currency_lbl">Currency (type to search)</label><div class="acw"><input type="hidden" id="cy" value="bdt"><input id="cyv" autocomplete="off" spellcheck="false" data-ph-key="currency_ph" placeholder="Search currency"><div class="sug" id="cys" role="listbox"></div></div></div>
+<div class="g"><div><label for="cyv" data-i18n="currency_lbl">Currency (type to search)</label><div class="acw"><input type="hidden" id="cy" value="aed"><input id="cyv" autocomplete="off" spellcheck="false" data-ph-key="currency_ph" placeholder="Search currency"><div class="sug" id="cys" role="listbox"></div></div></div>
 <div style="align-self:end"><label style="display:flex;gap:8px;align-items:center;margin:0 0 8px"><input type="checkbox" id="mo" style="width:auto"> <span data-i18n="month_flex">Flexible dates: show the cheapest across the whole month</span></label><div class="s" style="margin-top:-5px" data-i18n="month_hint">Off by default, so results match the exact dates you select. Tick to see other dates in the month.</div></div></div>
 <button type="button" class="go" id="go" data-i18n="search_btn">Search flights</button>
 <div class="tr" data-i18n="trust">Tourflight never takes payments or card details. You book on the partner site. Prices come from recent searches and may have changed.</div>
@@ -315,7 +321,8 @@ en:{
   infant_1:'Infant',infant_n:'Infants',infants:'Infants',infants_sub:'Under 2 years',
   fewer_adults:'Fewer Adults',more_adults:'More Adults',fewer_children:'Fewer Children',more_children:'More Children',fewer_infants:'Fewer Infants',more_infants:'More Infants',
   cabin_aria:'Cabin class',cabin_eco:'Economy',cabin_biz:'Business',
-  from_lbl:'From (city or airport)',from_ph:'e.g. Dhaka',to_lbl:'To (city or airport)',to_ph:'e.g. Dubai',
+  from_lbl:'From (city or airport)',from_ph:'Dubai',to_lbl:'To (city or airport)',to_ph:'London',
+  swap_aria:'Swap origin and destination',
   dep_date:'Departure date',ret_date:'Return date (round trip)',select_date:'Select date',
   add_leg:'+ Add flight',rem_leg:'Remove last',
   currency_lbl:'Currency (type to search)',currency_ph:'Search currency',no_match:'No match',
@@ -386,7 +393,8 @@ ar:{
   infant_1:'رضيع',infant_n:'رضع',infants:'الرضع',infants_sub:'أقل من سنتين',
   fewer_adults:'تقليل عدد البالغين',more_adults:'زيادة عدد البالغين',fewer_children:'تقليل عدد الأطفال',more_children:'زيادة عدد الأطفال',fewer_infants:'تقليل عدد الرضع',more_infants:'زيادة عدد الرضع',
   cabin_aria:'درجة السفر',cabin_eco:'السياحية',cabin_biz:'رجال الأعمال',
-  from_lbl:'من (مدينة أو مطار)',from_ph:'مثال: دبي أو القاهرة',to_lbl:'إلى (مدينة أو مطار)',to_ph:'مثال: لندن أو جدة',
+  from_lbl:'من (مدينة أو مطار)',from_ph:'دبي',to_lbl:'إلى (مدينة أو مطار)',to_ph:'لندن',
+  swap_aria:'تبديل نقطة المغادرة والوصول',
   dep_date:'تاريخ المغادرة',ret_date:'تاريخ العودة (ذهاب وعودة)',select_date:'اختر التاريخ',
   add_leg:'+ إضافة رحلة',rem_leg:'إزالة الأخيرة',
   currency_lbl:'العملة (اكتب للبحث)',currency_ph:'ابحث عن عملة',no_match:'لا توجد نتائج',
@@ -457,7 +465,8 @@ es:{
   infant_1:'Bebé',infant_n:'Bebés',infants:'Bebés',infants_sub:'Menores de 2 años',
   fewer_adults:'Menos adultos',more_adults:'Más adultos',fewer_children:'Menos niños',more_children:'Más niños',fewer_infants:'Menos bebés',more_infants:'Más bebés',
   cabin_aria:'Clase de cabina',cabin_eco:'Económica',cabin_biz:'Business',
-  from_lbl:'Origen (ciudad o aeropuerto)',from_ph:'ej. Madrid o Dubái',to_lbl:'Destino (ciudad o aeropuerto)',to_ph:'ej. Ciudad de México o Londres',
+  from_lbl:'Origen (ciudad o aeropuerto)',from_ph:'Dubái',to_lbl:'Destino (ciudad o aeropuerto)',to_ph:'Londres',
+  swap_aria:'Intercambiar origen y destino',
   dep_date:'Fecha de salida',ret_date:'Fecha de regreso (ida y vuelta)',select_date:'Seleccionar fecha',
   add_leg:'+ Añadir vuelo',rem_leg:'Quitar último',
   currency_lbl:'Moneda (escribe para buscar)',currency_ph:'Buscar moneda',no_match:'Sin coincidencias',
@@ -528,7 +537,8 @@ hi:{
   infant_1:'शिशु',infant_n:'शिशु',infants:'शिशु',infants_sub:'2 वर्ष से कम',
   fewer_adults:'वयस्क घटाएं',more_adults:'वयस्क बढ़ाएं',fewer_children:'बच्चे घटाएं',more_children:'बच्चे बढ़ाएं',fewer_infants:'शिशु घटाएं',more_infants:'शिशु बढ़ाएं',
   cabin_aria:'केबिन क्लास',cabin_eco:'इकॉनमी',cabin_biz:'बिज़नेस',
-  from_lbl:'कहाँ से (शहर या हवाई अड्डा)',from_ph:'जैसे दिल्ली या दुबई',to_lbl:'कहाँ तक (शहर या हवाई अड्डा)',to_ph:'जैसे मुंबई या लंदन',
+  from_lbl:'कहाँ से (शहर या हवाई अड्डा)',from_ph:'दुबई',to_lbl:'कहाँ तक (शहर या हवाई अड्डा)',to_ph:'लंदन',
+  swap_aria:'प्रस्थान और गंतव्य बदलें',
   dep_date:'प्रस्थान की तारीख',ret_date:'वापसी की तारीख (राउंड ट्रिप)',select_date:'तारीख चुनें',
   add_leg:'+ उड़ान जोड़ें',rem_leg:'आखिरी हटाएं',
   currency_lbl:'मुद्रा (खोजने के लिए लिखें)',currency_ph:'मुद्रा खोजें',no_match:'कोई मेल नहीं',
@@ -617,7 +627,7 @@ AIRP.split(';').forEach(function(s){var p=s.split('|');AP[p[0]]={n:p[1],c:p[2],a
 
 function codeOf(v){var m=/\(([A-Za-z]{3})\)/.exec(v||'');if(m)return m[1].toUpperCase();v=(v||'').trim();if(/^[A-Za-z]{3}$/.test(v)&&AP[v.toUpperCase()])return v.toUpperCase();var r=find(v,1);return r.length?r[0]:(/^[A-Za-z]{3}$/.test(v)?v.toUpperCase():'')}
 function nm(c){var a=AP[c];return a?a.n+', '+a.c+' ('+c+')':c}
-var POP=['DAC','DXB','DOH','SIN','KUL','BKK','DEL','LHR','JED','IST','CCU','CGP','AUH','RUH','JFK','BOM','SHJ','MCT','KWI','CDG'];
+var POP=['DXB','DAC','DOH','SIN','KUL','BKK','DEL','LHR','JED','IST','CCU','CGP','AUH','RUH','JFK','BOM','SHJ','MCT','KWI','CDG'];
 function find(q,n){q=(q||'').toLowerCase().trim();var out=[];
 Object.keys(AP).forEach(function(c){var a=AP[c],city=a.n.toLowerCase(),cty=a.c.toLowerCase(),air=(a.a||'').toLowerCase(),code=c.toLowerCase(),sc=-1,p=POP.indexOf(c);
 if(!q){if(p>=0)sc=0}else if(code===q||city.indexOf(q)===0)sc=1;else if(code.indexOf(q)===0)sc=2;else if(cty.indexOf(q)===0)sc=3;else if(city.indexOf(q)>0||air.indexOf(q)>=0)sc=4;
@@ -628,9 +638,10 @@ function showSug(inp){var box=inp.parentNode.querySelector('.sug'),oth=$((inp.id
 if(!r.length){box.classList.remove('on');return}
 box.innerHTML=r.map(function(c){var a=AP[c];return '<div class="si" role="option" data-c="'+c+'"><div><b>'+esc(a.n)+'</b>, '+esc(a.c)+'<small>'+esc(a.a||'')+'</small></div><span class="cd">'+c+'</span></div>'}).join('');box.classList.add('on');box.dataset.i='-1'}
 function pick(inp,c){var a=AP[c];inp.value=a.n+', '+a.c+' ('+c+')';inp.parentNode.querySelector('.sug').classList.remove('on');inp.dispatchEvent(new Event('change',{bubbles:true}))}
+function swapLeg(i){var a=$('f'+i),b=$('t'+i);if(!a||!b)return;var tmp=a.value;a.value=b.value;b.value=tmp;a.dispatchEvent(new Event('change',{bubbles:true}));b.dispatchEvent(new Event('change',{bubbles:true}))}
 var cnt={},mn={},type='round',nleg=2,data=[],today=new Date().toISOString().slice(0,10),offerPage=null,visibleGroups={};
-(function(){try{var z=Intl.DateTimeFormat().resolvedOptions().timeZone,m={'Asia/Dhaka':'bdt','Asia/Kolkata':'inr','Asia/Calcutta':'inr','Asia/Dubai':'aed','Asia/Riyadh':'sar','Asia/Qatar':'qar','Asia/Kuwait':'kwd','Asia/Bahrain':'bhd','Asia/Muscat':'omr','Asia/Karachi':'pkr','Asia/Colombo':'lkr','Asia/Kathmandu':'npr','Asia/Kuala_Lumpur':'myr','Asia/Singapore':'sgd','Asia/Bangkok':'thb','Asia/Jakarta':'idr','Asia/Manila':'php','Asia/Ho_Chi_Minh':'vnd','Asia/Tokyo':'jpy','Asia/Shanghai':'cny','Asia/Seoul':'krw','Asia/Hong_Kong':'hkd','Australia/Sydney':'aud','Australia/Melbourne':'aud','America/Toronto':'cad','America/Vancouver':'cad','Pacific/Auckland':'nzd','Europe/Zurich':'chf','Europe/Istanbul':'try','Africa/Cairo':'egp','Africa/Johannesburg':'zar','Africa/Lagos':'ngn','Europe/Moscow':'rub','America/Sao_Paulo':'brl','America/Mexico_City':'mxn','Europe/London':'gbp','Europe/Berlin':'eur','Europe/Paris':'eur','Europe/Rome':'eur','Europe/Madrid':'eur','Europe/Amsterdam':'eur','America/New_York':'usd','America/Chicago':'usd','America/Los_Angeles':'usd'},l=(navigator.language||'').toLowerCase();$('cy').value=m[z]||(l.indexOf('bn')===0?'bdt':'bdt')}catch(e){}})();
-function row(i,ret){return '<div class="g2"><div><label for="f'+i+'">'+esc(t('from_lbl'))+'</label><div class="acw"><input id="f'+i+'" data-ac="1" autocomplete="off" autocapitalize="words" spellcheck="false" placeholder="'+esc(t('from_ph'))+'"><div class="sug" role="listbox"></div></div></div><div><label for="t'+i+'">'+esc(t('to_lbl'))+'</label><div class="acw"><input id="t'+i+'" data-ac="1" autocomplete="off" autocapitalize="words" spellcheck="false" placeholder="'+esc(t('to_ph'))+'"><div class="sug" role="listbox"></div></div></div></div><div class="g2">'+dField('d'+i,t('dep_date'))+(ret?dField('rt',t('ret_date')):'')+'</div>'}
+(function(){try{var z=Intl.DateTimeFormat().resolvedOptions().timeZone,m={'Asia/Dhaka':'bdt','Asia/Kolkata':'inr','Asia/Calcutta':'inr','Asia/Dubai':'aed','Asia/Riyadh':'sar','Asia/Qatar':'qar','Asia/Kuwait':'kwd','Asia/Bahrain':'bhd','Asia/Muscat':'omr','Asia/Karachi':'pkr','Asia/Colombo':'lkr','Asia/Kathmandu':'npr','Asia/Kuala_Lumpur':'myr','Asia/Singapore':'sgd','Asia/Bangkok':'thb','Asia/Jakarta':'idr','Asia/Manila':'php','Asia/Ho_Chi_Minh':'vnd','Asia/Tokyo':'jpy','Asia/Shanghai':'cny','Asia/Seoul':'krw','Asia/Hong_Kong':'hkd','Australia/Sydney':'aud','Australia/Melbourne':'aud','America/Toronto':'cad','America/Vancouver':'cad','Pacific/Auckland':'nzd','Europe/Zurich':'chf','Europe/Istanbul':'try','Africa/Cairo':'egp','Africa/Johannesburg':'zar','Africa/Lagos':'ngn','Europe/Moscow':'rub','America/Sao_Paulo':'brl','America/Mexico_City':'mxn','Europe/London':'gbp','Europe/Berlin':'eur','Europe/Paris':'eur','Europe/Rome':'eur','Europe/Madrid':'eur','Europe/Amsterdam':'eur','America/New_York':'usd','America/Chicago':'usd','America/Los_Angeles':'usd'},locMap={'ae':'aed','bd':'bdt','in':'inr','sa':'sar','qa':'qar','kw':'kwd','bh':'bhd','om':'omr','pk':'pkr','lk':'lkr','np':'npr','my':'myr','sg':'sgd','th':'thb','id':'idr','ph':'php','vn':'vnd','jp':'jpy','cn':'cny','kr':'krw','hk':'hkd','au':'aud','ca':'cad','nz':'nzd','ch':'chf','tr':'try','eg':'egp','za':'zar','ng':'ngn','ru':'rub','br':'brl','mx':'mxn','gb':'gbp','de':'eur','fr':'eur','it':'eur','es':'eur','nl':'eur','us':'usd'},l=(navigator.language||'').toLowerCase(),reg=l.indexOf('-')>=0?l.split('-')[1]:'';$('cy').value=m[z]||locMap[reg]||(l.indexOf('bn')===0?'bdt':'usd')}catch(e){}})();
+function row(i,ret){return '<div class="rtrow"><div><label for="f'+i+'">'+esc(t('from_lbl'))+'</label><div class="acw"><input id="f'+i+'" data-ac="1" autocomplete="off" autocapitalize="words" spellcheck="false" placeholder="'+esc(t('from_ph'))+'"><div class="sug" role="listbox"></div></div></div><button type="button" class="swpbtn" onclick="swapLeg('+i+')" aria-label="'+esc(t('swap_aria'))+'" title="'+esc(t('swap_aria'))+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h11l-3-3M17 17H6l3 3"/></svg></button><div><label for="t'+i+'">'+esc(t('to_lbl'))+'</label><div class="acw"><input id="t'+i+'" data-ac="1" autocomplete="off" autocapitalize="words" spellcheck="false" placeholder="'+esc(t('to_ph'))+'"><div class="sug" role="listbox"></div></div></div></div><div class="g2">'+dField('d'+i,t('dep_date'))+(ret?dField('rt',t('ret_date')):'')+'</div>'}
 var pax={a:1,c:0,i:0};
 function chg(k,d){var n=pax[k]+d,tot=pax.a+pax.c+pax.i;if(d>0&&tot>=9)return;if(n<0||(k==='a'&&(n<1||n<pax.i))||(k==='i'&&n>pax.a))return;pax[k]=n;paxUi()}
 function paxUi(){$('na').textContent=pax.a;$('nc').textContent=pax.c;$('ni').textContent=pax.i;
@@ -690,7 +701,7 @@ for(var d=st.start;d<=st.end;d=addDays(d,1)){var p=st.pr[d]||0;days.push({d:d,p:
 if(lo===null){el.innerHTML='<div class="s">'+esc(t('strip_none'))+'</div>';return}
 if(st.sort==='price')days.sort(function(a,b){return(a.p||1e12)-(b.p||1e12)});
 var sym=symOf(st.cy),dirTxt=back?t('strip_dir_ret'):t('strip_dir_out');
-el.innerHTML='<div class="sh"><b>'+esc(ttl)+'</b><span class="s">'+esc(t('cheapest_lbl',{d:shortDate(loD),p:sym+fmtN(lo)}))+'</span><button type="button" class="sm ssort" data-x="'+xi+'" data-b="'+(back?1:0)+'" data-k="'+k+'">'+esc(st.sort==='date'?t('sort_price_btn'):t('sort_date_btn'))+'</button></div><div class="sw"><button type="button" class="arw" data-dir="-1" aria-label="'+esc(t('earlier'))+'">\u2039</button><div class="chips">'
+el.innerHTML='<div class="sh"><b>'+esc(ttl)+'</b><span class="s">'+esc(t('cheapest_lbl',{d:shortDate(loD),p:sym+fmtN(lo)}))+'</span><button type="button" class="sm ssort" data-x="'+xi+'" data-b="'+(back?1:0)+'" data-k="'+k+'">'+(st.sort==='date'?t('sort_price_btn'):t('sort_date_btn'))+'</button></div><div class="sw"><button type="button" class="arw" data-dir="-1" aria-label="'+esc(t('earlier'))+'">\u2039</button><div class="chips">'
 +days.map(function(o){return '<button type="button" class="chip'+(o.p&&o.p===lo?' lo':'')+(o.d===cur?' cur':'')+'" data-x="'+xi+'" data-b="'+(back?1:0)+'" data-d="'+o.d+'"><b>'+esc(shortDate(o.d))+'</b><span>'+(o.p?sym+fmtN(o.p):'\u2014')+'</span><small>'+(o.p&&o.p===lo?esc(t('lowest')):'')+'</small></button>'}).join('')
 +'</div><button type="button" class="arw" data-dir="1" aria-label="'+esc(t('later'))+'">\u203a</button></div><div class="s">'+esc(t('strip_foot',{dir:dirTxt}))+'</div>';var ch=el.querySelector('.chips'),cu=el.querySelector('.chip.cur');if(ch){if(cu)ch.scrollLeft=cu.offsetLeft-ch.clientWidth/2+cu.offsetWidth/2;arwState(el);ch.addEventListener('scroll',function(){arwState(el)})}}
 function arwState(el){var ch=el.querySelector('.chips'),b=el.querySelectorAll('.arw');if(!ch||b.length<2)return;b[0].disabled=ch.scrollLeft<=2;b[1].disabled=ch.scrollLeft+ch.clientWidth>=ch.scrollWidth-2}
@@ -859,7 +870,7 @@ document.querySelectorAll('#langmenu .langopt').forEach(function(opt){opt.addEve
 document.addEventListener('click',function(e){if(!$('langdd').contains(e.target))closeLangMenu()});
 
 setType('round');
-var CURS=[['bdt','Bangladeshi Taka'],['usd','US Dollar'],['eur','Euro'],['gbp','British Pound'],['aed','UAE Dirham'],['sar','Saudi Riyal'],['inr','Indian Rupee'],['myr','Malaysian Ringgit'],['sgd','Singapore Dollar'],['thb','Thai Baht'],['qar','Qatari Riyal'],['kwd','Kuwaiti Dinar'],['bhd','Bahraini Dinar'],['omr','Omani Rial'],['pkr','Pakistani Rupee'],['lkr','Sri Lankan Rupee'],['npr','Nepali Rupee'],['idr','Indonesian Rupiah'],['php','Philippine Peso'],['vnd','Vietnamese Dong'],['jpy','Japanese Yen'],['cny','Chinese Yuan'],['krw','South Korean Won'],['hkd','Hong Kong Dollar'],['aud','Australian Dollar'],['cad','Canadian Dollar'],['nzd','New Zealand Dollar'],['chf','Swiss Franc'],['try','Turkish Lira'],['egp','Egyptian Pound'],['zar','South African Rand'],['ngn','Nigerian Naira'],['rub','Russian Ruble'],['brl','Brazilian Real'],['mxn','Mexican Peso']],cyTyped=false;
+var CURS=[['aed','UAE Dirham'],['bdt','Bangladeshi Taka'],['usd','US Dollar'],['eur','Euro'],['gbp','British Pound'],['sar','Saudi Riyal'],['inr','Indian Rupee'],['myr','Malaysian Ringgit'],['sgd','Singapore Dollar'],['thb','Thai Baht'],['qar','Qatari Riyal'],['kwd','Kuwaiti Dinar'],['bhd','Bahraini Dinar'],['omr','Omani Rial'],['pkr','Pakistani Rupee'],['lkr','Sri Lankan Rupee'],['npr','Nepali Rupee'],['idr','Indonesian Rupiah'],['php','Philippine Peso'],['vnd','Vietnamese Dong'],['jpy','Japanese Yen'],['cny','Chinese Yuan'],['krw','South Korean Won'],['hkd','Hong Kong Dollar'],['aud','Australian Dollar'],['cad','Canadian Dollar'],['nzd','New Zealand Dollar'],['chf','Swiss Franc'],['try','Turkish Lira'],['egp','Egyptian Pound'],['zar','South African Rand'],['ngn','Nigerian Naira'],['rub','Russian Ruble'],['brl','Brazilian Real'],['mxn','Mexican Peso']],cyTyped=false;
 function cyName(c){for(var i=0;i<CURS.length;i++)if(CURS[i][0]===c)return CURS[i][1];return c.toUpperCase()}
 function cyUi(){var c=$('cy').value;$('cyv').value=c.toUpperCase()+' \u00b7 '+cyName(c);$('cyv').placeholder=t('currency_ph')}
 function cyFind(q){q=(q||'').toLowerCase().trim();if(!q)return CURS.slice(0,6);var a=[],b=[];
@@ -902,12 +913,12 @@ adInit();
 (function(){var r=document.documentElement,b=document.getElementById('tg'),K='tf-theme-v2';
 // Day = 6:00 AM to 5:59 PM (light), night = 6:00 PM to 5:59 AM (dark), by the visitor's own clock.
 function auto(){var h=new Date().getHours();return h>=6&&h<18?'light':'dark'}
-function ovr(){try{var o=JSON.parse(localStorage.getItem(K)||'null');if(o&&o.p===auto()&&(o.t==='light'||o.t==='dark'))return o.t}catch(e){}return null}
+function ovr(){try{var o=JSON.parse(localStorage.getItem(K)||'null');if(o&&o.manual&&(o.t==='light'||o.t==='dark'))return o.t}catch(e){}return null}
 function set(t){r.setAttribute('data-theme',t);b.querySelector('.tx').textContent=t==='dark'?'Night':'Day';b.setAttribute('aria-checked',t==='dark'?'true':'false');
 b.setAttribute('aria-label',t==='dark'?'Switch to light mode':'Switch to dark mode');b.title=b.getAttribute('aria-label')}
 set(ovr()||auto());
-b.addEventListener('click',function(){var n=r.getAttribute('data-theme')==='dark'?'light':'dark';set(n);try{localStorage.setItem(K,JSON.stringify({t:n,p:auto()}))}catch(e){}});
-setInterval(function(){set(ovr()||auto())},60000);
-document.addEventListener('visibilitychange',function(){if(!document.hidden)set(ovr()||auto())});})();
+b.addEventListener('click',function(){var n=r.getAttribute('data-theme')==='dark'?'light':'dark';set(n);try{localStorage.setItem(K,JSON.stringify({t:n,manual:true}))}catch(e){}});
+setInterval(function(){if(!ovr())set(auto())},60000);
+document.addEventListener('visibilitychange',function(){if(!document.hidden&&!ovr())set(auto())});})();
 </script><script src="/cookies.js" defer></script>
 </body></html>
