@@ -68,8 +68,40 @@ const NAMES = {
   "FZ": "flydubai", "G9": "Air Arabia", "SV": "Saudia",
   "XY": "flynas", "F3": "flyadeal", "GF": "Gulf Air",
   "WY": "Oman Air", "KU": "Kuwait Airways", "RJ": "Royal Jordanian",
-  "ME": "Middle
-(async () => {
+  "ME": "Middle East Airlines", "LY": "El Al", "TK": "Turkish Airlines",
+  "PC": "Pegasus", "SQ": "Singapore Airlines", "TR": "Scoot",
+  "MH": "Malaysia Airlines", "AK": "AirAsia", "D7": "AirAsia X",
+  "TG": "Thai Airways", "FD": "Thai AirAsia", "VN": "Vietnam Airlines",
+  "VJ": "VietJet Air", "PR": "Philippine Airlines", "5J": "Cebu Pacific",
+  "GA": "Garuda Indonesia", "JT": "Lion Air", "CX": "Cathay Pacific",
+  "CA": "Air China", "MU": "China Eastern", "CZ": "China Southern",
+  "HU": "Hainan Airlines", "BR": "EVA Air", "CI": "China Airlines",
+  "KE": "Korean Air", "OZ": "Asiana Airlines", "JL": "Japan Airlines",
+  "NH": "ANA", "AI": "Air India", "6E": "IndiGo", "SG": "SpiceJet",
+  "IX": "Air India Express", "BG": "Biman Bangladesh Airlines",
+  "BS": "US-Bangla Airlines", "VQ": "Novoair",
+  "PK": "Pakistan International Airlines", "UL": "SriLankan Airlines",
+  "RA": "Nepal Airlines", "LH": "Lufthansa", "LX": "Swiss",
+  "OS": "Austrian Airlines", "SN": "Brussels Airlines",
+  "AF": "Air France", "KL": "KLM", "BA": "British Airways",
+  "VS": "Virgin Atlantic", "IB": "Iberia", "VY": "Vueling",
+  "AZ": "ITA Airways", "TP": "TAP Air Portugal", "SK": "SAS",
+  "AY": "Finnair", "FR": "Ryanair", "U2": "easyJet", "W6": "Wizz Air",
+  "DY": "Norwegian", "EI": "Aer Lingus", "LO": "LOT Polish Airlines",
+  "A3": "Aegean Airlines", "EW": "Eurowings", "DE": "Condor",
+  "FI": "Icelandair", "SU": "Aeroflot", "ET": "Ethiopian Airlines",
+  "MS": "EgyptAir", "KQ": "Kenya Airways",
+  "SA": "South African Airways", "AT": "Royal Air Maroc",
+  "WB": "RwandAir", "MK": "Air Mauritius", "DL": "Delta Air Lines",
+  "AA": "American Airlines", "UA": "United Airlines",
+  "WN": "Southwest Airlines", "B6": "JetBlue", "AS": "Alaska Airlines",
+  "AC": "Air Canada", "WS": "WestJet", "AM": "Aeromexico",
+  "LA": "LATAM Airlines", "AV": "Avianca", "CM": "Copa Airlines",
+  "AR": "Aerolineas Argentinas", "G3": "GOL", "QF": "Qantas",
+  "VA": "Virgin Australia", "JQ": "Jetstar", "NZ": "Air New Zealand",
+  "FJ": "Fiji Airways", "3U": "Sichuan Airlines",
+  "ZH": "Shenzhen Airlines", "MF": "Xiamen Airlines"
+};(async () => {
   try {
     const r = await fetch('https://api.travelpayouts.com/data/en/airlines.json');
     if (r.ok) {
@@ -91,11 +123,7 @@ const FALLBACK = {
   USD: 1, BDT: 122, EUR: 0.92, GBP: 0.79, AED: 3.67,
   SAR: 3.75, INR: 84, MYR: 4.4, SGD: 1.34, THB: 36,
   QAR: 3.64, KWD: 0.31, BHD: 0.376, OMR: 0.385,
-  PKR: 280, LKR: 300, NPR: 134, IDR: 15800, PHP: 57,
-  VND: 25000, JPY: 150, CNY: 7.2, KRW: 1350, HKD: 7.8,
-  AUD: 1.52, CAD: 1.37, NZD: 1.65, CHF: 0.88,
-  TRY: 34, EGP: 4
-const md5 = x => crypto.createHash('md5').update(x).digest('hex');
+  const md5 = x => crypto.createHash('md5').update(x).digest('hex');
 
 function flat(o) {
   if (Array.isArray(o)) return o.flatMap(flat);
@@ -185,136 +213,8 @@ async function runSearch(w, ip) {
     locale: 'en',
     currency_code: w.currencyCode || 'USD',
     search_params: {
-      trip_class: w.cabin === 'business' ? 'C' : 'Y',
-      passengers: {
-        adults: w.adults || 1,
-        children: w.children || 0,
-        infants: w.infants || 0
-      },
-      directions
-    }
-  };
-  body.signature = sign(body);
-
-  const st = await tp(SEARCH_BASE + '/search/affiliate/start', {
-    method: 'POST',
-    headers: tpHeaders(ip, body),
-    body: JSON.stringify(body)
-  });
-
-  if (!st.ok || !st.json || !st.json.search_id || !st.json.results_url) {
-    throw new Error('start failed ' + st.status);
-  }
-
-  const search_id = String(st.json.search_id);
-  const ru = String(st.json.results_url);
-  const base = new URL(/^https?:/i.test(ru) ? ru : 'https://' + ru).origin;
-  searches.set(search_id, { base, t: Date.now() });
-
-  const tickets = [];
-  const seen = new Map();
-  let agents = {};
-  let last = 0;
-  const t0 = Date.now();
-
-  while (Date.now() - t0 < 20000) {
-    const rb = { search_id, last_update_timestamp: last };
-    const r = await tp(base + '/search/affiliate/results', {
-      method: 'POST',
-      headers: tpHeaders(ip, rb),
-      body: JSON.stringify(rb)
-    });
-
-    if (r.ok && r.json) {
-      const j = r.json;
-      if (j.agents && typeof j.agents === 'object') {
-        agents = Object.assign(agents, j.agents);
-      }
-      const legs = Array.isArray(j.flight_legs) ? j.flight_legs : [];
-      for (const t of (Array.isArray(j.tickets) ? j.tickets : [])) {
-        const key = String(t.id || t.signature || tickets.length);
-        const nt = normTicket(t, legs);
-        if (seen.has(key)) {
-          const old = seen.get(key);
-          const ids = new Map(old.proposals.map(x => [x.id, x]));
-          nt.proposals.forEach(x => ids.set(x.id, x));
-          old.proposals = Array.from(ids.values());
-          if (!old.segs.length) old.segs = nt.segs;
-          continue;
-        }
-        seen.set(key, nt);
-        tickets.push(nt);
-      }
-      if (j.last_update_timestamp) last = j.last_update_timestamp;
-      if (j.is_over) break;
-    } else if (r.status >= 400 && r.status !== 304) {
-      throw new Error('results failed ' + r.status);
-    }
-    await sleep(1500);
-  }
-
-  return { t: Date.now(), search_id, tickets, agents };
-}
-
-function agentName(id, agents) {
-  const a = agents && agents[id];
-  if (a && typeof a === 'object') {
-    return String(
-      a.label || a.name || a.gate_name || a.title || a.short_name || ''
-    ).trim();
-  }
-  return typeof a === 'string' ? a.trim() : '';
-}
-
-async function offers(q, ip) {
-  const origin = (q.get('origin') || '').toUpperCase();
-  const dest = (q.get('destination') || '').toUpperCase();
-  const date = (q.get('date') || '').slice(0, 10);
-  const ret = (q.get('return') || '').slice(0, 10);
-  const cur = (q.get('currency') || 'usd').toLowerCase();
-  const cabin = q.get('cabin') === 'business' ? 'business' : 'economy';
-  const airline = (q.get('airline') || '').toUpperCase();
-  const dep = String(q.get('dep') || '').replace(' ', 'T').slice(0, 16);
-  const adults = Math.min(9, Math.max(1, parseInt(q.get('adults') || '1', 10) || 1));
-  const children = Math.min(8, Math.max(0, parseInt(q.get('children') || '0', 10) || 0));
-  const infants = Math.min(adults, Math.max(0, parseInt(q.get('infants') || '0', 10) || 0));
-  const ymd = /^\d{4}-\d{2}-\d{2}$/;
-
-  if (
-    !/^[A-Z]{3}$/.test(origin) \vert{}\vert{} !/^[A-Z]{3}$/.test(dest) ||
-    origin === dest || !ymd.test(date) || (ret && !ymd.test(ret)) ||
-    (ret && ret < date) || !/^[a-z]{3}$/.test(cur)
-  ) {
-    return { code: 400, body: { error: 'Invalid request.' } };
-  }
-
-  if (!TOKEN || !MARKER) {
-    return { code: 200, body: { live: false, reason: 'not_configured', offers: [] } };
-  }
-
-  const R = await getRates();
-  const toRate = R.r[cur.toUpperCase()];
-  if (!toRate) {
-    return { code: 400, body: { error: 'The selected currency is not supported.' } };
-  }
-
-  const w = { origin, dest, date, ret, cabin, adults, children, infants, currencyCode: 'USD' };
-  const key = [origin, dest, date, ret, cabin, adults, children, infants].join('|');
-  let c = offerCache.get(key);
-
-  if (!c || Date.now() - c.t > 480000) {
-    try {
-      let pr = inflight.get(key);
-      if (!pr) {
-        pr = runSearch(w, ip).finally(() => inflight.delete(key));
-        inflight.set(key, pr);
-      }
-      c = await pr;
-      offerCache.set(key, c);
-    } catch (e) {
-      if (DEBUG) console.log('offers error', e.message);
-      return { code: 200, body: { live: false, reason: 'unavailable
-async function goAgency(req, res, url) {
+      trip_class: w.cabin === 'business' ? 'C
+        async function goAgency(req, res, url) {
   const sid = (url.searchParams.get('s') || '').replace(/[^A-Za-z0-9_-]/g, '');
   const pid = (url.searchParams.get('p') || '').replace(/[^A-Za-z0-9_.:-]/g, '');
   const ag = (url.searchParams.get('ag') || '').slice(0, 80);
@@ -432,75 +332,3 @@ http.createServer(async (req, res) => {
   if (u.pathname === '/health') {
     return json(res, 200, {
       ok: true,
-      tokenSet: !!TOKEN,
-      liveOffers: !!(TOKEN && MARKER)
-    });
-  }
-
-  if (u.pathname === '/adclick') {
-    console.log(JSON.stringify({
-      adclick: (u.searchParams.get('id') || '').replace(/[^A-Za-z0-9_-]/g, '').slice(0, 40),
-      at: new Date().toISOString()
-    }));
-    res.writeHead(204);
-    return res.end();
-  }
-
-  if (u.pathname === '/api/calendar') {
-    if (limited(ip + '|cal')) {
-      return json(res, 429, { error: 'Too many requests. Please wait a minute.' });
-    }
-    const r = await calendar(u.searchParams);
-    return json(res, r.code, r.body);
-  }
-
-  if (u.pathname === '/api/flights') {
-    if (limited(ip)) {
-      return json(res, 429, { error: 'Too many requests. Please wait a minute.' });
-    }
-    const r = await flights(u.searchParams);
-    return json(res, r.code, r.body);
-  }
-
-  if (u.pathname === '/api/offers') {
-    if (limited(ip + '|off')) {
-      return json(res, 429, { error: 'Too many requests. Please wait a minute.' });
-    }
-    const r = await offers(u.searchParams, ip);
-    return json(res, r.code, r.body);
-  }
-
-  if (u.pathname === '/go') {
-    return goAgency(req, res, u);
-  }
-
-  if (u.pathname === '/out') {
-    return bookingRedirect(req, res, u);
-  }
-
-  let f;
-  try {
-    f = path.resolve(PUB, '.' + decodeURIComponent(u.pathname === '/' ? '/index.html' : u.pathname));
-  } catch (e) {
-    res.writeHead(400);
-    return res.end('Bad request');
-  }
-
-  if (f !== PUB && !f.startsWith(PUB + path.sep)) {
-    res.writeHead(403);
-    return res.end('Forbidden');
-  }
-
-  fs.readFile(f, (e, d) => {
-    if (e) {
-      res.writeHead(404);
-      return res.end('Not found');
-    }
-    res.writeHead(200, {
-      'Content-Type': MIME[path.extname(f)] || 'application/octet-stream'
-    });
-    res.end(d);
-  });
-}).listen(PORT, () => {
-  console.log('Tourflight running on port ' + PORT);
-});
