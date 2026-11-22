@@ -204,6 +204,32 @@ html,body{max-width:100%;overflow-x:clip}
 @keyframes offade{from{opacity:0}to{opacity:1}}
 @media(max-width:600px){.ofd{animation:ofsheet .3s cubic-bezier(.2,.9,.3,1)}.tkc b{font-size:23px}}
 @media(prefers-reduced-motion:reduce){.ovl,.ofd{animation:none}.ofx,.ofr{transition:none}}
+
+/* airline name + logo on each leg and in the offers ticket */
+.lgl{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.tka{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--muted);margin-top:3px}
+.tka .lg,.tka .lg0{width:16px;height:16px;font-size:8px;border-radius:4px}
+.lgl .tka{margin:0 0 0 auto;text-transform:none;letter-spacing:0;font-weight:600;color:var(--ink)}
+.lgl .tka .lg,.lgl .tka .lg0{width:20px;height:20px;font-size:9px}
+.tkh{display:flex;align-items:center;gap:10px;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--line2)}
+.tkh .lg,.tkh .lg0{width:40px;height:40px;font-size:13px;border:1px solid var(--line);padding:3px;border-radius:10px}
+.tkh>div b{display:block;font-size:15px;line-height:1.2}.tkh>div span{font-size:12px;color:var(--muted)}
+.tkh .tkb{margin-left:auto;font-size:11px;font-weight:700;color:var(--link);background:var(--hov);border-radius:10px;padding:3px 10px;white-space:nowrap}
+
+/* route line: dotted, arrow for direct flights, plane + layover for 1-stop */
+.ln{min-width:84px;height:auto;flex-direction:column;align-items:stretch;justify-content:center;gap:3px}
+.ln::after{content:none}
+.ln .dur{position:static;transform:none;text-align:center;font-size:11px;color:var(--muted);white-space:nowrap}
+.ln .lrow{display:flex;align-items:center;gap:6px}
+.ln .dl{flex:1;min-width:12px;border-top:2px dotted var(--hb)}
+.ln:not(.st) .lrow::after{content:'';flex:none;border:6px solid transparent;border-left:10px solid var(--sun);border-right:0;margin-left:-4px}
+.ln .pl{position:relative;flex:none;width:30px;height:30px;border-radius:50%;background:var(--card);border:2px solid var(--sun);color:var(--sun);display:flex;align-items:center;justify-content:center;cursor:help}
+.ln .pl svg{width:16px;height:16px;fill:currentColor;transform:rotate(90deg)}
+.ln .pl:focus{outline:none}.ln .pl:focus-visible{box-shadow:0 0 0 3px rgba(255,122,0,.35)}
+.ln .pl:hover::after,.ln .pl:focus::after{content:attr(data-tip);position:absolute;bottom:130%;left:50%;transform:translateX(-50%);background:var(--tip);color:#fff;font-size:12px;line-height:1.35;padding:7px 10px;border-radius:8px;width:max-content;max-width:230px;z-index:20;font-weight:400;box-shadow:0 6px 16px rgba(10,30,60,.3)}
+.ln .lay{align-self:center;text-align:center;font-weight:800;font-size:11px;line-height:1.25;color:#a84f00;background:rgba(255,122,0,.14);border-radius:10px;padding:2px 9px}
+.ln .lay small{font-weight:600;opacity:.8;font-size:10px}
+:root[data-theme=dark] .ln .lay{color:#ffb877;background:rgba(255,150,50,.16)}
 </style></head><body>
 <header><div class="w hr"><img src="/logo.png" alt="Tourflight" onerror="this.style.display='none'"><div><h1>Explore · Compare · Fly</h1><div>Find the lowest fares from recent traveller searches.</div></div><button type="button" class="thm" id="tg" role="switch" aria-checked="false" aria-label="Switch theme"><span class="tk"><i class="st"></i><b class="tx"></b><span class="kn"></span></span></button></div><div class="w"><div class="ad" id="ad" aria-label="Advertisement"></div></div></header>
 <div class="page" id="lay"><aside id="fl"><details id="fd" open><summary><span>☰ Filters &amp; sort<span class="fcnt" id="fcnt"></span></span><span class="chev">▾</span></summary><div class="fbody">
@@ -374,10 +400,10 @@ var dd=new Intl.DateTimeFormat('en-CA',{timeZone:tz,year:'numeric',month:'2-digi
 return{t:tf,d:Math.round((Date.parse(dd+'T00:00:00Z')-Date.parse(dp+'T00:00:00Z'))/86400000)}}catch(e){return null}}
 function arrInfo(f,q){return arrCalc(f.departure_at,f.duration_to||(f.return_at?0:f.duration),[f.destination_airport,f.destination,q.t])}
 function arrBack(f,q){return arrCalc(f.return_at,f.duration_back||0,[f.origin_airport,f.origin,q.f])}
-function legHtml(label,dateIso,depIso,arr,fromC,toC,du,stops,tip){
-return (label?'<div class="lgl">'+esc(label)+(dateIso?' \u00b7 '+esc(shortDate(dateIso)):'')+'</div>':'')
+function legHtml(label,dateIso,depIso,arr,fromC,toC,du,stops,tip,air,lay){
+return (label?'<div class="lgl">'+esc(label)+(dateIso?' \u00b7 '+esc(shortDate(dateIso)):'')+(air?'<span class="tka">'+air+'</span>':'')+'</div>':'')
 +'<div class="rt"><div class="ep"><b>'+esc(depT(String(depIso||''))||'\u2014')+'</b><span class="s">'+esc(fromC)+'</span></div>'
-+'<div class="ln"><span class="bar"></span>'+(stops>0?'<span class="stop" tabindex="0" role="img" aria-label="'+esc(tip)+'" data-tip="'+esc(tip)+'"></span>':'')+'<span class="dur">'+esc(du)+'</span></div>'
++(stops>0?'<div class="ln st"><span class="dur">'+esc(du)+'</span><span class="lrow"><span class="dl"></span><span class="pl" tabindex="0" role="img" aria-label="'+esc(tip)+'" data-tip="'+esc(tip)+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"/></svg></span><span class="dl"></span></span><span class="lay">'+(lay?'<small>Layover</small> '+esc(lay):'1 stop')+'</span></div>':'<div class="ln"><span class="dur">'+esc(du)+'</span><span class="lrow"><span class="dl"></span></span></div>')
 +'<div class="ep"><b>'+(arr?esc(arr.t)+(arr.d?'<sup>'+(arr.d>0?'+':'')+arr.d+'</sup>':''):'\u2014')+'</b><span class="s">'+esc(toC)+'</span></div></div>'}
 function logo(c){c=String(c||'');return c?'<img class="lg" data-c="'+esc(c)+'" src="https://pics.avs.io/64/64/'+encodeURIComponent(c)+'.png" alt="" loading="lazy" referrerpolicy="no-referrer">':''}
 document.addEventListener('error',function(e){var t=e.target;if(t&&t.classList&&t.classList.contains('lg')){var sp=document.createElement('span');sp.className='lg0';sp.textContent=t.dataset.c||'';t.replaceWith(sp)}},true);
@@ -398,9 +424,10 @@ function openOffers(key,btn){var g=visibleGroups[key];if(!g)return;var q=g.q,f=g
 var dep=String(f.departure_at||''),ret=f.return_at?String(f.return_at):'',sym=symOf(g.currency||$('cy').value);
 var oc=f.origin_airport||f.origin||q.f,dc=f.destination_airport||f.destination||q.t;
 $('oft').textContent=(f.airline_name||f.airline||'Flight')+(f.flight_number?' \u00b7 '+(f.airline||'')+' '+f.flight_number:'');
-var head='<div class="tkt"><div class="tkr"><div class="tkc"><b>'+esc(oc)+'</b><span>'+esc(AP[oc]?AP[oc].n:'')+'</span></div><div class="tkl"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"/></svg></div><div class="tkc r"><b>'+esc(dc)+'</b><span>'+esc(AP[dc]?AP[dc].n:'')+'</span></div></div>'
-+'<div class="tkd"><div><small>Departure</small><b>'+esc(shortDate(dep.slice(0,10)))+(depT(dep)?' \u00b7 '+esc(depT(dep)):'')+'</b></div>'
-+(ret?'<div><small>Return</small><b>'+esc(shortDate(ret.slice(0,10)))+(depT(ret)?' \u00b7 '+esc(depT(ret)):'')+'</b></div>':'<div><small>Trip</small><b>One way</b></div>')
+var air=f.airline_name||f.airline||'Airline',airH=logo(f.airline)+'<span>'+esc(air)+'</span>';
+var head='<div class="tkt"><div class="tkh">'+logo(f.airline)+'<div><b>'+esc(air)+'</b><span>'+esc(f.flight_number?f.airline+' '+f.flight_number:'')+'</span></div><span class="tkb">'+(ret?'Round trip':'One way')+'</span></div><div class="tkr"><div class="tkc"><b>'+esc(oc)+'</b><span>'+esc(AP[oc]?AP[oc].n:'')+'</span></div><div class="tkl"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"/></svg></div><div class="tkc r"><b>'+esc(dc)+'</b><span>'+esc(AP[dc]?AP[dc].n:'')+'</span></div></div>'
++'<div class="tkd"><div><small>Departure</small><b>'+esc(shortDate(dep.slice(0,10)))+(depT(dep)?' \u00b7 '+esc(depT(dep)):'')+'</b><span class="tka">'+airH+'</span></div>'
++(ret?'<div><small>Return</small><b>'+esc(shortDate(ret.slice(0,10)))+(depT(ret)?' \u00b7 '+esc(depT(ret)):'')+'</b><span class="tka">'+airH+'</span></div>':'<div><small>Trip</small><b>One way</b></div>')
 +'<div><small>Stops</small><b>'+(f.transfers===0?'Direct':'1 stop')+'</b></div></div></div>';
 $('ofb').innerHTML=head+'<div class="s" id="ofl">Loading offers from agencies\u2026</div>';
 $('ofm').hidden=false;document.body.style.overflow='hidden';$('ofx').focus();
@@ -437,12 +464,13 @@ groups.sort(function(a,b){return so==='price'?Number(a.best.price)-Number(b.best
 if(!groups.length)h+='<div class="m">'+(q.mo?'No recent prices found for these filters and selected date range. Try another date, or change the filters.':'No recent prices found for exactly these dates. Pick a cheaper nearby day from the dates above, tick flexible dates, or change the filters.')+'</div>';
 if(q.mo&&groups.length)h+='<div class="s" style="margin-bottom:8px">Flexible dates is on: the flights below can be from any day in the month, not only the dates you picked.</div>';
 groups.forEach(function(g){var f=g.flight,rtrip=!!f.return_at,d=f.duration_to||(rtrip?0:f.duration),db=f.duration_back||0,fm=function(m){return m>0?Math.floor(m/60)+'h '+m%60+'m':''},oc=f.origin_airport||f.origin||q.f,dc=f.destination_airport||f.destination||q.t;
-var key='g'+Object.keys(visibleGroups).length;visibleGroups[key]=g;
+var key='g'+Object.keys(visibleGroups).length;visibleGroups[key]=g;var airH=logo(f.airline)+'<span>'+esc(f.airline_name||f.airline||'Airline')+'</span>';
 var lay=f.layovers&&f.layovers.length?f.layovers.map(function(l){return Math.floor(l.minutes/60)+'h '+l.minutes%60+'m in '+(AP[l.airport]?AP[l.airport].n+' ('+l.airport+')':l.airport)}).join(', '):'';
+var layS=f.layovers&&f.layovers.length?f.layovers.map(function(l){return Math.floor(l.minutes/60)+'h '+l.minutes%60+'m \u00b7 '+l.airport}).join(', '):'';
 var tip=f.transfers===0?'':(lay?'Layover: '+lay:'1 stop. The layover airport and waiting time are shown on the booking site.'),tipB=(typeof f.return_transfers==='number'&&f.return_transfers>0)?'1 stop. The layover airport and waiting time are shown on the booking site.':'';
 h+='<div class="c fcard" data-open-offers="'+esc(key)+'" tabindex="0" role="button" aria-label="View agency offers"><div class="fm"><div class="al">'+logo(f.airline)+'<b>'+esc(f.airline_name||f.airline||'Airline')+'</b><span class="s">'+esc(f.flight_number?f.airline+' '+f.flight_number:'')+'</span></div>'
-+legHtml(rtrip?'Outbound':'',String(f.departure_at||'').slice(0,10),f.departure_at,arrInfo(f,q),oc,dc,fm(d),f.transfers,tip)
-+(rtrip?legHtml('Return',String(f.return_at).slice(0,10),f.return_at,arrBack(f,q),dc,oc,fm(db),f.return_transfers||0,tipB):'')
++legHtml(rtrip?'Outbound':'',String(f.departure_at||'').slice(0,10),f.departure_at,arrInfo(f,q),oc,dc,fm(d),f.transfers,tip,rtrip?airH:'',layS)
++(rtrip?legHtml('Return',String(f.return_at).slice(0,10),f.return_at,arrBack(f,q),dc,oc,fm(db),f.return_transfers||0,tipB,airH,''):'')
 +'<div><span class="tag">'+(f.transfers===0?'Direct':'1 stop')+'</span><span class="tag">'+(rtrip?'Round trip':'One way')+'</span><span class="tag">Tap for agency offers</span></div></div>'
 +'<div class="pc"><div><div class="pr">'+sym+fmtN(g.best.price)+'</div><div class="s">Best price found · '+esc(agName(g.best))+'</div></div><button type="button" class="bk" data-open-offers="'+esc(key)+'">View offers</button></div></div>';
 });
