@@ -919,7 +919,8 @@ if(j.error){h+='<div class="m">'+esc(j.error)+'</div>';return}
 var sym=symOf(j.currency||$('cy').value);
 if(biz)h+='<div class="m" style="margin-bottom:10px">'+esc(t('biz_note'))+'</div>';
 if(j.requested&&j.currency&&j.currency.toLowerCase()!==j.requested.toLowerCase())h+='<div class="m" style="margin-bottom:10px">'+esc(t('cur_note'))+'</div>';
-var list=(j.data||[]).filter(function(f){return(sf==='any'||String(f.transfers)===sf)&&(af.indexOf(f.airline)>=0)&&tfOk(f,tf)});
+var hasAirlineOptions=document.querySelectorAll('#al input').length>0;
+var list=(j.data||[]).filter(function(f){return(sf==='any'||String(f.transfers)===sf)&&(!hasAirlineOptions||af.indexOf(String(f.airline||'').toUpperCase())>=0)&&tfOk(f,tf)});
 if(!q.mo){list=list.filter(function(f){var dd=String(f.departure_at||'').slice(0,10);if(dd&&q.d0&&dd!==q.d0)return false;if(q.r0){var rr=String(f.return_at||'').slice(0,10);if(rr&&rr!==q.r0)return false}return true})}
 var grouped={};list.forEach(function(f){var k=flightKey(f);if(!grouped[k])grouped[k]={key:k,q:q,flight:f,offers:[],currency:j.currency};grouped[k].offers.push(f)});
 var groups=Object.keys(grouped).map(function(k){var g=grouped[k],byAgency={};g.offers.forEach(function(o){var agency=String(o.gate||'Travel agency');if(!byAgency[agency]||Number(o.price)<Number(byAgency[agency].price))byAgency[agency]=o});g.offers=Object.keys(byAgency).map(function(a){return byAgency[a]});g.best=g.offers.reduce(function(a,b){return !a||Number(b.price)<Number(a.price)?b:a},null);return g});
