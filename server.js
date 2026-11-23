@@ -976,4 +976,3 @@ http.createServer(async (req, res) => {
 }).listen(PORT, () => {
   console.log('Tourflight running on port ' + PORT);
 });
-```[cite: 2]
