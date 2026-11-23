@@ -393,7 +393,7 @@ async function fetchCachedFlights(origin, dest, date, ret, cur, ratesObj) {
     if (ret) params.set('return_date', ret);
   }
 
-  let r = await tp(BASE + ep + '?' + params.toString(), {}, 12000);
+  const r = await tp(BASE + ep + '?' + params.toString(), {}, 12000);
   const rawList = [];
 
   function collectData(dObj) {
@@ -418,7 +418,6 @@ async function fetchCachedFlights(origin, dest, date, ret, cur, ratesObj) {
     collectData(r.json.data);
   }
 
-  // Fallback to month-matrix if exact day cheap search returns empty
   if (!rawList.length && !isMonth) {
     const mParams = new URLSearchParams({
       origin,
@@ -914,4 +913,3 @@ http.createServer(async (req, res) => {
 }).listen(PORT, () => {
   console.log('Tourflight running on port ' + PORT);
 });
-```[cite: 2]
