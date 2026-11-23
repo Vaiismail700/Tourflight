@@ -272,25 +272,106 @@ async function calendar(q) {
   return { code: 200, body };
 }
 
-async function flights(q) {
-  const origin = (q.get('origin') || '').toUpperCase();
-  const dest = (q.get('destination') || '').toUpperCase();
-  const date = (q.get('date') || q.get('depart_date') || '').trim();
-  const ret = (q.get('return') || '').trim();
-  const cur = (q.get('currency') || 'usd').toLowerCase();
+function legDetailOf(l) {
+  const c = l.operating_carrier_designator || l.marketing_carrier_designator || {};
+  const carrier = String(c.carrier || l.carrier || '').toUpperCase();
+  const num = String(l.flight_number || l.number || '').trim();
+  const dep = String(l.local_departure_date_time || l.departure_at || '').replace(' ', 'T');
+  const arr = String(l.local_arrival_date_time || l.arrival_at || '').replace(' ', 'T');
+  const orig = String(l.origin || l.origin_airport || '').toUpperCase();
+  const dest = String(l.destination || l.destination_airport || '').toUpperCase();
+  const dur = Number(l.duration || 0);
+  return { carrier, num, dep, arr, orig, dest, dur };
+}
 
-  if (!/^[A-Z]{3}$/.test(origin) || !/^[A-Z]{3}$/.test(dest) || origin === dest || !/^\d{4}-\d{2}(-\d{2})?$/.test(date) || !/^[a-z]{3}$/.test(cur)) {
-    return { code: 400, body: { error: 'Invalid flight search request.', data: [] } };
+function normLiveTicket(t, legs, agents, origin, dest, retDate, cur, ratesObj, searchId) {
+  const segs = (t.segments || []).map(sg =>
+    (sg.flights || [])
+      .map(x => typeof x === 'number' ? legs[x] : x)
+      .filter(Boolean)
+      .map(legDetailOf)
+  );
+  const outFlights = segs[0] || [];
+  const backFlights = segs[1] || [];
+  if (!outFlights.length) return [];
+
+  const firstOut = outFlights[0];
+  const lastOut = outFlights[outFlights.length - 1];
+  const firstBack = backFlights[0] || null;
+  const lastBack = backFlights[backFlights.length - 1] || null;
+
+  const carrier = firstOut.carrier || '';
+  const transfers = Math.max(0, outFlights.length - 1);
+  const retTransfers = backFlights.length > 0 ? Math.max(0, backFlights.length - 1) : 0;
+
+  const layovers = [];
+  for (let i = 0; i < outFlights.length - 1; i++) {
+    const a = outFlights[i];
+    const b = outFlights[i + 1];
+    let mins = 0;
+    if (a.arr && b.dep) {
+      const diff = Math.round((new Date(b.dep).getTime() - new Date(a.arr).getTime()) / 60000);
+      if (Number.isFinite(diff) && diff > 0 && diff < 3000) mins = diff;
+    }
+    layovers.push({ airport: a.dest || b.orig || '', minutes: mins });
   }
-  if (!TOKEN) {
-    return { code: 200, body: { error: 'TP_TOKEN is not configured on the server.', currency: cur, data: [] } };
+
+  let durTo = Number(t.duration_to || t.total_duration || 0);
+  if (!durTo && firstOut.dep && lastOut.arr) {
+    const d = Math.round((new Date(lastOut.arr).getTime() - new Date(firstOut.dep).getTime()) / 60000);
+    if (Number.isFinite(d) && d > 0 && d < 5000) durTo = d;
+  }
+  if (!durTo) durTo = outFlights.reduce((s, x) => s + (x.dur || 0), 0);
+
+  let durBack = Number(t.duration_back || 0);
+  if (!durBack && firstBack && lastBack && firstBack.dep && lastBack.arr) {
+    const d = Math.round((new Date(lastBack.arr).getTime() - new Date(firstBack.dep).getTime()) / 60000);
+    if (Number.isFinite(d) && d > 0 && d < 5000) durBack = d;
   }
 
-  const ck = ['fl', origin, dest, date, ret, cur].join('|');
-  const hit = cache.get(ck);
-  if (hit && Date.now() - hit.t < 600000) return { code: 200, body: hit.v };
+  const proposals = (t.proposals || []).map(p => {
+    const rawP = Number(
+      p.price && typeof p.price === 'object'
+        ? (p.price.value != null ? p.price.value : p.price.amount)
+        : (p.price != null ? p.price : p.unified_price)
+    );
+    const price = Math.round(convertPrice(rawP, 'USD', cur, ratesObj));
+    const agId = String(p.agent_id == null ? '' : p.agent_id);
+    return {
+      id: String(p.id || ''),
+      price,
+      gate: agentName(agId, agents) || 'Travel Partner',
+      search_id: searchId
+    };
+  }).filter(p => p.price > 0);
 
-  const ratesObj = await getRates();
+  if (!proposals.length) return [];
+
+  return proposals.map((pr, idx) => ({
+    id: [carrier, firstOut.num, firstOut.dep, pr.id || idx].join('-'),
+    airline: carrier,
+    airline_name: NAMES[carrier] || carrier || 'Airline',
+    flight_number: firstOut.num || '',
+    origin: firstOut.orig || origin,
+    destination: lastOut.dest || dest,
+    origin_airport: firstOut.orig || origin,
+    destination_airport: lastOut.dest || dest,
+    departure_at: firstOut.dep || '',
+    return_at: firstBack ? firstBack.dep : (retDate || ''),
+    duration: durTo + durBack,
+    duration_to: durTo,
+    duration_back: durBack,
+    transfers,
+    return_transfers: retTransfers,
+    layovers,
+    price: pr.price,
+    currency: cur.toLowerCase(),
+    gate: pr.gate,
+    search_id: searchId
+  }));
+}
+
+async function fetchCachedFlights(origin, dest, date, ret, cur, ratesObj) {
   const ep = date.length === 7 ? '/v2/prices/month-matrix' : '/v1/prices/cheap';
   const params = new URLSearchParams({
     origin,
@@ -324,9 +405,64 @@ async function flights(q) {
     }
   }
 
-  const data = rawList
+  return rawList
     .filter(it => it && (Number(it.price) > 0 || Number(it.value) > 0))
     .map(it => normPriceItem(it, origin, dest, ret, cur, ratesObj));
+}
+
+async function flights(q, ip) {
+  const origin = (q.get('origin') || '').toUpperCase();
+  const dest = (q.get('destination') || '').toUpperCase();
+  const date = (q.get('date') || q.get('depart_date') || '').trim();
+  const ret = (q.get('return') || '').trim();
+  const cur = (q.get('currency') || 'usd').toLowerCase();
+  const cabin = q.get('cabin') === 'business' ? 'business' : 'economy';
+  const adults = Math.min(9, Math.max(1, parseInt(q.get('adults') || '1', 10) || 1));
+  const children = Math.min(8, Math.max(0, parseInt(q.get('children') || '0', 10) || 0));
+  const infants = Math.min(adults, Math.max(0, parseInt(q.get('infants') || '0', 10) || 0));
+
+  if (!/^[A-Z]{3}$/.test(origin) || !/^[A-Z]{3}$/.test(dest) || origin === dest || !/^\d{4}-\d{2}(-\d{2})?$/.test(date) || !/^[a-z]{3}$/.test(cur)) {
+    return { code: 400, body: { error: 'Invalid flight search request.', data: [] } };
+  }
+  if (!TOKEN) {
+    return { code: 200, body: { error: 'TP_TOKEN is not configured on the server.', currency: cur, data: [] } };
+  }
+
+  const ck = ['fl2', origin, dest, date, ret, cur, cabin, adults, children, infants].join('|');
+  const hit = cache.get(ck);
+  if (hit && Date.now() - hit.t < 600000) return { code: 200, body: hit.v };
+
+  const ratesObj = await getRates();
+  let data = [];
+
+  if (date.length === 10 && TOKEN && MARKER) {
+    const w = { origin, dest, date, ret, cabin, adults, children, infants, currencyCode: 'USD' };
+    const skey = [origin, dest, date, ret, cabin, adults, children, infants].join('|');
+    try {
+      let c = offerCache.get(skey);
+      if (!c || Date.now() - c.t > 480000) {
+        let pr = inflight.get(skey);
+        if (!pr) {
+          pr = runSearch(w, ip).finally(() => inflight.delete(skey));
+          inflight.set(skey, pr);
+        }
+        c = await pr;
+        offerCache.set(skey, c);
+      }
+      const legs = [];
+      const liveItems = [];
+      for (const tk of (c.tickets || [])) {
+        liveItems.push(...normLiveTicket(tk, legs, c.agents, origin, dest, ret, cur, ratesObj, c.search_id));
+      }
+      data = liveItems;
+    } catch (e) {
+      if (DEBUG) console.log('live search fallback:', e.message);
+    }
+  }
+
+  if (!data.length) {
+    data = await fetchCachedFlights(origin, dest, date, ret, cur, ratesObj);
+  }
 
   const body = { currency: cur, requested: cur, data };
   cache.set(ck, { t: Date.now(), v: body });
@@ -602,7 +738,9 @@ function bookingRedirect(req, res, url) {
         'trip.com',
         'wingie.com',
         'goindigo.in',
-        'indigo.com'
+        'indigo.com',
+        'skyscanner.net',
+        'kayak.com'
       ];
       const allowed = allowedHosts.some(domain => host === domain || host.endsWith('.' + domain));
       if (!allowed) throw new Error('Provider domain not allowed');
@@ -676,7 +814,7 @@ http.createServer(async (req, res) => {
     if (limited(ip)) {
       return json(res, 429, { error: 'Too many requests. Please wait a minute.' });
     }
-    const r = await flights(u.searchParams);
+    const r = await flights(u.searchParams, ip);
     return json(res, r.code, r.body);
   }
 
@@ -722,3 +860,76 @@ http.createServer(async (req, res) => {
 }).listen(PORT, () => {
   console.log('Tourflight running on port ' + PORT);
 });
+```[cite: 2]
+
+---
+
+### আপডেটেড `index.html` (সার্চ ও রেজাল্ট লজিক ফিক্সসহ)
+
+`index.html`-এর `search()` ও `draw()` অংশে নিচের পরিবর্তনগুলো যুক্ত/প্রতিস্থাপন করুন (আপনার বাকি স্টাইল ও মার্জিন/লেআউট অক্ষুণ্ণ রেখে)[cite: 1]:
+
+```javascript
+function search(){closeOffers();var reqs=[],mo=$('mo').checked;
+if(type==='multi'){
+  for(var i=0;i<nleg;i++){
+    var fEl=$('f'+i),tEl=$('t'+i),dEl=$('d'+i);
+    reqs.push({f:codeOf(fEl?fEl.value:''),t:codeOf(tEl?tEl.value:''),d:dEl?dEl.value:'',r:''});
+  }
+}else{
+  reqs.push({f:codeOf($('f0')?$('f0').value:''),t:codeOf($('t0')?$('t0').value:''),d:$('d0')?$('d0').value:'',r:type==='round'&&$('rt')?$('rt').value:''});
+}
+for(var k=0;k<reqs.length;k++){var q=reqs[k];
+if(!q.f||!q.t){show('<div class="m">'+esc(t('err_airports'))+'</div>');return}
+if(q.f===q.t){show('<div class="m">'+esc(t('err_same'))+'</div>');return}
+if(!q.d||(type==='round'&&!q.r)){show('<div class="m">'+esc(t('err_dates'))+'</div>');return}
+if(q.r&&q.r<q.d){show('<div class="m">'+esc(t('err_ret_before'))+'</div>');return}
+if(type==='multi'&&k>0&&q.d<reqs[k-1].d0){show('<div class="m">'+esc(t('err_leg_order'))+'</div>');return}
+q.d0=q.d;q.r0=q.r;q.mo=mo;if(mo){q.d=q.d.slice(0,7);q.r=q.r?q.r.slice(0,7):''}}
+var selectedCurrency=$('cy').value,selectedCabin=$('cabin').value;
+show('<div class="m">'+esc(t('searching'))+'</div>');$('lay').classList.add('nofl');
+Promise.all(reqs.map(function(q){
+  var p=new URLSearchParams({
+    origin:q.f,
+    destination:q.t,
+    date:q.d,
+    depart_date:q.d,
+    currency:selectedCurrency,
+    cabin:selectedCabin,
+    adults:pax.a,
+    children:pax.c,
+    infants:pax.i
+  });
+  if(q.r)p.set('return',q.r);
+  return fetch(apiUrl('/api/flights?'+p)).then(readJsonSafe).then(function(j){
+    var rawList=Array.isArray(j.data)?j.data:(Array.isArray(j.flights)?j.flights:[]);
+    return Object.assign({},j,{data:rawList.map(function(item){return normFlightItem(item,q,j.currency||selectedCurrency)})});
+  }).catch(function(){return{error:t('err_net'),data:[]}});
+}))
+.then(function(js){strips={};offerPage=null;data=js.map(function(j,i){return{q:reqs[i],j:j}});var al={};
+cnt={};mn={};data.forEach(function(x){(x.j.data||[]).forEach(function(f){if(f.airline){al[f.airline]=f.airline_name||f.airline;cnt[f.airline]=(cnt[f.airline]||0)+1;mn[f.airline]=Math.min(mn[f.airline]||1e18,f.price)}})});
+var cs=null;data.forEach(function(x){if(!cs&&x.j&&x.j.currency)cs=x.j.currency});var sy=symOf(cs||'usd');
+$('al').innerHTML=Object.keys(al).sort(function(a,b){return mn[a]-mn[b]}).map(function(c){return '<div class="ar"><label class="ck"><input type="checkbox" value="'+esc(c)+'" checked>'+logo(c)+'<span class="an">'+esc(al[c])+'</span></label><span class="ap">'+sy+fmtN(mn[c])+'</span><button type="button" class="only" data-c="'+esc(c)+'">'+esc(t('only'))+'</button></div>'}).join('')||'<div class="s">'+esc(t('no_airlines'))+'</div>';
+$('lay').classList.add('has');$('lay').classList.remove('nofl');draw()})}
+```[cite: 1, 2]
+
+এবং `draw()`-এর ভেতরে তারিখ ফিল্টারিং অংশটি এভাবে দিন, যাতে ঠিক ওই তারিখে ডেটা না থাকলেও কাছাকাছি/উপলব্ধ ফ্লাইটগুলো দেখায়:
+
+```javascript
+var list=(j.data||[]).filter(function(f){return(sf==='any'||String(f.transfers)===sf)&&(af.indexOf(f.airline)>=0)&&tfOk(f,tf)});
+var fallbackNearby=false;
+if(!q.mo&&q.d0){
+  var exact=list.filter(function(f){
+    var dd=String(f.departure_at||'').slice(0,10);
+    if(dd&&dd!==q.d0)return false;
+    if(q.r0){var rr=String(f.return_at||'').slice(0,10);if(rr&&rr!==q.r0)return false}
+    return true;
+  });
+  if(exact.length){list=exact;}
+  else if(list.length){fallbackNearby=true;}
+}
+```[cite: 1]
+
+### জরুরি রিমাইন্ডার
+সার্ভার চালানোর আগে এনভায়রনমেন্ট ভেরিয়েবলে `TP_TOKEN` এবং `TP_MARKER` অবশ্যই সেট করে নেবেন (`TOKEN` ছাড়া Travelpayouts API থেকে কোনো ফ্লাইট ডেটা আসবে না)[cite: 2]।
+
+সার্ভারে `TP_TOKEN` ও `TP_MARKER` বসানোর পর ঢাকা থেকে দুবাই সার্চ করলে এখন কী রেজাল্ট দেখাচ্ছে?
