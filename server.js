@@ -977,5 +977,3 @@ http.createServer(async (req, res) => {
   console.log('Tourflight running on port ' + PORT);
 });
 ```[cite: 2]
-
-Render-এর **Logs** ট্যাবে শেষ কয়েক লাইন এরর কী দেখাচ্ছে তা কপি করে দিতে পারবেন? তাহলে ঠিক কী কারণে ফেইল হচ্ছে তা একদম নিশ্চিত করে বলতে পারব।
