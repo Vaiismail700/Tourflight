@@ -14,7 +14,7 @@ const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || '')
   .split(',')
   .map(s => s.trim())
   .filter(Boolean);
-const DEBUG = !!process.env.TP_DEBUG;
+const DEBUG = /^(1|true|yes|on)$/i.test(process.env.TP_DEBUG || '');
 const PUB = path.join(__dirname, 'public');
 
 const MIME = {
@@ -397,21 +397,23 @@ async function fetchCachedFlights(origin, dest, date, ret, cur, ratesObj) {
   const rawList = [];
 
   function collectData(dObj) {
-    if (!dObj) return;
-    if (Array.isArray(dObj)) {
-      dObj.forEach(item => rawList.push(item));
-    } else if (typeof dObj === 'object') {
-      Object.keys(dObj).forEach(k => {
-        const bucket = dObj[k];
-        if (bucket && typeof bucket === 'object') {
-          Object.keys(bucket).forEach(subKey => {
-            const it = Object.assign({}, bucket[subKey]);
-            if (!it.departure_at && /^\d{4}-\d{2}-\d{2}$/.test(k)) it.departure_at = k;
-            rawList.push(it);
-          });
-        }
-      });
+    // Cheap prices: data[DEST][AIRLINE] = offer; month matrix: data[] = offer.
+    function visit(value, key, depth) {
+      if (!value || depth > 5) return;
+      if (Array.isArray(value)) {
+        value.forEach(x => visit(x, key, depth + 1));
+        return;
+      }
+      if (typeof value !== 'object') return;
+      if (Number(value.price || value.value) > 0) {
+        const it = { ...value };
+        if (!it.departure_at && /^\d{4}-\d{2}-\d{2}$/.test(key || '')) it.departure_at = key;
+        rawList.push(it);
+        return;
+      }
+      Object.entries(value).forEach(([k, v]) => visit(v, k, depth + 1));
     }
+    visit(dObj, '', 0);
   }
 
   if (r.ok && r.json && r.json.data) {
@@ -433,7 +435,16 @@ async function fetchCachedFlights(origin, dest, date, ret, cur, ratesObj) {
   }
 
   return rawList
-    .filter(it => it && (Number(it.price) > 0 || Number(it.value) > 0))
+    .filter(it => {
+      if (!it || !(Number(it.price) > 0 || Number(it.value) > 0)) return false;
+      const depart = String(it.departure_at || it.depart_date || '').slice(0, 10);
+      const returning = String(it.return_at || it.return_date || '').slice(0, 10);
+      // Never show a different date as the date the user searched.
+      if (date.length === 10 && depart !== date) return false;
+      if (ret && returning !== ret) return false;
+      if (!ret && returning) return false;
+      return true;
+    })
     .map(it => normPriceItem(it, origin, dest, ret, cur, ratesObj));
 }
 
@@ -457,10 +468,12 @@ async function flights(q, ip) {
 
   const ck = ['fl2', origin, dest, date, ret, cur, cabin, adults, children, infants].join('|');
   const hit = cache.get(ck);
-  if (hit && Date.now() - hit.t < 600000) return { code: 200, body: hit.v };
+  if (hit && Date.now() - hit.t < (hit.v.data.length ? 600000 : 30000)) return { code: 200, body: hit.v };
 
   const ratesObj = await getRates();
   let data = [];
+  let liveError = '';
+  let liveCount = 0;
 
   if (date.length === 10 && TOKEN && MARKER) {
     const w = { origin, dest, date, ret, cabin, adults, children, infants, currencyCode: 'USD' };
@@ -482,16 +495,28 @@ async function flights(q, ip) {
         liveItems.push(...normLiveTicket(tk, legs, c.agents, origin, dest, ret, cur, ratesObj, c.search_id));
       }
       data = liveItems;
+      liveCount = data.length;
+      if (DEBUG) console.log('Flight live result', JSON.stringify({ origin, dest, date, ret, tickets: (c.tickets || []).length, offers: liveCount }));
     } catch (e) {
-      if (DEBUG) console.log('live search fallback:', e.message);
+      liveError = e.message;
+      console.warn('Travelpayouts live search failed:', liveError);
     }
   }
 
   if (!data.length) {
-    data = await fetchCachedFlights(origin, dest, date, ret, cur, ratesObj);
+    try {
+      data = await fetchCachedFlights(origin, dest, date, ret, cur, ratesObj);
+    } catch (e) {
+      console.warn('Travelpayouts cached prices failed:', e.message);
+      if (!liveError) liveError = 'Cached price lookup failed';
+    }
   }
 
   const body = { currency: cur, requested: cur, data };
+  if (DEBUG) {
+    body.diagnostics = { liveOffers: liveCount, returned: data.length, liveError: liveError || null, note: data.length ? null : 'No matching inventory returned by the configured API' };
+    console.log('Flight response', JSON.stringify({ origin, dest, date, ret, liveCount, returned: data.length, liveError }));
+  }
   cache.set(ck, { t: Date.now(), v: body });
   return { code: 200, body };
 }
@@ -559,7 +584,8 @@ async function runSearch(w, ip) {
   }, 12000);
 
   if (!st.ok || !st.json || !st.json.search_id || !st.json.results_url) {
-    throw new Error('start failed ' + st.status);
+    if (DEBUG) console.warn('Search start response', JSON.stringify({ status: st.status, fields: Object.keys(st.json || {}), error: st.json && (st.json.error || st.json.message) }));
+    throw new Error('start failed HTTP ' + st.status + (st.json && (st.json.error || st.json.message) ? ': ' + String(st.json.error || st.json.message).slice(0, 150) : ''));
   }
 
   const search_id = String(st.json.search_id);
@@ -613,6 +639,7 @@ async function runSearch(w, ip) {
     await sleep(1200);
   }
 
+  if (DEBUG) console.log('Travelpayouts search complete', JSON.stringify({ tickets: tickets.length, agents: Object.keys(agents).length, legs: flightLegs.length, elapsedMs: Date.now() - t0 }));
   return { t: Date.now(), search_id, tickets, agents, flight_legs: flightLegs };
 }
 
@@ -876,8 +903,13 @@ http.createServer(async (req, res) => {
     if (limited(ip)) {
       return json(res, 429, { error: 'Too many requests. Please wait a minute.' });
     }
-    const r = await flights(u.searchParams, ip);
-    return json(res, r.code, r.body);
+    try {
+      const r = await flights(u.searchParams, ip);
+      return json(res, r.code, r.body);
+    } catch (e) {
+      console.error('Flight endpoint failed:', e.message);
+      return json(res, 502, { error: 'Flight provider request failed. Please try again.', data: [] });
+    }
   }
 
   if (u.pathname === '/api/offers') {
