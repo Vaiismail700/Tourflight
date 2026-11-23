@@ -506,12 +506,19 @@ function legOf(l) {
 }
 
 function normTicket(t, legs) {
-  const segs = (t.segments || []).map(sg =>
-    (sg.flights || [])
+  // Keep the segment/flight structure expected by normLiveTicket().
+  // Resolve numeric flight references now, while the search response's
+  // flight_legs array is available.
+  const segments = (t.segments || []).map(sg => ({
+    flights: (sg.flights || [])
       .map(x => typeof x === 'number' ? legs[x] : x)
       .filter(Boolean)
-      .map(legOf)
-  );
+  }));
+
+  // Keep the compact structure used by /api/offers for airline/departure
+  // matching. The detailed normalizer below needs the original flight data.
+  const segs = segments.map(sg => sg.flights.map(legDetailOf));
+
   const proposals = (t.proposals || []).map(p => ({
     id: String(p.id || ''),
     agent_id: String(p.agent_id == null ? '' : p.agent_id),
@@ -521,7 +528,8 @@ function normTicket(t, legs) {
         : (p.price != null ? p.price : p.unified_price)
     )
   })).filter(p => p.id && Number.isFinite(p.price) && p.price > 0);
-  return { segs, proposals };
+
+  return { segments, segs, proposals };
 }
 
 async function runSearch(w, ip) {
@@ -591,6 +599,7 @@ async function runSearch(w, ip) {
           nt.proposals.forEach(x => ids.set(x.id, x));
           old.proposals = Array.from(ids.values());
           if (!old.segs.length) old.segs = nt.segs;
+          if (!old.segments.length) old.segments = nt.segments;
           continue;
         }
         seen.set(key, nt);
