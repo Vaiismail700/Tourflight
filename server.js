@@ -78,7 +78,10 @@ const NAMES = {
 
 (async () => {
   try {
-    const r = await fetch('https://api.travelpayouts.com/data/en/airlines.json');
+    const ctl = new AbortController();
+    const to = setTimeout(() => ctl.abort(), 8000);
+    const r = await fetch('https://api.travelpayouts.com/data/en/airlines.json', { signal: ctl.signal });
+    clearTimeout(to);
     if (r.ok) {
       const list = await r.json();
       if (Array.isArray(list)) {
@@ -129,7 +132,7 @@ function clientIp(req) {
 
 async function tp(url, opt, ms) {
   const ctl = new AbortController();
-  const to = setTimeout(() => ctl.abort(), ms || 15000);
+  const to = setTimeout(() => ctl.abort(), ms || 12000);
   try {
     const r = await fetch(url, Object.assign({ signal: ctl.signal }, opt));
     const txt = await r.text();
@@ -161,7 +164,10 @@ async function getRates() {
   const c = cache.get('rates');
   if (c && Date.now() - c.t < 3600000) return c.v;
   try {
-    const r = await fetch('https://open.er-api.com/v6/latest/USD');
+    const ctl = new AbortController();
+    const to = setTimeout(() => ctl.abort(), 8000);
+    const r = await fetch('https://open.er-api.com/v6/latest/USD', { signal: ctl.signal });
+    clearTimeout(to);
     if (r.ok) {
       const j = await r.json();
       if (j && j.rates && j.rates.USD) {
@@ -371,72 +377,64 @@ function normLiveTicket(t, legs, agents, origin, dest, retDate, cur, ratesObj, s
   }));
 }
 
-function extractPricesRows(jsonData) {
-  const rawList = [];
-  if (!jsonData || typeof jsonData !== 'object') return rawList;
-  if (Array.isArray(jsonData)) {
-    jsonData.forEach(item => { if (item) rawList.push(item); });
-  } else {
-    Object.keys(jsonData).forEach(k => {
-      const bucket = jsonData[k];
-      if (bucket && typeof bucket === 'object') {
-        if (bucket.price != null || bucket.value != null) {
-          rawList.push(Object.assign({}, bucket, !bucket.departure_at && /^\d{4}-\d{2}-\d{2}$/.test(k) ? { departure_at: k } : null));
-        } else {
-          Object.keys(bucket).forEach(subKey => {
-            const it = bucket[subKey];
-            if (it && typeof it === 'object') {
-              rawList.push(Object.assign({}, it, !it.departure_at && /^\d{4}-\d{2}-\d{2}$/.test(k) ? { departure_at: k } : null));
-            }
-          });
-        }
-      }
-    });
-  }
-  return rawList;
-}
-
 async function fetchCachedFlights(origin, dest, date, ret, cur, ratesObj) {
+  const isMonth = date.length === 7;
+  const ep = isMonth ? '/v2/prices/month-matrix' : '/v1/prices/cheap';
   const params = new URLSearchParams({
     origin,
     destination: dest,
     currency: 'USD',
     token: TOKEN
   });
-
-  if (date.length === 7) {
+  if (isMonth) {
     params.set('month', date + '-01');
-    const r = await tp(BASE + '/v2/prices/month-matrix?' + params.toString(), {}, 12000);
-    return extractPricesRows(r.ok && r.json && r.json.data)
-      .filter(it => Number(it.price != null ? it.price : it.value) > 0)
-      .map(it => normPriceItem(it, origin, dest, ret, cur, ratesObj));
+  } else {
+    params.set('depart_date', date);
+    if (ret) params.set('return_date', ret);
   }
 
-  // Exact date cheap endpoint first
-  const cheapParams = new URLSearchParams(params);
-  cheapParams.set('depart_date', date);
-  if (ret) cheapParams.set('return_date', ret);
-  const r1 = await tp(BASE + '/v1/prices/cheap?' + cheapParams.toString(), {}, 12000);
-  let rows = extractPricesRows(r1.ok && r1.json && r1.json.data);
+  let r = await tp(BASE + ep + '?' + params.toString(), {}, 12000);
+  const rawList = [];
 
-  // If return_date caused empty results, retry without return_date
-  if (!rows.length && ret) {
-    const cheapOneWay = new URLSearchParams(params);
-    cheapOneWay.set('depart_date', date);
-    const r1b = await tp(BASE + '/v1/prices/cheap?' + cheapOneWay.toString(), {}, 12000);
-    rows = extractPricesRows(r1b.ok && r1b.json && r1b.json.data);
+  function collectData(dObj) {
+    if (!dObj) return;
+    if (Array.isArray(dObj)) {
+      dObj.forEach(item => rawList.push(item));
+    } else if (typeof dObj === 'object') {
+      Object.keys(dObj).forEach(k => {
+        const bucket = dObj[k];
+        if (bucket && typeof bucket === 'object') {
+          Object.keys(bucket).forEach(subKey => {
+            const it = Object.assign({}, bucket[subKey]);
+            if (!it.departure_at && /^\d{4}-\d{2}-\d{2}$/.test(k)) it.departure_at = k;
+            rawList.push(it);
+          });
+        }
+      });
+    }
   }
 
-  // If still empty, fall back to month matrix so nearby dates can still show
-  if (!rows.length) {
-    const moParams = new URLSearchParams(params);
-    moParams.set('month', date.slice(0, 7) + '-01');
-    const r2 = await tp(BASE + '/v2/prices/month-matrix?' + moParams.toString(), {}, 12000);
-    rows = extractPricesRows(r2.ok && r2.json && r2.json.data);
+  if (r.ok && r.json && r.json.data) {
+    collectData(r.json.data);
   }
 
-  return rows
-    .filter(it => Number(it.price != null ? it.price : it.value) > 0)
+  // Fallback to month-matrix if exact day cheap search returns empty
+  if (!rawList.length && !isMonth) {
+    const mParams = new URLSearchParams({
+      origin,
+      destination: dest,
+      month: date.slice(0, 7) + '-01',
+      currency: 'USD',
+      token: TOKEN
+    });
+    const mr = await tp(BASE + '/v2/prices/month-matrix?' + mParams.toString(), {}, 12000);
+    if (mr.ok && mr.json && mr.json.data) {
+      collectData(mr.json.data);
+    }
+  }
+
+  return rawList
+    .filter(it => it && (Number(it.price) > 0 || Number(it.value) > 0))
     .map(it => normPriceItem(it, origin, dest, ret, cur, ratesObj));
 }
 
@@ -458,7 +456,7 @@ async function flights(q, ip) {
     return { code: 200, body: { error: 'TP_TOKEN is not configured on the server.', currency: cur, data: [] } };
   }
 
-  const ck = ['fl3', origin, dest, date, ret, cur, cabin, adults, children, infants].join('|');
+  const ck = ['fl2', origin, dest, date, ret, cur, cabin, adults, children, infants].join('|');
   const hit = cache.get(ck);
   if (hit && Date.now() - hit.t < 600000) return { code: 200, body: hit.v };
 
@@ -479,7 +477,7 @@ async function flights(q, ip) {
         c = await pr;
         offerCache.set(skey, c);
       }
-      const legs = [];
+      const legs = Array.isArray(c.flight_legs) ? c.flight_legs : [];
       const liveItems = [];
       for (const tk of (c.tickets || [])) {
         liveItems.push(...normLiveTicket(tk, legs, c.agents, origin, dest, ret, cur, ratesObj, c.search_id));
@@ -551,7 +549,7 @@ async function runSearch(w, ip) {
     method: 'POST',
     headers: tpHeaders(ip, body),
     body: JSON.stringify(body)
-  });
+  }, 12000);
 
   if (!st.ok || !st.json || !st.json.search_id || !st.json.results_url) {
     throw new Error('start failed ' + st.status);
@@ -565,26 +563,29 @@ async function runSearch(w, ip) {
   const tickets = [];
   const seen = new Map();
   let agents = {};
+  let flightLegs = [];
   let last = 0;
   const t0 = Date.now();
 
-  while (Date.now() - t0 < 20000) {
+  while (Date.now() - t0 < 14000) {
     const rb = { search_id, last_update_timestamp: last };
     const r = await tp(base + '/search/affiliate/results', {
       method: 'POST',
       headers: tpHeaders(ip, rb),
       body: JSON.stringify(rb)
-    });
+    }, 10000);
 
     if (r.ok && r.json) {
       const j = r.json;
       if (j.agents && typeof j.agents === 'object') {
         agents = Object.assign(agents, j.agents);
       }
-      const legs = Array.isArray(j.flight_legs) ? j.flight_legs : [];
+      if (Array.isArray(j.flight_legs) && j.flight_legs.length) {
+        flightLegs = j.flight_legs;
+      }
       for (const t of (Array.isArray(j.tickets) ? j.tickets : [])) {
         const key = String(t.id || t.signature || tickets.length);
-        const nt = normTicket(t, legs);
+        const nt = normTicket(t, flightLegs);
         if (seen.has(key)) {
           const old = seen.get(key);
           const ids = new Map(old.proposals.map(x => [x.id, x]));
@@ -597,14 +598,14 @@ async function runSearch(w, ip) {
         tickets.push(nt);
       }
       if (j.last_update_timestamp) last = j.last_update_timestamp;
-      if (j.is_over) break;
+      if (j.is_over || (tickets.length > 0 && Date.now() - t0 > 4500)) break;
     } else if (r.status >= 400 && r.status !== 304) {
       throw new Error('results failed ' + r.status);
     }
-    await sleep(1500);
+    await sleep(1200);
   }
 
-  return { t: Date.now(), search_id, tickets, agents };
+  return { t: Date.now(), search_id, tickets, agents, flight_legs: flightLegs };
 }
 
 function agentName(id, agents) {
@@ -716,7 +717,8 @@ async function goAgency(req, res, url) {
   try {
     const r = await tp(
       meta.base + '/searches/' + sid + '/clicks/' + pid,
-      { headers: tpHeaders(clientIp(req)) }
+      { headers: tpHeaders(clientIp(req)) },
+      10000
     );
     const j = r.json || {};
     const raw = j.url || j.click_url || j.redirect_url || '';
@@ -765,32 +767,30 @@ function bookingRedirect(req, res, url) {
       const host = target.hostname.toLowerCase();
       const allowedHosts = [
         'aviasales.com', 'expedia.com', 'booking.com', 'trip.com', 'agoda.com',
-        'priceline.com', 'orbitz.com', 'travelocity.com', 'skyscanner.net',
-        'kayak.com', 'momondo.com', 'kiwi.com', 'cheapoair.com', 'hopper.com',
-        'edreams.com', 'makemytrip.com', 'cleartrip.com', 'easemytrip.com',
-        'yatra.com', 'ixigo.com', 'sastaticket.pk', 'bookme.pk', 'sharetrip.net',
-        'gozayaan.com', 'musafir.com', 'almosafer.com', 'rehlat.com',
-        'cleartrip.ae', 'dnatatravel.com', 'tajawal.com', 'flyin.com',
-        'traveloka.com', 'tiket.com', 'airasia.com', 'klook.com', 'ctrip.com',
-        'fliggy.com', '12go.asia', 'lastminute.com', 'esky.com', 'gotogate.com',
-        'mytrip.com', 'flightnetwork.com', 'alternativeairlines.com',
+        'priceline.com', 'orbitz.com', 'travelocity.com', 'skyscanner.net', 'kayak.com',
+        'momondo.com', 'kiwi.com', 'cheapoair.com', 'hopper.com', 'edreams.com',
+        'makemytrip.com', 'cleartrip.com', 'easemytrip.com', 'yatra.com', 'ixigo.com',
+        'sastaticket.pk', 'bookme.pk', 'sharetrip.net', 'gozayaan.com', 'musafir.com',
+        'almosafer.com', 'rehlat.com', 'cleartrip.ae', 'dnatatravel.com', 'tajawal.com',
+        'flyin.com', 'traveloka.com', 'tiket.com', 'airasia.com', 'klook.com',
+        'ctrip.com', 'fliggy.com', '12go.asia', 'lastminute.com', 'esky.com',
+        'gotogate.com', 'mytrip.com', 'flightnetwork.com', 'alternativeairlines.com',
         'cheaptickets.com', 'flightcentre.com', 'despegar.com', 'onetravel.com',
         'biman-airlines.com', 'usbair.com', 'airindia.com', 'goindigo.in',
         'piac.com.pk', 'nepalairlines.com.np', 'srilankan.com', 'emirates.com',
         'etihad.com', 'flydubai.com', 'airarabia.com', 'saudia.com',
         'qatarairways.com', 'omanair.com', 'gulfair.com', 'kuwaitairways.com',
-        'flynas.com', 'malaysiaairlines.com', 'singaporeair.com',
-        'thaiairways.com', 'garuda-indonesia.com', 'airchina.com', 'ceair.com',
-        'csair.com', 'maldivian.aero', 'britishairways.com', 'lufthansa.com',
-        'airfrance.com', 'aa.com', 'united.com', 'enuygun.com', 'obilet.com',
-        'turna.com', 'biletall.com', 'tatilbudur.com', 'setur.com.tr',
-        'jollytur.com', 'tatilsepeti.com', 'turkishairlines.com', 'flypgs.com',
-        'ajet.com', 'sunexpress.com', 'corendonairlines.com',
-        'freebirdairlines.com', 'wakanow.com', 'travelstart.co.za',
-        'travelstart.com.ng', 'flightsite.co.za', 'flightcentre.co.za',
-        'tix.africa', 'travelwings.com', 'justfly.com', 'cheapflights.com',
-        'almatar.com', 'travco.com', 'holidayme.com', 'wego.com.eg',
-        'ethiopianairlines.com', 'egyptair.com', 'kenya-airways.com',
+        'flynas.com', 'malaysiaairlines.com', 'singaporeair.com', 'thaiairways.com',
+        'garuda-indonesia.com', 'airchina.com', 'ceair.com', 'csair.com',
+        'maldivian.aero', 'britishairways.com', 'lufthansa.com', 'airfrance.com',
+        'aa.com', 'united.com', 'enuygun.com', 'obilet.com', 'turna.com',
+        'biletall.com', 'tatilbudur.com', 'setur.com.tr', 'jollytur.com',
+        'tatilsepeti.com', 'turkishairlines.com', 'flypgs.com', 'ajet.com',
+        'sunexpress.com', 'corendonairlines.com', 'freebirdairlines.com',
+        'wakanow.com', 'travelstart.co.za', 'travelstart.com.ng', 'flightsite.co.za',
+        'flightcentre.co.za', 'tix.africa', 'travelwings.com', 'justfly.com',
+        'cheapflights.com', 'almatar.com', 'travco.com', 'holidayme.com',
+        'wego.com.eg', 'ethiopianairlines.com', 'egyptair.com', 'kenya-airways.com',
         'royalairmaroc.com', 'flysaa.com', 'airalgerie.dz', 'tunisair.com',
         'rwandair.com', 'flyairsenegal.com', 'taag.com', 'airmauritius.com',
         'ugandairlines.com', 'flysafair.co.za', 'flyairpeace.com', 'fastjet.com',
