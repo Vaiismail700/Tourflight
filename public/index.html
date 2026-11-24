@@ -878,6 +878,21 @@ var ofLast=null,ofSeq=0;
 function agName(o){return String((o&&o.gate)||'Aviasales')}
 function fbLink(l){l=String(l||'');if(/^https:\/\//i.test(l))return l;if(l.charAt(0)==='/'&&l.charAt(1)!=='/')return apiUrl('/out?link='+encodeURIComponent(l)+'&src='+encodeURIComponent(SITE_SRC));return ''}
 function ofRow(name,price,link,sym,lo){return '<div class="ofr'+(lo?' lo':'')+'" data-best="'+esc(t('of_best_badge'))+'"><div class="l">'+agencyLogo(name)+'<b>'+esc(name)+'</b></div><div class="pc"><div class="pr">'+sym+fmtN(price)+'</div>'+(link?'<a class="bk" href="'+esc(link)+'" target="_blank" rel="noopener noreferrer sponsored">'+esc(t('of_book',{ag:name}))+'</a>':'<span class="s">'+esc(t('of_no_link'))+'</span>')+'</div></div>'}
+function offerComparison(f, q){
+  var date=String(f.departure_at||'').slice(0,10),ret=String(f.return_at||'').slice(0,10);
+  var origin=f.origin_airport||f.origin||q.f,destination=f.destination_airport||f.destination||q.t;
+  var links=[];
+  var exactDate=/^\d{4}-\d{2}-\d{2}$/;
+  if(/^[A-Z]{3}$/.test(origin)&&/^[A-Z]{3}$/.test(destination)&&exactDate.test(date)&&(!ret||exactDate.test(ret))){
+    links=cmp({f:origin,t:destination,d:date,r:ret});
+  }
+  links.push(['Trip.com','https://www.trip.com/flights/']);
+  if(f.airline==='BS')links.push(['US-Bangla Airlines','https://usbair.com/']);
+  return '<div class="cmp"><b>'+esc(t('cmp_title'))+'</b><div class="s">'+esc(t('cmp_sub'))+'</div>'
+    +links.map(function(link){
+      return '<a href="'+esc(link[1])+'" target="_blank" rel="noopener noreferrer">'+esc(link[0])+'</a>';
+    }).join('')+'</div>';
+}
 function closeOffers(){var m=$('ofm');if(!m||m.hidden)return;m.hidden=true;document.body.style.overflow='';ofSeq++;offerPage=null;if(ofLast&&ofLast.focus)ofLast.focus()}
 function openOffers(key,btn){var g=visibleGroups[key];if(!g)return;var q=g.q,f=g.flight,my=++ofSeq;ofLast=btn||null;offerPage=key;
 var dep=String(f.departure_at||''),ret=f.return_at?String(f.return_at):'',sym=symOf(g.currency||$('cy').value);
@@ -888,7 +903,7 @@ var head='<div class="tkt"><div class="tkh">'+logo(f.airline)+'<div><b>'+esc(air
 +'<div class="tkd"><div><small>'+esc(t('of_dep_lbl'))+'</small><b>'+esc(shortDate(dep.slice(0,10)))+(depT(dep)?' \u00b7 '+esc(depT(dep)):'')+'</b><span class="tka">'+airH+'</span></div>'
 +(ret?'<div><small>'+esc(t('of_ret_lbl'))+'</small><b>'+esc(shortDate(ret.slice(0,10)))+(depT(ret)?' \u00b7 '+esc(depT(ret)):'')+'</b><span class="tka">'+airH+'</span></div>':'<div><small>'+esc(t('of_trip_lbl'))+'</small><b>'+esc(t('one_way'))+'</b></div>')
 +'<div><small>'+esc(t('of_stops_lbl'))+'</small><b>'+esc(f.transfers===0?t('direct'):t('stop_1'))+'</b></div></div></div>';
-$('ofb').innerHTML=head+'<div class="s" id="ofl">'+esc(t('of_loading'))+'</div>';
+$('ofb').innerHTML=head+'<div class="s" id="ofl" aria-live="polite">'+esc(t('of_loading'))+'</div>'+offerComparison(f,q);
 $('ofm').hidden=false;document.body.style.overflow='hidden';$('ofx').focus();
 var p=new URLSearchParams({origin:q.f,destination:q.t,date:dep.slice(0,10),currency:$('cy').value,cabin:$('cabin').value,airline:f.airline||'',dep:dep.slice(0,16),adults:pax.a,children:pax.c,infants:pax.i});if(ret)p.set('return',ret.slice(0,10));
 fetch(apiUrl('/api/offers?'+p)).then(readJsonSafe).catch(function(){return{live:false,offers:[]}}).then(function(j){
@@ -903,7 +918,7 @@ h+=list.map(function(o){
 else{var fo=g.offers.slice().sort(function(a,b){return Number(a.price)-Number(b.price)});
 h+='<div class="s" style="margin:6px 0">'+esc(t('of_fb'))+'</div>';
 h+=fo.map(function(o,i){return ofRow(agName(o),o.price,fbLink(o.link),sym,i===0)}).join('')}
-$('ofb').innerHTML=head+h})}
+var offers=$('ofl');if(offers){offers.classList.remove('s');offers.innerHTML=h}})}
 $('ofx').addEventListener('click',closeOffers);
 $('ofm').addEventListener('click',function(e){if(e.target===$('ofm'))closeOffers()});
 document.addEventListener('keydown',function(e){if(e.key==='Escape')closeLangMenu();var m=$('ofm');if(!m||m.hidden)return;if(e.key==='Escape'){closeOffers();return}
