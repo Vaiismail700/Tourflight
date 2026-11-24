@@ -2,19 +2,14 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
-const crypto = require('crypto');
 
 const PORT = process.env.PORT || 3000;
-const TOKEN = process.env.TP_TOKEN || '';
-const BASE = process.env.TP_BASE || 'https://api.travelpayouts.com';
-const MARKER = process.env.TP_MARKER || '';
-const SITE_HOST = process.env.TP_HOST || 'tourflight.onrender.com';
-const SEARCH_BASE = process.env.TP_SEARCH_BASE || 'https://tickets-api.travelpayouts.com';
+const TOKEN = (process.env.TP_TOKEN || '').trim();
+const MARKER = (process.env.TP_MARKER || '').trim();
 const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || '')
   .split(',')
   .map(s => s.trim())
   .filter(Boolean);
-const DEBUG = /^(1|true|yes|on)$/i.test(process.env.TP_DEBUG || '');
 const PUB = path.join(__dirname, 'public');
 
 const MIME = {
@@ -31,9 +26,6 @@ const MIME = {
 
 const cache = new Map();
 const hits = new Map();
-const searches = new Map();
-const offerCache = new Map();
-const inflight = new Map();
 let clicks = 0;
 
 function limited(ip) {
@@ -76,704 +68,161 @@ const NAMES = {
   "MH": "Malaysia Airlines", "TG": "Thai Airways", "CX": "Cathay Pacific"
 };
 
-(async () => {
-  try {
-    const ctl = new AbortController();
-    const to = setTimeout(() => ctl.abort(), 8000);
-    const r = await fetch('https://api.travelpayouts.com/data/en/airlines.json', { signal: ctl.signal });
-    clearTimeout(to);
-    if (r.ok) {
-      const list = await r.json();
-      if (Array.isArray(list)) {
-        for (const x of list) {
-          if (x && x.code && x.name && !NAMES[x.code]) {
-            NAMES[x.code] = x.name;
-          }
-        }
-      }
-    }
-  } catch (e) {
-    if (DEBUG) console.log('Airlines preload failed:', e.message);
-  }
-})();
-
-const FALLBACK = {
-  USD: 1, BDT: 122, EUR: 0.92, GBP: 0.79, AED: 3.67,
-  SAR: 3.75, INR: 84, MYR: 4.4, SGD: 1.34, THB: 36,
-  QAR: 3.64, KWD: 0.31, BHD: 0.376, OMR: 0.385,
-  PKR: 280, LKR: 300, NPR: 134, IDR: 15800, PHP: 57,
-  VND: 25000, JPY: 150, CNY: 7.2, KRW: 1350, HKD: 7.8,
-  AUD: 1.52, CAD: 1.37, NZD: 1.65, CHF: 0.88,
-  TRY: 34, EGP: 49
-};
-
-const md5 = x => crypto.createHash('md5').update(x).digest('hex');
-
-function flat(o) {
-  if (Array.isArray(o)) return o.flatMap(flat);
-  if (o && typeof o === 'object') {
-    return Object.keys(o).sort().flatMap(k => flat(o[k]));
-  }
-  return [String(o)];
-}
-
-function sign(body) {
-  const b = Object.assign({}, body);
-  delete b.signature;
-  delete b.marker;
-  return md5([TOKEN, MARKER].concat(flat(b)).join(':'));
-}
-
 function clientIp(req) {
   const x = String(req.headers['x-forwarded-for'] || '').split(',')[0].trim();
   const raw = x || (req.socket && req.socket.remoteAddress) || '127.0.0.1';
   return raw.replace(/^::ffff:/, '');
 }
 
-async function tp(url, opt, ms) {
-  const ctl = new AbortController();
-  const to = setTimeout(() => ctl.abort(), ms || 12000);
-  try {
-    const r = await fetch(url, Object.assign({ signal: ctl.signal }, opt));
-    const txt = await r.text();
-    let j = null;
-    try { j = JSON.parse(txt); } catch (e) {}
-    if (DEBUG && !r.ok) {
-      console.log('TP', r.status, url.split('?')[0], txt.slice(0, 300));
-    }
-    return { ok: r.ok, status: r.status, json: j };
-  } finally {
-    clearTimeout(to);
-  }
+const RELEASE = 'tourflight-data-v3-2026-11-24';
+const MARKET = (process.env.TP_MARKET || '').trim().toLowerCase();
+const PRICE_ENDPOINT = 'https://api.travelpayouts.com/aviasales/v3/prices_for_dates';
+
+function validDate(value) {
+  if (!/^\d{4}-\d{2}(-\d{2})?$/.test(value)) return false;
+  const day = value.length === 7 ? value + '-01' : value;
+  const timestamp = Date.parse(day + 'T00:00:00Z');
+  return Number.isFinite(timestamp) && new Date(timestamp).toISOString().slice(0, 10) === day;
 }
 
-function tpHeaders(ip, body) {
-  const h = {
-    'content-type': 'application/json',
-    'x-affiliate-user-id': TOKEN,
-    'x-real-host': SITE_HOST,
-    'x-user-ip': ip
-  };
-  h['x-signature'] = body ? sign(body) : md5(TOKEN + ':' + MARKER);
-  return h;
+function readSearch(q, isCalendar) {
+  const origin = (q.get('origin') || '').trim().toUpperCase();
+  const destination = (q.get('destination') || '').trim().toUpperCase();
+  const date = (isCalendar ? (q.get('month') || '').trim().slice(0, 7) :
+    (q.get('date') || q.get('depart_date') || '').trim());
+  const returnDate = isCalendar ? '' : (q.get('return') || q.get('return_date') || '').trim();
+  const currency = (q.get('currency') || 'usd').trim().toLowerCase();
+
+  if (!/^[A-Z]{3}$/.test(origin) || !/^[A-Z]{3}$/.test(destination) ||
+      origin === destination || !validDate(date) || !/^[a-z]{3}$/.test(currency) ||
+      (returnDate && (!validDate(returnDate) ||
+        (date.length === 10 && returnDate.length !== 10) ||
+        returnDate < date.slice(0, returnDate.length)))) return null;
+
+  return { origin, destination, date, returnDate, currency };
 }
 
-const sleep = ms => new Promise(r => setTimeout(r, ms));
+function normalizePrice(item, query) {
+  const departure = String(item.departure_at || '');
+  const returned = String(item.return_at || '');
+  const departureDay = departure.slice(0, 10);
+  const returnDay = returned.slice(0, 10);
+  const price = Number(item.price);
+  if (!validDate(departureDay) || !departureDay.startsWith(query.date) ||
+      (query.returnDate ? (!validDate(returnDay) || returnDay < departureDay ||
+        !returnDay.startsWith(query.returnDate)) : Boolean(returned)) ||
+      (item.expires_at && Date.parse(item.expires_at) <= Date.now()) ||
+      !Number.isFinite(price) || price <= 0) return null;
 
-async function getRates() {
-  const c = cache.get('rates');
-  if (c && Date.now() - c.t < 3600000) return c.v;
-  try {
-    const ctl = new AbortController();
-    const to = setTimeout(() => ctl.abort(), 8000);
-    const r = await fetch('https://open.er-api.com/v6/latest/USD', { signal: ctl.signal });
-    clearTimeout(to);
-    if (r.ok) {
-      const j = await r.json();
-      if (j && j.rates && j.rates.USD) {
-        const v = { r: j.rates, live: true };
-        cache.set('rates', { t: Date.now(), v });
-        return v;
-      }
-    }
-  } catch (e) {}
-  return { r: FALLBACK, live: false };
-}
-
-function convertPrice(amount, fromCur, toCur, ratesObj) {
-  const n = Number(amount);
-  if (!Number.isFinite(n) || n <= 0) return 0;
-  const f = String(fromCur || 'USD').toUpperCase();
-  const t = String(toCur || 'USD').toUpperCase();
-  if (f === t) return n;
-  const r = ratesObj.r || FALLBACK;
-  const rf = r[f];
-  const rt = r[t];
-  if (!rf || !rt) return n;
-  return (n / rf) * rt;
-}
-
-function linkOf(origin, dest, date, ret) {
-  const p = new URLSearchParams({
-    origin_iata: origin,
-    destination_iata: dest,
-    depart_date: date
-  });
-  if (ret) p.set('return_date', ret);
-  if (MARKER) p.set('marker', MARKER);
-  return 'https://www.aviasales.com/search?' + p.toString();
-}
-
-function normPriceItem(item, origin, dest, retDate, cur, ratesObj) {
-  const carrier = String(item.airline || item.carrier || '').toUpperCase();
-  const rawPrice = Number(item.price != null ? item.price : item.value);
-  const srcCur = String(item.currency || 'USD').toUpperCase();
-  const price = Math.round(convertPrice(rawPrice, srcCur, cur, ratesObj));
-  const dep = String(item.departure_at || item.depart_date || '').replace(' ', 'T');
-  const ret = String(item.return_at || item.return_date || retDate || '').replace(' ', 'T');
-  const transfers = typeof item.transfers === 'number'
-    ? item.transfers
-    : (typeof item.number_of_changes === 'number' ? item.number_of_changes : 0);
-
+  const airline = String(item.airline || '').toUpperCase();
+  const flightNumber = item.flight_number || '';
+  const link = /^\/search\/(?!\/)[^\\\s]+$/.test(item.link || '') ? item.link : '';
   return {
-    id: String(item.id || [carrier, origin, dest, dep, price].join('-')),
-    airline: carrier,
-    airline_name: NAMES[carrier] || item.airline_name || carrier || 'Airline',
-    flight_number: item.flight_number || '',
-    origin,
-    destination: dest,
-    origin_airport: item.origin_airport || origin,
-    destination_airport: item.destination_airport || dest,
-    departure_at: dep,
-    return_at: ret || '',
+    id: [airline, flightNumber, query.origin, query.destination, departure, returned, price].join('-'),
+    airline,
+    airline_name: NAMES[airline] || airline || 'Airline',
+    flight_number: flightNumber,
+    origin: item.origin || query.origin,
+    destination: item.destination || query.destination,
+    origin_airport: item.origin_airport || query.origin,
+    destination_airport: item.destination_airport || query.destination,
+    departure_at: departure,
+    return_at: returned,
     duration: Number(item.duration || 0),
-    duration_to: Number(item.duration_to || item.duration || 0),
+    duration_to: Number(item.duration_to || 0),
     duration_back: Number(item.duration_back || 0),
-    transfers,
-    return_transfers: typeof item.return_transfers === 'number' ? item.return_transfers : 0,
+    transfers: Number(item.transfers || 0),
+    return_transfers: Number(item.return_transfers || 0),
+    currency: query.currency,
     price,
-    currency: cur.toLowerCase(),
-    gate: item.gate || 'Aviasales',
-    link: item.link || linkOf(origin, dest, dep.slice(0, 10), ret ? ret.slice(0, 10) : '')
+    gate: 'Aviasales',
+    link,
+    source: 'aviasales_data',
+    indicative: true
   };
 }
 
-async function calendar(q) {
-  const origin = (q.get('origin') || '').toUpperCase();
-  const dest = (q.get('destination') || '').toUpperCase();
-  const month = (q.get('month') || '').slice(0, 7);
-  const cur = (q.get('currency') || 'usd').toLowerCase();
-
-  if (!/^[A-Z]{3}$/.test(origin) || !/^[A-Z]{3}$/.test(dest) || origin === dest || !/^\d{4}-\d{2}$/.test(month) || !/^[a-z]{3}$/.test(cur)) {
-    return { code: 400, body: { error: 'Invalid calendar request.' } };
-  }
-  if (!TOKEN) {
-    return { code: 200, body: { currency: cur, prices: {} } };
-  }
-
-  const ck = ['cal', origin, dest, month, cur].join('|');
-  const hit = cache.get(ck);
-  if (hit && Date.now() - hit.t < 900000) return { code: 200, body: hit.v };
-
-  const ratesObj = await getRates();
-  const u = BASE + '/v1/prices/calendar?origin=' + encodeURIComponent(origin)
-    + '&destination=' + encodeURIComponent(dest)
-    + '&month=' + encodeURIComponent(month + '-01')
-    + '&currency=USD&token=' + encodeURIComponent(TOKEN);
-
-  const r = await tp(u, {}, 12000);
-  const prices = {};
-  if (r.ok && r.json && r.json.data && typeof r.json.data === 'object') {
-    Object.keys(r.json.data).forEach(dateStr => {
-      const it = r.json.data[dateStr];
-      const raw = it && (it.price != null ? it.price : it.value);
-      if (Number(raw) > 0 && dateStr.startsWith(month)) {
-        prices[dateStr] = Math.round(convertPrice(raw, 'USD', cur, ratesObj));
-      }
-    });
-  }
-
-  const body = { currency: cur, prices };
-  cache.set(ck, { t: Date.now(), v: body });
-  return { code: 200, body };
-}
-
-function legDetailOf(l) {
-  const c = l.operating_carrier_designator || l.marketing_carrier_designator || {};
-  const carrier = String(c.carrier || l.carrier || '').toUpperCase();
-  const num = String(l.flight_number || l.number || '').trim();
-  const dep = String(l.local_departure_date_time || l.departure_at || '').replace(' ', 'T');
-  const arr = String(l.local_arrival_date_time || l.arrival_at || '').replace(' ', 'T');
-  const orig = String(l.origin || l.origin_airport || '').toUpperCase();
-  const dest = String(l.destination || l.destination_airport || '').toUpperCase();
-  const dur = Number(l.duration || 0);
-  return { carrier, num, dep, arr, orig, dest, dur };
-}
-
-function normLiveTicket(t, legs, agents, origin, dest, retDate, cur, ratesObj, searchId) {
-  const segs = (t.segments || []).map(sg =>
-    (sg.flights || [])
-      .map(x => typeof x === 'number' ? legs[x] : x)
-      .filter(Boolean)
-      .map(legDetailOf)
-  );
-  const outFlights = segs[0] || [];
-  const backFlights = segs[1] || [];
-  if (!outFlights.length) return [];
-
-  const firstOut = outFlights[0];
-  const lastOut = outFlights[outFlights.length - 1];
-  const firstBack = backFlights[0] || null;
-  const lastBack = backFlights[backFlights.length - 1] || null;
-
-  const carrier = firstOut.carrier || '';
-  const transfers = Math.max(0, outFlights.length - 1);
-  const retTransfers = backFlights.length > 0 ? Math.max(0, backFlights.length - 1) : 0;
-
-  const layovers = [];
-  for (let i = 0; i < outFlights.length - 1; i++) {
-    const a = outFlights[i];
-    const b = outFlights[i + 1];
-    let mins = 0;
-    if (a.arr && b.dep) {
-      const diff = Math.round((new Date(b.dep).getTime() - new Date(a.arr).getTime()) / 60000);
-      if (Number.isFinite(diff) && diff > 0 && diff < 3000) mins = diff;
-    }
-    layovers.push({ airport: a.dest || b.orig || '', minutes: mins });
-  }
-
-  let durTo = Number(t.duration_to || t.total_duration || 0);
-  if (!durTo && firstOut.dep && lastOut.arr) {
-    const d = Math.round((new Date(lastOut.arr).getTime() - new Date(firstOut.dep).getTime()) / 60000);
-    if (Number.isFinite(d) && d > 0 && d < 5000) durTo = d;
-  }
-  if (!durTo) durTo = outFlights.reduce((s, x) => s + (x.dur || 0), 0);
-
-  let durBack = Number(t.duration_back || 0);
-  if (!durBack && firstBack && lastBack && firstBack.dep && lastBack.arr) {
-    const d = Math.round((new Date(lastBack.arr).getTime() - new Date(firstBack.dep).getTime()) / 60000);
-    if (Number.isFinite(d) && d > 0 && d < 5000) durBack = d;
-  }
-
-  const proposals = (t.proposals || []).map(p => {
-    const rawP = Number(
-      p.price && typeof p.price === 'object'
-        ? (p.price.value != null ? p.price.value : p.price.amount)
-        : (p.price != null ? p.price : p.unified_price)
-    );
-    const price = Math.round(convertPrice(rawP, 'USD', cur, ratesObj));
-    const agId = String(p.agent_id == null ? '' : p.agent_id);
-    return {
-      id: String(p.id || ''),
-      price,
-      gate: agentName(agId, agents) || 'Travel Partner',
-      search_id: searchId
-    };
-  }).filter(p => p.price > 0);
-
-  if (!proposals.length) return [];
-
-  return proposals.map((pr, idx) => ({
-    id: [carrier, firstOut.num, firstOut.dep, pr.id || idx].join('-'),
-    airline: carrier,
-    airline_name: NAMES[carrier] || carrier || 'Airline',
-    flight_number: firstOut.num || '',
-    origin: firstOut.orig || origin,
-    destination: lastOut.dest || dest,
-    origin_airport: firstOut.orig || origin,
-    destination_airport: lastOut.dest || dest,
-    departure_at: firstOut.dep || '',
-    return_at: firstBack ? firstBack.dep : (retDate || ''),
-    duration: durTo + durBack,
-    duration_to: durTo,
-    duration_back: durBack,
-    transfers,
-    return_transfers: retTransfers,
-    layovers,
-    price: pr.price,
-    currency: cur.toLowerCase(),
-    gate: pr.gate,
-    search_id: searchId
-  }));
-}
-
-async function fetchCachedFlights(origin, dest, date, ret, cur, ratesObj) {
-  const isMonth = date.length === 7;
-  const ep = isMonth ? '/v2/prices/month-matrix' : '/v1/prices/cheap';
-  const params = new URLSearchParams({
-    origin,
-    destination: dest,
-    currency: 'USD',
-    token: TOKEN
+async function priceSearch(q, isCalendar = false) {
+  const query = readSearch(q, isCalendar);
+  const empty = isCalendar ? { prices: {} } : { data: [] };
+  const base = { ...empty, source: 'aviasales_data', indicative: true };
+  const fail = (code, status, error, upstreamStatus) => ({
+    code,
+    body: { ...base, currency: query?.currency, status, error, ...(upstreamStatus && { upstreamStatus }) }
   });
-  if (isMonth) {
-    params.set('month', date + '-01');
-  } else {
-    params.set('depart_date', date);
-    if (ret) params.set('return_date', ret);
+
+  if (!query) return fail(400, 'invalid_query', 'Invalid route, date or currency.');
+  if (!TOKEN) return fail(503, 'not_configured', 'Flight price service is not configured.');
+  if (MARKET && !/^[a-z]{2}$/.test(MARKET)) {
+    return fail(503, 'not_configured', 'Flight price market is misconfigured.');
   }
 
-  const r = await tp(BASE + ep + '?' + params.toString(), {}, 12000);
-  const rawList = [];
+  const { origin, destination, date, returnDate, currency } = query;
+  const requestUrl = new URL(PRICE_ENDPOINT);
+  requestUrl.search = new URLSearchParams({
+    origin, destination, departure_at: date, one_way: String(!returnDate),
+    currency, sorting: 'price', direct: 'false', unique: 'false', limit: '1000', page: '1'
+  });
+  if (returnDate) requestUrl.searchParams.set('return_at', returnDate);
+  if (MARKET) requestUrl.searchParams.set('market', MARKET);
+  const key = (isCalendar ? 'calendar|' : 'flights|') + requestUrl.href;
+  const hit = cache.get(key);
+  if (hit && hit.expires > Date.now()) return { code: 200, body: hit.body };
 
-  function collectData(dObj) {
-    // Cheap prices: data[DEST][AIRLINE] = offer; month matrix: data[] = offer.
-    function visit(value, key, depth) {
-      if (!value || depth > 5) return;
-      if (Array.isArray(value)) {
-        value.forEach(x => visit(x, key, depth + 1));
-        return;
-      }
-      if (typeof value !== 'object') return;
-      if (Number(value.price || value.value) > 0) {
-        const it = { ...value };
-        if (!it.departure_at && /^\d{4}-\d{2}-\d{2}$/.test(key || '')) it.departure_at = key;
-        rawList.push(it);
-        return;
-      }
-      Object.entries(value).forEach(([k, v]) => visit(v, k, depth + 1));
-    }
-    visit(dObj, '', 0);
-  }
-
-  if (r.ok && r.json && r.json.data) {
-    collectData(r.json.data);
-  }
-
-  if (!rawList.length && !isMonth) {
-    const mParams = new URLSearchParams({
-      origin,
-      destination: dest,
-      month: date.slice(0, 7) + '-01',
-      currency: 'USD',
-      token: TOKEN
+  let reply;
+  let payload;
+  try {
+    reply = await fetch(requestUrl, {
+      headers: { 'X-Access-Token': TOKEN, Accept: 'application/json' },
+      redirect: 'error',
+      signal: AbortSignal.timeout(12000)
     });
-    const mr = await tp(BASE + '/v2/prices/month-matrix?' + mParams.toString(), {}, 12000);
-    if (mr.ok && mr.json && mr.json.data) {
-      collectData(mr.json.data);
+    if (reply.ok) payload = await reply.json();
+  } catch (error) {
+    if (error.name === 'TimeoutError' || error.name === 'AbortError') {
+      return fail(504, 'upstream_timeout', 'Flight price service timed out.');
+    }
+    return fail(502, reply ? 'upstream_payload' : 'upstream_network',
+      'Flight price service could not return valid data.', reply?.status);
+  }
+
+  if (!reply.ok) {
+    const status = reply.status === 401 || reply.status === 403 ? 'upstream_auth' :
+      reply.status === 429 ? 'upstream_rate_limit' : 'upstream_http';
+    console.warn('Aviasales Data API', status, reply.status);
+    return fail(reply.status === 429 ? 503 : 502, status,
+      'Flight price service is temporarily unavailable.', reply.status);
+  }
+
+  if (payload?.success !== true || !Array.isArray(payload.data)) {
+    return fail(502, 'upstream_payload', 'Flight price service returned an unexpected response.', reply.status);
+  }
+
+  const upstreamCurrency = payload.currency || payload.data.find(item => item?.currency)?.currency;
+  if (upstreamCurrency && String(upstreamCurrency).toLowerCase() !== currency) {
+    return fail(502, 'upstream_currency', 'Flight price service returned a different currency.', reply.status);
+  }
+
+  const data = payload.data.filter(Boolean).map(item => normalizePrice(item, query))
+    .filter(Boolean).sort((a, b) => a.price - b.price);
+  const prices = {};
+  if (isCalendar) {
+    for (const flight of data) {
+      const day = flight.departure_at.slice(0, 10);
+      prices[day] = Math.min(prices[day] ?? Infinity, flight.price);
     }
   }
-
-  return rawList
-    .filter(it => {
-      if (!it || !(Number(it.price) > 0 || Number(it.value) > 0)) return false;
-      const depart = String(it.departure_at || it.depart_date || '').slice(0, 10);
-      const returning = String(it.return_at || it.return_date || '').slice(0, 10);
-      // Never show a different date as the date the user searched.
-      if (date.length === 10 && depart !== date) return false;
-      if (ret && returning !== ret) return false;
-      if (!ret && returning) return false;
-      return true;
-    })
-    .map(it => normPriceItem(it, origin, dest, ret, cur, ratesObj));
-}
-
-async function flights(q, ip) {
-  const origin = (q.get('origin') || '').toUpperCase();
-  const dest = (q.get('destination') || '').toUpperCase();
-  const date = (q.get('date') || q.get('depart_date') || '').trim();
-  const ret = (q.get('return') || '').trim();
-  const cur = (q.get('currency') || 'usd').toLowerCase();
-  const cabin = q.get('cabin') === 'business' ? 'business' : 'economy';
-  const adults = Math.min(9, Math.max(1, parseInt(q.get('adults') || '1', 10) || 1));
-  const children = Math.min(8, Math.max(0, parseInt(q.get('children') || '0', 10) || 0));
-  const infants = Math.min(adults, Math.max(0, parseInt(q.get('infants') || '0', 10) || 0));
-
-  if (!/^[A-Z]{3}$/.test(origin) || !/^[A-Z]{3}$/.test(dest) || origin === dest || !/^\d{4}-\d{2}(-\d{2})?$/.test(date) || !/^[a-z]{3}$/.test(cur)) {
-    return { code: 400, body: { error: 'Invalid flight search request.', data: [] } };
-  }
-  if (!TOKEN) {
-    return { code: 200, body: { error: 'TP_TOKEN is not configured on the server.', currency: cur, data: [] } };
-  }
-
-  const ck = ['fl2', origin, dest, date, ret, cur, cabin, adults, children, infants].join('|');
-  const hit = cache.get(ck);
-  if (hit && Date.now() - hit.t < (hit.v.data.length ? 600000 : 30000)) return { code: 200, body: hit.v };
-
-  const ratesObj = await getRates();
-  let data = [];
-  let liveError = '';
-  let liveCount = 0;
-
-  if (date.length === 10 && TOKEN && MARKER) {
-    const w = { origin, dest, date, ret, cabin, adults, children, infants, currencyCode: 'USD' };
-    const skey = [origin, dest, date, ret, cabin, adults, children, infants].join('|');
-    try {
-      let c = offerCache.get(skey);
-      if (!c || Date.now() - c.t > 480000) {
-        let pr = inflight.get(skey);
-        if (!pr) {
-          pr = runSearch(w, ip).finally(() => inflight.delete(skey));
-          inflight.set(skey, pr);
-        }
-        c = await pr;
-        offerCache.set(skey, c);
-      }
-      const legs = Array.isArray(c.flight_legs) ? c.flight_legs : [];
-      const liveItems = [];
-      for (const tk of (c.tickets || [])) {
-        liveItems.push(...normLiveTicket(tk, legs, c.agents, origin, dest, ret, cur, ratesObj, c.search_id));
-      }
-      data = liveItems;
-      liveCount = data.length;
-      if (DEBUG) console.log('Flight live result', JSON.stringify({ origin, dest, date, ret, tickets: (c.tickets || []).length, offers: liveCount }));
-    } catch (e) {
-      liveError = e.message;
-      console.warn('Travelpayouts live search failed:', liveError);
-    }
-  }
-
-  if (!data.length) {
-    try {
-      data = await fetchCachedFlights(origin, dest, date, ret, cur, ratesObj);
-    } catch (e) {
-      console.warn('Travelpayouts cached prices failed:', e.message);
-      if (!liveError) liveError = 'Cached price lookup failed';
-    }
-  }
-
-  const body = { currency: cur, requested: cur, data };
-  if (DEBUG) {
-    body.diagnostics = { liveOffers: liveCount, returned: data.length, liveError: liveError || null, note: data.length ? null : 'No matching inventory returned by the configured API' };
-    console.log('Flight response', JSON.stringify({ origin, dest, date, ret, liveCount, returned: data.length, liveError }));
-  }
-  cache.set(ck, { t: Date.now(), v: body });
-  return { code: 200, body };
-}
-
-function legOf(l) {
-  const c = l.operating_carrier_designator || l.marketing_carrier_designator || {};
-  return {
-    carrier: String(c.carrier || l.carrier || '').toUpperCase(),
-    dep: String(l.local_departure_date_time || l.departure_at || '')
-      .replace(' ', 'T').slice(0, 16)
-  };
-}
-
-function normTicket(t, legs) {
-  // Keep the segment/flight structure expected by normLiveTicket().
-  // Resolve numeric flight references now, while the search response's
-  // flight_legs array is available.
-  const segments = (t.segments || []).map(sg => ({
-    flights: (sg.flights || [])
-      .map(x => typeof x === 'number' ? legs[x] : x)
-      .filter(Boolean)
-  }));
-
-  // Keep the compact structure used by /api/offers for airline/departure
-  // matching. The detailed normalizer below needs the original flight data.
-  const segs = segments.map(sg => sg.flights.map(legDetailOf));
-
-  const proposals = (t.proposals || []).map(p => ({
-    id: String(p.id || ''),
-    agent_id: String(p.agent_id == null ? '' : p.agent_id),
-    price: Number(
-      p.price && typeof p.price === 'object'
-        ? (p.price.value != null ? p.price.value : p.price.amount)
-        : (p.price != null ? p.price : p.unified_price)
-    )
-  })).filter(p => p.id && Number.isFinite(p.price) && p.price > 0);
-
-  return { segments, segs, proposals };
-}
-
-async function runSearch(w, ip) {
-  const directions = [{ origin: w.origin, destination: w.dest, date: w.date }];
-  if (w.ret) directions.push({ origin: w.dest, destination: w.origin, date: w.ret });
 
   const body = {
-    marker: MARKER,
-    locale: 'en',
-    currency_code: w.currencyCode || 'USD',
-    search_params: {
-      trip_class: w.cabin === 'business' ? 'C' : 'Y',
-      passengers: {
-        adults: w.adults || 1,
-        children: w.children || 0,
-        infants: w.infants || 0
-      },
-      directions
-    }
+    ...base, currency, requested: currency, status: data.length ? 'ok' : 'no_cached_prices',
+    diagnostics: { received: payload.data.length, returned: data.length },
+    ...(isCalendar ? { prices } : { data })
   };
-  body.signature = sign(body);
-
-  const st = await tp(SEARCH_BASE + '/search/affiliate/start', {
-    method: 'POST',
-    headers: tpHeaders(ip, body),
-    body: JSON.stringify(body)
-  }, 12000);
-
-  if (!st.ok || !st.json || !st.json.search_id || !st.json.results_url) {
-    if (DEBUG) console.warn('Search start response', JSON.stringify({ status: st.status, fields: Object.keys(st.json || {}), error: st.json && (st.json.error || st.json.message) }));
-    throw new Error('start failed HTTP ' + st.status + (st.json && (st.json.error || st.json.message) ? ': ' + String(st.json.error || st.json.message).slice(0, 150) : ''));
+  if (data.length) {
+    if (cache.size >= 250) cache.delete(cache.keys().next().value);
+    cache.set(key, { body, expires: Date.now() + 120000 });
   }
-
-  const search_id = String(st.json.search_id);
-  const ru = String(st.json.results_url);
-  const base = new URL(/^https?:/i.test(ru) ? ru : 'https://' + ru).origin;
-  searches.set(search_id, { base, t: Date.now() });
-
-  const tickets = [];
-  const seen = new Map();
-  let agents = {};
-  let flightLegs = [];
-  let last = 0;
-  const t0 = Date.now();
-
-  while (Date.now() - t0 < 14000) {
-    const rb = { search_id, last_update_timestamp: last };
-    const r = await tp(base + '/search/affiliate/results', {
-      method: 'POST',
-      headers: tpHeaders(ip, rb),
-      body: JSON.stringify(rb)
-    }, 10000);
-
-    if (r.ok && r.json) {
-      const j = r.json;
-      if (j.agents && typeof j.agents === 'object') {
-        agents = Object.assign(agents, j.agents);
-      }
-      if (Array.isArray(j.flight_legs) && j.flight_legs.length) {
-        flightLegs = j.flight_legs;
-      }
-      for (const t of (Array.isArray(j.tickets) ? j.tickets : [])) {
-        const key = String(t.id || t.signature || tickets.length);
-        const nt = normTicket(t, flightLegs);
-        if (seen.has(key)) {
-          const old = seen.get(key);
-          const ids = new Map(old.proposals.map(x => [x.id, x]));
-          nt.proposals.forEach(x => ids.set(x.id, x));
-          old.proposals = Array.from(ids.values());
-          if (!old.segs.length) old.segs = nt.segs;
-          if (!old.segments.length) old.segments = nt.segments;
-          continue;
-        }
-        seen.set(key, nt);
-        tickets.push(nt);
-      }
-      if (j.last_update_timestamp) last = j.last_update_timestamp;
-      if (j.is_over || (tickets.length > 0 && Date.now() - t0 > 4500)) break;
-    } else if (r.status >= 400 && r.status !== 304) {
-      throw new Error('results failed ' + r.status);
-    }
-    await sleep(1200);
-  }
-
-  if (DEBUG) console.log('Travelpayouts search complete', JSON.stringify({ tickets: tickets.length, agents: Object.keys(agents).length, legs: flightLegs.length, elapsedMs: Date.now() - t0 }));
-  return { t: Date.now(), search_id, tickets, agents, flight_legs: flightLegs };
-}
-
-function agentName(id, agents) {
-  const a = agents && agents[id];
-  if (a && typeof a === 'object') {
-    return String(
-      a.label || a.name || a.gate_name || a.title || a.short_name || ''
-    ).trim();
-  }
-  return typeof a === 'string' ? a.trim() : '';
-}
-
-async function offers(q, ip) {
-  const origin = (q.get('origin') || '').toUpperCase();
-  const dest = (q.get('destination') || '').toUpperCase();
-  const date = (q.get('date') || '').slice(0, 10);
-  const ret = (q.get('return') || '').slice(0, 10);
-  const cur = (q.get('currency') || 'usd').toLowerCase();
-  const cabin = q.get('cabin') === 'business' ? 'business' : 'economy';
-  const airline = (q.get('airline') || '').toUpperCase();
-  const dep = String(q.get('dep') || '').replace(' ', 'T').slice(0, 16);
-  const adults = Math.min(9, Math.max(1, parseInt(q.get('adults') || '1', 10) || 1));
-  const children = Math.min(8, Math.max(0, parseInt(q.get('children') || '0', 10) || 0));
-  const infants = Math.min(adults, Math.max(0, parseInt(q.get('infants') || '0', 10) || 0));
-  const ymd = /^\d{4}-\d{2}-\d{2}$/;
-
-  if (
-    !/^[A-Z]{3}$/.test(origin) || !/^[A-Z]{3}$/.test(dest) ||
-    origin === dest || !ymd.test(date) || (ret && !ymd.test(ret)) ||
-    (ret && ret < date) || !/^[a-z]{3}$/.test(cur)
-  ) {
-    return { code: 400, body: { error: 'Invalid request.' } };
-  }
-
-  if (!TOKEN || !MARKER) {
-    return { code: 200, body: { live: false, reason: 'not_configured', offers: [] } };
-  }
-
-  const R = await getRates();
-  const toRate = R.r[cur.toUpperCase()];
-  if (!toRate) {
-    return { code: 400, body: { error: 'The selected currency is not supported.' } };
-  }
-
-  const w = { origin, dest, date, ret, cabin, adults, children, infants, currencyCode: 'USD' };
-  const key = [origin, dest, date, ret, cabin, adults, children, infants].join('|');
-  let c = offerCache.get(key);
-
-  if (!c || Date.now() - c.t > 480000) {
-    try {
-      let pr = inflight.get(key);
-      if (!pr) {
-        pr = runSearch(w, ip).finally(() => inflight.delete(key));
-        inflight.set(key, pr);
-      }
-      c = await pr;
-      offerCache.set(key, c);
-    } catch (e) {
-      if (DEBUG) console.log('offers error', e.message);
-      return { code: 200, body: { live: false, reason: 'unavailable', offers: [] } };
-    }
-  }
-
-  const matched = [];
-  for (const tk of (c.tickets || [])) {
-    const firstLeg = tk.segs && tk.segs[0] && tk.segs[0][0];
-    if (airline && firstLeg && firstLeg.carrier && firstLeg.carrier !== airline) continue;
-    if (dep && firstLeg && firstLeg.dep && firstLeg.dep !== dep) continue;
-
-    for (const p of (tk.proposals || [])) {
-      const converted = Math.round(convertPrice(p.price, 'USD', cur, R));
-      if (converted > 0) {
-        matched.push({
-          agent: agentName(p.agent_id, c.agents) || 'Travel Partner',
-          price: converted,
-          search_id: c.search_id,
-          id: p.id
-        });
-      }
-    }
-  }
-
-  matched.sort((a, b) => a.price - b.price);
-  return {
-    code: 200,
-    body: {
-      live: matched.length > 0,
-      currency: cur,
-      offers: matched.slice(0, 15)
-    }
-  };
-}
-
-async function goAgency(req, res, url) {
-  const sid = (url.searchParams.get('s') || '').replace(/[^A-Za-z0-9_-]/g, '');
-  const pid = (url.searchParams.get('p') || '').replace(/[^A-Za-z0-9_.:-]/g, '');
-  const ag = (url.searchParams.get('ag') || '').slice(0, 80);
-  const src = (url.searchParams.get('src') || url.searchParams.get('ref') || 'site1')
-    .replace(/[^A-Za-z0-9._-]/g, '')
-    .slice(0, 40);
-  const meta = searches.get(sid);
-  const fail = msg => {
-    res.writeHead(410, { 'Content-Type': 'text/plain; charset=utf-8' });
-    res.end(msg || 'This booking link has expired. Please search again.');
-  };
-
-  if (!sid || !pid || !meta || !TOKEN || !MARKER) return fail();
-
-  try {
-    const r = await tp(
-      meta.base + '/searches/' + sid + '/clicks/' + pid,
-      { headers: tpHeaders(clientIp(req)) },
-      10000
-    );
-    const j = r.json || {};
-    const raw = j.url || j.click_url || j.redirect_url || '';
-    const target = new URL(raw);
-    if (!r.ok || target.protocol !== 'https:' || target.username || target.password) {
-      return fail();
-    }
-    clicks++;
-    console.log(JSON.stringify({
-      click: clicks,
-      at: new Date().toISOString(),
-      src,
-      agent: ag,
-      host: target.hostname
-    }));
-    res.writeHead(302, { Location: target.toString(), 'Cache-Control': 'no-store' });
-    return res.end();
-  } catch (e) {
-    return fail();
-  }
+  return { code: 200, body };
 }
 
 function bookingRedirect(req, res, url) {
@@ -791,9 +240,6 @@ function bookingRedirect(req, res, url) {
       target = new URL(raw, 'https://www.aviasales.com');
       if (target.hostname !== 'www.aviasales.com') {
         throw new Error('Invalid host');
-      }
-      if (MARKER && !target.searchParams.has('marker')) {
-        target.searchParams.set('marker', MARKER);
       }
     } else {
       target = new URL(raw);
@@ -878,7 +324,10 @@ http.createServer(async (req, res) => {
     return json(res, 200, {
       ok: true,
       tokenSet: !!TOKEN,
-      liveOffers: !!(TOKEN && MARKER)
+      markerSet: Boolean(MARKER),
+      liveOffers: false,
+      mode: 'data',
+      release: RELEASE
     });
   }
 
@@ -895,7 +344,7 @@ http.createServer(async (req, res) => {
     if (limited(ip + '|cal')) {
       return json(res, 429, { error: 'Too many requests. Please wait a minute.' });
     }
-    const r = await calendar(u.searchParams);
+    const r = await priceSearch(u.searchParams, true);
     return json(res, r.code, r.body);
   }
 
@@ -903,25 +352,19 @@ http.createServer(async (req, res) => {
     if (limited(ip)) {
       return json(res, 429, { error: 'Too many requests. Please wait a minute.' });
     }
-    try {
-      const r = await flights(u.searchParams, ip);
-      return json(res, r.code, r.body);
-    } catch (e) {
-      console.error('Flight endpoint failed:', e.message);
-      return json(res, 502, { error: 'Flight provider request failed. Please try again.', data: [] });
-    }
+    const r = await priceSearch(u.searchParams);
+    return json(res, r.code, r.body);
   }
 
   if (u.pathname === '/api/offers') {
     if (limited(ip + '|off')) {
       return json(res, 429, { error: 'Too many requests. Please wait a minute.' });
     }
-    const r = await offers(u.searchParams, ip);
-    return json(res, r.code, r.body);
+    return json(res, 200, { live: false, reason: 'data_api_only', offers: [] });
   }
 
   if (u.pathname === '/go') {
-    return goAgency(req, res, u);
+    return json(res, 410, { error: 'Live booking link unavailable. Search again for an Aviasales link.' });
   }
 
   if (u.pathname === '/out') {
@@ -951,6 +394,6 @@ http.createServer(async (req, res) => {
     });
     res.end(d);
   });
-}).listen(PORT, () => {
+}).listen(PORT, '0.0.0.0', () => {
   console.log('Tourflight running on port ' + PORT);
 });
