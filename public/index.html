@@ -285,14 +285,22 @@ html[dir="rtl"] .addots{right:auto;left:12px}
   .ad-side:empty{visibility:hidden}.ad-side .adtag{color:#fff}
 }
 .cal-step{margin:0 0 8px;font-weight:700;color:var(--ink)}
-#welcome{width:min(420px,calc(100% - 32px));max-height:calc(100% - 32px);overflow:auto;border:1px solid var(--line);border-radius:16px;padding:20px;background:var(--card);color:var(--ink)}
-#welcome::backdrop{background:#0a162c99}#welcome h2{margin-top:0}
+#welcome{width:min(720px,calc(100% - 24px));max-height:calc(100% - 32px);overflow:auto;border:1px solid var(--line);border-radius:16px;padding:20px;background:var(--card);color:var(--ink)}
+#welcome::backdrop{background:#0a162c99}#welcome h2{margin:0 32px 8px 0}
+#welcome .popup-close{position:absolute;inset-inline-end:12px;top:12px;border:1px solid var(--line);border-radius:50%;background:var(--field);color:var(--ink);width:34px;height:34px;font-size:22px;cursor:pointer}
+#welcome-ad:empty{display:none}#welcome-ad{background:var(--field);color:var(--ink);border-color:var(--line);margin-bottom:16px}
+#welcome-ad .adin{display:grid;gap:12px}#welcome-ad .adimg{width:100%;height:auto;max-height:50vh;object-fit:contain}#welcome-ad .adtag{color:#fff}#welcome-ad .adcta{justify-self:start}
+@media(max-width:640px){#welcome{padding:16px}#welcome-ad .adcta{white-space:normal}}
 @media(max-width:640px){
   .ad-layout{margin-top:-40px}.ad-layout .page{align-items:stretch}
   .cal.on,.cal.r.on{position:fixed;inset:auto 12px 12px;width:auto;max-width:420px;margin:0 auto;max-height:calc(100dvh - 24px);overflow:auto;z-index:60}
   .adtx{min-width:min(180px,100%)}
 }
-#direction-filter{margin-top:10px}#direction-help{margin:4px 0 0}#direction-stops[aria-pressed=true]{background:var(--blue);color:#fff;border-color:var(--blue)}
+#direction-filter{margin-top:10px}#direction-help{margin:4px 0 0}#direction-stops{display:flex;align-items:center;gap:8px;min-height:42px;text-align:start}
+.direction-track{display:inline-flex;align-items:center;flex:none;width:36px;height:20px;padding:2px;border-radius:20px;background:var(--muted)}
+.direction-track::before{content:'';width:16px;height:16px;border-radius:50%;background:#fff}
+#direction-stops[aria-checked=true] .direction-track{background:var(--blue);justify-content:flex-end}
+#direction-stops:focus-visible{outline:2px solid var(--link);outline-offset:2px}
 </style>
 </head><body>
 <header><div class="w hr"><img src="/logo.png" alt="Tourflight" onerror="this.style.display='none'"><div><h1 data-i18n="h1">Explore · Compare · Fly</h1><div data-i18n="sub">Find the lowest fares from recent traveller searches.</div></div><div class="hctrl"><div class="langdd" id="langdd"><button type="button" class="langbtn" id="langbtn" aria-haspopup="listbox" aria-expanded="false" aria-label="Select language"><span id="langcur">🌐 English</span><span aria-hidden="true">▾</span></button><div class="langmenu" id="langmenu" role="listbox" aria-label="Languages"><button type="button" class="langopt" role="option" data-lang="en" aria-selected="true"><span>English</span><span>EN</span></button><button type="button" class="langopt" role="option" data-lang="ar" aria-selected="false"><span>العربية</span><span>AR</span></button><button type="button" class="langopt" role="option" data-lang="es" aria-selected="false"><span>Español</span><span>ES</span></button><button type="button" class="langopt" role="option" data-lang="hi" aria-selected="false"><span>हिन्दी</span><span>HI</span></button></div></div><button type="button" class="thm" id="tg" role="switch" aria-checked="false" aria-label="Switch theme"><span class="tk"><i class="st"></i><b class="tx"></b><span class="kn"></span></span></button></div></div><div class="w"><div class="ad" id="ad" aria-label="Advertisement"></div></div></header>
@@ -300,7 +308,7 @@ html[dir="rtl"] .addots{right:auto;left:12px}
 <div class="page" id="lay"><aside id="fl"><details id="fd" open><summary><span>☰ <span data-i18n="filters">Filters &amp; sort</span><span class="fcnt" id="fcnt"></span></span><span class="chev">▾</span></summary><div class="fbody">
 <div class="fg"><b data-i18n="stops">Stops</b><label class="ck"><input type="radio" name="sf" value="any" checked> <span data-i18n="all_stops">Any number of stops</span></label><label class="ck"><input type="radio" name="sf" value="0"> <span data-i18n="stops_0">Direct only</span></label><label class="ck"><input type="radio" name="sf" value="1"> <span data-i18n="stops_1">1 stop only</span></label>
 <label class="ck"><input type="radio" name="sf" value="2plus"> <span data-i18n="stops_2plus">2+ stops</span></label>
-<div id="direction-filter"><button type="button" class="sm" id="direction-stops" aria-pressed="false" aria-describedby="direction-help" data-i18n="direction_stops">One airline per direction</button>
+<div id="direction-filter"><button type="button" class="sm" id="direction-stops" role="switch" aria-checked="false" aria-describedby="direction-help"><span class="direction-track" aria-hidden="true"></span><span data-i18n="direction_stops">One airline per direction</span></button>
 <p class="s" id="direction-help" data-i18n="direction_help">All flights in each direction must use one airline. The return may use a different airline. Connecting trips require airline details for every flight.</p></div></div>
 <div class="fg"><b data-i18n="dep_time">Departure time</b><div class="tfg"><label class="tf" data-title-key="tf_0_title" title="Night: 12 AM – 6 AM"><input type="checkbox" name="tf" value="0" checked data-aria-key="tf_0_aria" aria-label="Night, 12 AM – 6 AM"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M21.5 5A11.5 11.5 0 1 0 27 22.5 9 9 0 0 1 21.5 5z" fill="#7a86e0"/><circle cx="25" cy="8.5" r="1.4" fill="#f2b705"/><circle cx="28.5" cy="14" r="1" fill="#f2b705"/></svg><span data-i18n="tf_0">12 AM – 6 AM</span></label><label class="tf" data-title-key="tf_1_title" title="Morning: 6 AM – 12 PM"><input type="checkbox" name="tf" value="1" checked data-aria-key="tf_1_aria" aria-label="Morning, 6 AM – 12 PM"><svg viewBox="0 0 32 32" aria-hidden="true"><g stroke="#ffb020" stroke-width="2" stroke-linecap="round"><path d="M16 7v3M7.5 11.5l2 2M24.5 11.5l-2 2M3.5 20h3M25.5 20h3"/></g><path d="M9 21a7 7 0 0 1 14 0z" fill="#ffb020"/><path d="M5 21h22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M16 29v-5M13.5 26.5L16 24l2.5 2.5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span data-i18n="tf_1">6 AM – 12 PM</span></label><label class="tf" data-title-key="tf_2_title" title="Afternoon: 12 PM – 6 PM"><input type="checkbox" name="tf" value="2" checked data-aria-key="tf_2_aria" aria-label="Afternoon, 12 PM – 6 PM"><svg viewBox="0 0 32 32" aria-hidden="true"><g stroke="#ffb020" stroke-width="2.2" stroke-linecap="round"><path d="M16 3v4M16 25v4M3 16h4M25 16h4M6.8 6.8l2.8 2.8M22.4 22.4l2.8 2.8M25.2 6.8l-2.8 2.8M9.6 22.4l-2.8 2.8"/></g><circle cx="16" cy="16" r="6" fill="#ffb020"/></svg><span data-i18n="tf_2">12 PM – 6 PM</span></label><label class="tf" data-title-key="tf_3_title" title="Evening: 6 PM – 12 AM"><input type="checkbox" name="tf" value="3" checked data-aria-key="tf_3_aria" aria-label="Evening, 6 PM – 12 AM"><svg viewBox="0 0 32 32" aria-hidden="true"><g stroke="#ff6a3d" stroke-width="2" stroke-linecap="round"><path d="M16 7v3M7.5 11.5l2 2M24.5 11.5l-2 2M3.5 20h3M25.5 20h3"/></g><path d="M9 21a7 7 0 0 1 14 0z" fill="#ff6a3d"/><path d="M5 21h22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M16 24v5M13.5 26.5L16 29l2.5-2.5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span data-i18n="tf_3">6 PM – 12 AM</span></label></div><div class="s" style="margin-top:4px" data-i18n="tf_hint">Tap an icon to include or leave out that time.</div></div>
 <div class="fg"><b data-i18n="airlines">Airlines</b><button type="button" class="sm" onclick="selAll(true)" data-i18n="all">All</button><button type="button" class="sm" onclick="selAll(false)" data-i18n="none">None</button><div id="al"><div class="s" data-i18n="al_empty">Search to see airlines</div></div></div>
@@ -321,7 +329,8 @@ html[dir="rtl"] .addots{right:auto;left:12px}
 <dialog id="welcome" aria-labelledby="welcome-title">
   <h2 id="welcome-title" data-i18n="welcome_title">Welcome to Tourflight</h2>
   <p data-i18n="welcome_copy">Search recent flight prices and continue to a provider to book.</p>
-  <form method="dialog"><button class="go" data-i18n="welcome_close">Continue to search</button></form>
+  <div class="ad" id="welcome-ad" aria-label="Advertisement"></div>
+  <form method="dialog"><button class="popup-close" aria-label="Close" autofocus>×</button><button class="go" data-i18n="welcome_close">Continue to search</button></form>
 </dialog>
 <script src="/ads/placements.js"></script>
 <script src="/affiliate-links.js"></script>
@@ -405,6 +414,7 @@ en:{
   airline_fb:'Airline',flight_fb:'Flight',tap_offers:'Tap for agency offers',best_price:'Best price found · {ag}',view_offers:'View offers',
   pick_depart:'Choose departure date',pick_return:'Choose return date',expand_month:'Search this whole month',welcome_title:'Welcome to Tourflight',welcome_copy:'Search recent flight prices and continue to a provider to book.',welcome_close:'Continue to search',all_stops:'Any number of stops',
   stops_2plus:'2+ stops',direction_stops:'One airline per direction',direction_help:'All flights in each direction must use one airline. The return may use a different airline. Connecting trips require airline details for every flight.',stop_many:'{n} stops',stop_unknown:'Stops unknown',return_airline_unknown:'Return airline unavailable',check_us_bangla:'Check US-Bangla Airlines',
+  search_timeout:'Flight search took too long. Try again or check prices on Aviasales.',
   live_search:'Check live prices on Aviasales',price_estimate:'Recent price estimate. Confirm the fare and availability on the provider’s site.',no_filter_matches:'No flights match your selected filters.',
   cmp_title:'Compare this trip on other sites',cmp_sub:'Opens their own search. Prices there may differ.',
   layover_lbl:'Layover',layover_prefix:'Layover: ',layover_fb:'1 stop. The layover airport and waiting time are shown on the booking site.',
@@ -483,6 +493,7 @@ ar:{
   airline_fb:'شركة طيران',flight_fb:'رحلة',tap_offers:'اضغط لعروض الوكالات',best_price:'أفضل سعر · {ag}',view_offers:'عرض العروض',
   pick_depart:'اختر تاريخ الذهاب',pick_return:'اختر تاريخ العودة',expand_month:'ابحث في هذا الشهر بالكامل',welcome_title:'مرحباً بك في Tourflight',welcome_copy:'ابحث عن أسعار الرحلات الحديثة ثم تابع الحجز لدى المزوّد.',welcome_close:'متابعة البحث',all_stops:'أي عدد من التوقفات',
   stops_2plus:'توقفان أو أكثر',direction_stops:'شركة طيران واحدة لكل اتجاه',direction_help:'يجب أن تكون كل الرحلات في الاتجاه الواحد على شركة واحدة. يمكن أن تختلف شركة العودة. تتطلب الرحلات المتصلة بيانات الشركة لكل رحلة.',stop_many:'{n} توقفات',stop_unknown:'عدد التوقفات غير معروف',return_airline_unknown:'شركة طيران العودة غير متوفرة',check_us_bangla:'تحقق من رحلات US-Bangla',
+  search_timeout:'استغرق البحث وقتًا طويلًا. أعد المحاولة أو تحقق من الأسعار على Aviasales.',
   live_search:'تحقق من الأسعار الحالية على Aviasales',price_estimate:'سعر تقديري حديث. تحقق من السعر والتوفر على موقع المزوّد.',no_filter_matches:'لا توجد رحلات مطابقة للفلاتر المحددة.',
   cmp_title:'قارن هذه الرحلة على مواقع أخرى',cmp_sub:'يفتح بحثها الخاص. قد تختلف الأسعار هناك.',
   layover_lbl:'توقف',layover_prefix:'توقف: ',layover_fb:'توقف واحد. يظهر مطار التوقف ومدة الانتظار على موقع الحجز.',
@@ -561,6 +572,7 @@ es:{
   airline_fb:'Aerolínea',flight_fb:'Vuelo',tap_offers:'Toca para ver ofertas de agencias',best_price:'Mejor precio · {ag}',view_offers:'Ver ofertas',
   pick_depart:'Elige la fecha de ida',pick_return:'Elige la fecha de vuelta',expand_month:'Buscar en todo el mes',welcome_title:'Te damos la bienvenida a Tourflight',welcome_copy:'Busca precios recientes y continúa con el proveedor para reservar.',welcome_close:'Continuar a la búsqueda',all_stops:'Cualquier número de escalas',
   stops_2plus:'2 o más escalas',direction_stops:'Una aerolínea por trayecto',direction_help:'Todos los vuelos de cada trayecto deben ser de una sola aerolínea. La de vuelta puede ser distinta. Los viajes con conexión requieren los datos de cada vuelo.',stop_many:'{n} escalas',stop_unknown:'Escalas desconocidas',return_airline_unknown:'Aerolínea de vuelta no disponible',check_us_bangla:'Consultar US-Bangla Airlines',
+  search_timeout:'La búsqueda tardó demasiado. Inténtalo de nuevo o consulta los precios en Aviasales.',
   live_search:'Consulta precios en tiempo real en Aviasales',price_estimate:'Precio reciente estimado. Confirma la tarifa y la disponibilidad en el sitio del proveedor.',no_filter_matches:'Ningún vuelo coincide con los filtros seleccionados.',
   cmp_title:'Compara este viaje en otros sitios',cmp_sub:'Abre su propia búsqueda. Los precios allí pueden variar.',
   layover_lbl:'Escala',layover_prefix:'Escala: ',layover_fb:'1 escala. El aeropuerto de escala y el tiempo de espera se muestran en el sitio de reserva.',
@@ -639,6 +651,7 @@ hi:{
   airline_fb:'एयरलाइन',flight_fb:'उड़ान',tap_offers:'एजेंसी ऑफ़र के लिए टैप करें',best_price:'सबसे अच्छी कीमत · {ag}',view_offers:'ऑफ़र देखें',
   pick_depart:'प्रस्थान की तारीख चुनें',pick_return:'वापसी की तारीख चुनें',expand_month:'इस पूरे महीने में खोजें',welcome_title:'Tourflight में आपका स्वागत है',welcome_copy:'हाल की कीमतें देखें और बुकिंग के लिए प्रदाता की साइट पर जाएँ।',welcome_close:'खोज जारी रखें',all_stops:'किसी भी संख्या में स्टॉप',
   stops_2plus:'2 या अधिक स्टॉप',direction_stops:'हर दिशा में एक एयरलाइन',direction_help:'हर दिशा की सभी उड़ानें एक ही एयरलाइन की हों। वापसी में दूसरी एयरलाइन हो सकती है। कनेक्शन वाली यात्रा में हर उड़ान की एयरलाइन की जानकारी चाहिए।',stop_many:'{n} स्टॉप',stop_unknown:'स्टॉप की जानकारी नहीं',return_airline_unknown:'वापसी की एयरलाइन उपलब्ध नहीं',check_us_bangla:'US-Bangla Airlines देखें',
+  search_timeout:'खोज में बहुत समय लगा। फिर कोशिश करें या Aviasales पर कीमतें देखें।',
   live_search:'Aviasales पर लाइव कीमतें देखें',price_estimate:'हाल का अनुमानित किराया। प्रदाता की साइट पर कीमत और उपलब्धता की पुष्टि करें।',no_filter_matches:'चुने गए फ़िल्टर से कोई उड़ान मेल नहीं खाती।',
   cmp_title:'अन्य साइटों पर इस यात्रा की तुलना करें',cmp_sub:'उनकी अपनी खोज खुलती है। वहां कीमतें अलग हो सकती हैं।',
   layover_lbl:'ठहराव',layover_prefix:'ठहराव: ',layover_fb:'1 स्टॉप। ठहराव हवाई अड्डा और प्रतीक्षा समय बुकिंग साइट पर दिखता है।',
@@ -716,7 +729,7 @@ if(!r.length){box.classList.remove('on');return}
 box.innerHTML=r.map(function(c){var a=AP[c];return '<div class="si" role="option" data-c="'+c+'"><div><b>'+esc(a.n)+'</b>, '+esc(a.c)+'<small>'+esc(a.a||'')+'</small></div><span class="cd">'+c+'</span></div>'}).join('');box.classList.add('on');box.dataset.i='-1'}
 function pick(inp,c){var a=AP[c];inp.value=a.n+', '+a.c+' ('+c+')';inp.parentNode.querySelector('.sug').classList.remove('on');inp.dispatchEvent(new Event('change',{bubbles:true}))}
 function swapLeg(i){var a=$('f'+i),b=$('t'+i);if(!a||!b)return;var tmp=a.value;a.value=b.value;b.value=tmp;a.dispatchEvent(new Event('change',{bubbles:true}));b.dispatchEvent(new Event('change',{bubbles:true}))}
-var searchVersion=0,cnt={},mn={},type='round',nleg=2,data=[],today=new Date().toISOString().slice(0,10),offerPage=null,visibleGroups={};
+var searchController=null,searchVersion=0,cnt={},mn={},type='round',nleg=2,data=[],today=new Date().toISOString().slice(0,10),offerPage=null,visibleGroups={};
 (function(){try{var z=Intl.DateTimeFormat().resolvedOptions().timeZone,m={'Asia/Dhaka':'bdt','Asia/Kolkata':'inr','Asia/Calcutta':'inr','Asia/Dubai':'aed','Asia/Riyadh':'sar','Asia/Qatar':'qar','Asia/Kuwait':'kwd','Asia/Bahrain':'bhd','Asia/Muscat':'omr','Asia/Karachi':'pkr','Asia/Colombo':'lkr','Asia/Kathmandu':'npr','Asia/Kuala_Lumpur':'myr','Asia/Singapore':'sgd','Asia/Bangkok':'thb','Asia/Jakarta':'idr','Asia/Manila':'php','Asia/Ho_Chi_Minh':'vnd','Asia/Tokyo':'jpy','Asia/Shanghai':'cny','Asia/Seoul':'krw','Asia/Hong_Kong':'hkd','Australia/Sydney':'aud','Australia/Melbourne':'aud','America/Toronto':'cad','America/Vancouver':'cad','Pacific/Auckland':'nzd','Europe/Zurich':'chf','Europe/Istanbul':'try','Africa/Cairo':'egp','Africa/Johannesburg':'zar','Africa/Lagos':'ngn','Europe/Moscow':'rub','America/Sao_Paulo':'brl','America/Mexico_City':'mxn','Europe/London':'gbp','Europe/Berlin':'eur','Europe/Paris':'eur','Europe/Rome':'eur','Europe/Madrid':'eur','Europe/Amsterdam':'eur','America/New_York':'usd','America/Chicago':'usd','America/Los_Angeles':'usd'},locMap={'ae':'aed','bd':'bdt','in':'inr','sa':'sar','qa':'qar','kw':'kwd','bh':'bhd','om':'omr','pk':'pkr','lk':'lkr','np':'npr','my':'myr','sg':'sgd','th':'thb','id':'idr','ph':'php','vn':'vnd','jp':'jpy','cn':'cny','kr':'krw','hk':'hkd','au':'aud','ca':'cad','nz':'nzd','ch':'chf','tr':'try','eg':'egp','za':'zar','ng':'ngn','ru':'rub','br':'brl','mx':'mxn','gb':'gbp','de':'eur','fr':'eur','it':'eur','es':'eur','nl':'eur','us':'usd'},l=(navigator.language||'').toLowerCase(),reg=l.indexOf('-')>=0?l.split('-')[1]:'';$('cy').value=m[z]||locMap[reg]||(l.indexOf('bn')===0?'bdt':'usd')}catch(e){}})();
 function row(i,ret){return '<div class="rtrow"><div><label for="f'+i+'">'+esc(t('from_lbl'))+'</label><div class="acw"><input id="f'+i+'" data-ac="1" autocomplete="off" autocapitalize="words" spellcheck="false" placeholder="'+esc(t('from_ph'))+'"><div class="sug" role="listbox"></div></div></div><button type="button" class="swpbtn" onclick="swapLeg('+i+')" aria-label="'+esc(t('swap_aria'))+'" title="'+esc(t('swap_aria'))+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h11l-3-3M17 17H6l3 3"/></svg></button><div><label for="t'+i+'">'+esc(t('to_lbl'))+'</label><div class="acw"><input id="t'+i+'" data-ac="1" autocomplete="off" autocapitalize="words" spellcheck="false" placeholder="'+esc(t('to_ph'))+'"><div class="sug" role="listbox"></div></div></div></div><div class="g2">'+dField('d'+i,t('dep_date'))+(ret?dField('rt',t('ret_date')):'')+'</div>'}
 var pax={a:1,c:0,i:0};
@@ -727,6 +740,8 @@ $('pxs').textContent=parts.join(', ');if(data.length)draw()}
 document.addEventListener('click',function(e){if(!$('pxd').contains(e.target))$('pxd').open=false});
 function clearSearch(){
   searchVersion++;
+  if(searchController)searchController.abort();
+  searchController=null;
   closeOffers();
   data=[];visibleGroups={};strips={};cnt={};mn={};
   $('lay').classList.remove('has','nofl');
@@ -745,8 +760,8 @@ function setType(mode,keepCalOpen){
   var wasOpen=!!(keepCalOpen&&cal.box&&cal.box.classList.contains('on')&&cal.inp);
   var openFor=wasOpen?cal.inp.dataset.for:null;
   type=mode;
-  $('direction-filter').hidden=mode!=='round';
-  if(mode!=='round')$('direction-stops').setAttribute('aria-pressed','false');
+  $('direction-filter').hidden=mode==='multi';
+  if(mode==='multi')$('direction-stops').setAttribute('aria-checked','false');
   document.querySelectorAll('#tabs .t').forEach(function(b){
     b.setAttribute('aria-pressed',b.dataset.t===mode?'true':'false');
   });
@@ -922,20 +937,34 @@ if(!q.d||(type==='round'&&!q.r)){show('<div class="m">'+esc(t('err_dates'))+'</d
 if(q.r&&q.r<q.d){show('<div class="m">'+esc(t('err_ret_before'))+'</div>');return}
 if(type==='multi'&&k>0&&q.d<reqs[k-1].d0){show('<div class="m">'+esc(t('err_leg_order'))+'</div>');return}
 q.d0=q.d;q.r0=q.r;q.mo=mo;q.cabin=cabin;q.pax=passengers;if(mo){q.d=q.d.slice(0,7);q.r=q.r?q.r.slice(0,7):''}}
-var selectedCurrency=$('cy').value;show('<div class="m">'+esc(t('searching'))+'</div>');$('lay').classList.add('nofl');
-Promise.all(reqs.map(function(q){
+var selectedCurrency=$('cy').value;
+var controller=new AbortController();
+searchController=controller;
+var deadline=setTimeout(function(){controller.abort()},20000);
+show('<div class="m" role="status">'+esc(t('searching'))+'</div>');$('lay').classList.add('nofl');
+return Promise.all(reqs.map(function(q){
   var p=new URLSearchParams({origin:q.f,destination:q.t,date:q.d,depart_date:q.d,currency:selectedCurrency,cabin:q.cabin,adults:q.pax.a,children:q.pax.c,infants:q.pax.i});
   if(q.r)p.set('return',q.r);
-  return fetch(apiUrl('/api/flights?'+p)).then(readJsonSafe).then(function(j){
+  return fetch(apiUrl('/api/flights?'+p),{signal:controller.signal}).then(readJsonSafe).then(function(j){
+    if(controller.signal.aborted)return {error:t('search_timeout'),data:[]};
     var rawList=Array.isArray(j.data)?j.data:(Array.isArray(j.flights)?j.flights:[]);
-    return Object.assign({},j,{data:rawList.map(function(item){return normFlightItem(item,q,j.currency||selectedCurrency)})});
-  }).catch(function(){return{error:t('err_net'),data:[]}});
+    return Object.assign({},j,{data:rawList.filter(Boolean).map(function(item){return normFlightItem(item,q,j.currency||selectedCurrency)})});
+  }).catch(function(){return{error:t(controller.signal.aborted?'search_timeout':'err_net'),data:[]}});
 }))
 .then(function(js){if(version!==searchVersion)return;strips={};offerPage=null;data=js.map(function(j,i){return{q:reqs[i],j:j}});var al={};
 cnt={};mn={};data.forEach(function(x){(x.j.data||[]).forEach(function(f){if(f.airline){al[f.airline]=f.airline_name||f.airline;cnt[f.airline]=(cnt[f.airline]||0)+1;mn[f.airline]=Math.min(mn[f.airline]||1e18,f.price)}})});
 var cs=null;data.forEach(function(x){if(!cs&&x.j&&x.j.currency)cs=x.j.currency});var sy=symOf(cs||'usd');
 $('al').innerHTML=Object.keys(al).sort(function(a,b){return mn[a]-mn[b]}).map(function(c){return '<div class="ar"><label class="ck"><input type="checkbox" value="'+esc(c)+'" checked>'+logo(c)+'<span class="an">'+esc(al[c])+'</span></label><span class="ap">'+sy+fmtN(mn[c])+'</span><button type="button" class="only" data-c="'+esc(c)+'">'+esc(t('only'))+'</button></div>'}).join('')||'<div class="s">'+esc(t('no_airlines'))+'</div>';
-$('lay').classList.add('has');$('lay').classList.remove('nofl');draw()})}
+$('lay').classList.add('has');$('lay').classList.remove('nofl');draw()
+}).catch(function(error){
+  if(version!==searchVersion)return;
+  console.error('Flight search could not display results',error);
+  $('lay').classList.remove('nofl');
+  show(reqs.map(function(q){return '<div class="m" role="alert">'+esc(t('err_net'))+'</div>'+providerSearchLink(q)}).join(''));
+}).finally(function(){
+  clearTimeout(deadline);
+  if(searchController===controller)searchController=null;
+})}
   function cmp(q){var f=q.f,t2=q.t,d=q.d0||q.d,r=q.r0||q.r||'',party=q.pax,cabin=q.cabin;
 var y=function(x){return x.slice(2,4)+x.slice(5,7)+x.slice(8,10)},tail=(r?'/'+r:'')+(cabin==='business'?'/business':'')+(party.a>1?'/'+party.a+'adults':'');
 return [['Google Flights','https://www.google.com/travel/flights?q='+encodeURIComponent('Flights from '+f+' to '+t2+' on '+d+(r?' through '+r:'')+(cabin==='business'?' business class':'')+' for '+party.a+' adults, '+party.c+' children and '+party.i+' infants')],
@@ -967,9 +996,8 @@ function singleAirlineForDirection(segments, stops){
 }
 function matchesStops(f, selected, oneAirlinePerDirection){
   var outbound=f.transfers, returned=f.return_transfers;
-  if(oneAirlinePerDirection&&(!f.return_at||
-    !singleAirlineForDirection(f.outbound_segments,outbound)||
-    !singleAirlineForDirection(f.return_segments,returned)))return false;
+  if(oneAirlinePerDirection&&(!singleAirlineForDirection(f.outbound_segments,outbound)||
+    (f.return_at&&!singleAirlineForDirection(f.return_segments,returned))))return false;
   if(selected==='any')return true;
   if(!Number.isInteger(outbound)||(f.return_at&&!Number.isInteger(returned)))return false;
   var max=f.return_at?Math.max(outbound,returned):outbound;
@@ -1065,7 +1093,7 @@ function providerSearchLink(q){
     '" target="_blank" rel="noopener noreferrer sponsored">'+esc(t('live_search'))+'</a></div>';
 }
 function draw(){
-var oneAirlinePerDirection=$('direction-stops').getAttribute('aria-pressed')==='true';
+var oneAirlinePerDirection=$('direction-stops').getAttribute('aria-checked')==='true';
 var fc=(oneAirlinePerDirection?1:0)+(document.querySelector('input[name=sf]:checked').value!=='any'?1:0)+(document.querySelectorAll('#al input:not(:checked)').length?1:0)+($('so').value!=='price'?1:0)+(document.querySelectorAll('input[name=tf]:not(:checked)').length?1:0);$('fcnt').textContent=fc?t('active_cnt',{n:fc}):'';
 var sf=document.querySelector('input[name=sf]:checked').value,so=$('so').value,h='',af=[].slice.call(document.querySelectorAll('#al input:checked')).map(function(i){return i.value}),tf=[].slice.call(document.querySelectorAll('input[name=tf]:checked')).map(function(i){return +i.value});
 visibleGroups={};
@@ -1076,7 +1104,7 @@ var sym=symOf(j.currency||$('cy').value);
 if(q.cabin==='business')h+='<div class="m" style="margin-bottom:10px">'+esc(t('biz_note'))+'</div>';
 if(j.requested&&j.currency&&j.currency.toLowerCase()!==j.requested.toLowerCase())h+='<div class="m" style="margin-bottom:10px">'+esc(t('cur_note'))+'</div>';
 var hasAirlineOptions=document.querySelectorAll('#al input').length>0;
-var list=(j.data||[]).filter(function(f){returnmatchesStops(f,sf,oneAirlinePerDirection)&&(!hasAirlineOptions||af.indexOf(String(f.airline||'').toUpperCase())>=0)&&tfOk(f,tf)});
+var list=(j.data||[]).filter(function(f){return matchesStops(f,sf,oneAirlinePerDirection)&&(!hasAirlineOptions||af.indexOf(String(f.airline||'').toUpperCase())>=0)&&tfOk(f,tf)});
 list=list.filter(function(f){
   var departure=String(f.departure_at||'');
   var returned=String(f.return_at||'');
@@ -1109,8 +1137,8 @@ show(h);data.forEach(function(x,xi){fillStrip(xi);fillStrip(xi,true)})}
 $('res').addEventListener('click',function(e){if(e.target.closest&&e.target.closest('[data-expand-month]')){$('mo').checked=true;search();return}if(e.target.closest&&e.target.closest('a'))return;var b=e.target.closest&&e.target.closest('[data-open-offers]');if(b)openOffers(b.dataset.openOffers,b)});
 $('res').addEventListener('keydown',function(e){if((e.key==='Enter'||e.key===' ')&&e.target.classList&&e.target.classList.contains('fcard')){e.preventDefault();openOffers(e.target.dataset.openOffers,e.target)}});
 $('direction-stops').addEventListener('click',function(){
-  var active=this.getAttribute('aria-pressed')!=='true';
-  this.setAttribute('aria-pressed',String(active));
+  var active=this.getAttribute('aria-checked')!=='true';
+  this.setAttribute('aria-checked',String(active));
   if(data.length)draw();
 });
 $('fl').addEventListener('change',function(){
@@ -1161,6 +1189,9 @@ var placements=window.TF_ADS||{};
 adInit('ad',placements.top||[]);
 adInit('ad-left',placements.left||[]);
 adInit('ad-right',placements.right||[]);
+adInit('welcome-ad',placements.popup?.ads||[]);
+if(placements.popup?.title){$('welcome-title').removeAttribute('data-i18n');$('welcome-title').textContent=placements.popup.title}
+if(placements.popup?.text){var welcomeCopy=$('welcome').querySelector('p');welcomeCopy.removeAttribute('data-i18n');welcomeCopy.textContent=placements.popup.text}
 (function(){var saved='en';try{var l=localStorage.getItem('tf-lang')||'';if(I18N[l])saved=l}catch(e){}applyLang(saved)})();
 </script><script>
 (function(){var r=document.documentElement,b=document.getElementById('tg'),manualPeriod=null;
@@ -1185,7 +1216,7 @@ window.addEventListener('pageshow',function(){manualPeriod=null;refresh()});
 })();
 (function(){
   var welcome=document.getElementById('welcome');
-  if(typeof welcome.showModal!=='function')return;
+  if(!placements.popup?.enabled||typeof welcome.showModal!=='function')return;
   try{
     if(sessionStorage.getItem('tf-welcome-seen'))return;
     sessionStorage.setItem('tf-welcome-seen','1');
