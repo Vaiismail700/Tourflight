@@ -20,7 +20,8 @@
   window.tfConsent = {
     get: function () { return { necessary: true, analytics: state.analytics, ads: state.ads }; },
     on: function (cat, fn) { if (state[cat]) fn(); else waiting.push([cat, fn]); },
-    open: function () { show(true); }
+    open: function () { show(true); },
+    refreshLanguage: function () { translateBanner(document.getElementById('tfck')); }
   };
   function save(a, d) { state = { analytics: !!a, ads: !!d }; write(state); close(); fire(); }
   function close() { var b = document.getElementById('tfck'); if (b && b.parentNode) b.parentNode.removeChild(b); }
@@ -36,19 +37,48 @@
       '#tfck .ckr input{width:22px;height:22px;flex:none}#tfck .ckset{display:none;margin-bottom:10px}#tfck.open .ckset{display:block}#tfck.open .ckmain{display:none}';
     document.head.appendChild(s);
   }
+  var hindi = [
+    'कुकी और आपकी गोपनीयता',
+    'हम आपकी पसंद याद रखने के लिए एक कुकी इस्तेमाल करते हैं। विज्ञापन की अनुमति देने पर ही वैकल्पिक अफ़िलिएट स्क्रिप्ट चालू होती है। ',
+    'गोपनीयता नीति', ' देखें।',
+    'सभी स्वीकार करें', 'ग़ैर-ज़रूरी कुकी अस्वीकार करें', 'सेटिंग बदलें',
+    'चुनें कि हम कौन-सी वैकल्पिक कुकी इस्तेमाल कर सकते हैं।',
+    'ज़रूरी कुकी', 'आपकी पसंद याद रखती हैं। हमेशा चालू।',
+    'विश्लेषण', 'साइट का उपयोग समझने में मदद करता है। अभी इस्तेमाल नहीं होता।',
+    'विज्ञापन और अफ़िलिएट', 'विज्ञापन और पार्टनर रेफ़रल मापने में मदद करता है।',
+    'पसंद सेव करें', 'ग़ैर-ज़रूरी कुकी अस्वीकार करें'
+  ];
+  function translateBanner(banner) {
+    if (!banner) return;
+    var main = banner.querySelector('.ckmain p');
+    var nodes = [
+      banner.querySelector('.ckin > b'), main.firstChild, main.querySelector('a'), main.lastChild,
+      ...banner.querySelectorAll('.ckmain button'), banner.querySelector('.ckset > p'),
+      ...banner.querySelectorAll('.ckr b, .ckr small'), ...banner.querySelectorAll('.ckset button')
+    ];
+    if (!banner.cookieEnglish) banner.cookieEnglish = nodes.map(function(node) { return node.textContent; });
+    var isHindi = document.documentElement.lang === 'hi';
+    var strings = isHindi ? hindi : banner.cookieEnglish;
+    nodes.forEach(function(node, index) { node.textContent = strings[index]; });
+    banner.setAttribute('aria-label', isHindi ? 'कुकी सेटिंग्स' : 'Cookie preferences');
+    var labels = isHindi ? ['ज़रूरी कुकी, हमेशा चालू', 'विश्लेषण कुकी', 'विज्ञापन और अफ़िलिएट कुकी'] :
+      ['Essential cookies, always on', 'Analytics cookies', 'Advertising and affiliate cookies'];
+    banner.querySelectorAll('.ckr input').forEach(function(input, index) { input.setAttribute('aria-label', labels[index]); });
+  }
   function show(open) {
     close(); css();
     var b = document.createElement('div'); b.id = 'tfck'; b.setAttribute('role', 'dialog'); b.setAttribute('aria-label', 'Cookie preferences');
     if (open) b.className = 'open';
     b.innerHTML = '<div class="ckin"><b>Cookies and your privacy</b>' +
-      '<div class="ckmain"><p>We use one small cookie to remember your cookie choice. At the moment we do not use analytics or advertising cookies. If we add them, they stay off unless you allow them. See our <a href="/privacy.html">Privacy Policy</a>.</p>' +
+      '<div class="ckmain"><p>We use one small cookie to remember your cookie choice. The optional affiliate script stays off unless you allow advertising. See our <a href="/privacy.html">Privacy Policy</a>.</p>' +
       '<div class="ckb"><button type="button" class="pri" data-a="all">Accept all</button><button type="button" data-a="none">Reject non-essential</button><button type="button" class="nav" data-a="set">Customise</button></div></div>' +
-      '<div class="ckset"><p>Choose which optional cookies we may use in future.</p>' +
+      '<div class="ckset"><p>Choose which optional cookies we may use.</p>' +
       '<div class="ckr"><div><b style="font-size:14px">Essential</b><small>Remembers your cookie choice. Always on.</small></div><input type="checkbox" checked disabled aria-label="Essential cookies, always on"></div>' +
       '<div class="ckr"><div><b style="font-size:14px">Analytics</b><small>Helps us understand how the site is used. Not used yet.</small></div><input type="checkbox" id="tfck-an" aria-label="Analytics cookies"></div>' +
-      '<div class="ckr"><div><b style="font-size:14px">Advertising and affiliate</b><small>Measures ads and partner referrals. Not used yet.</small></div><input type="checkbox" id="tfck-ad" aria-label="Advertising and affiliate cookies"></div>' +
+      '<div class="ckr"><div><b style="font-size:14px">Advertising and affiliate</b><small>Helps measure ads and partner referrals.</small></div><input type="checkbox" id="tfck-ad" aria-label="Advertising and affiliate cookies"></div>' +
       '<div class="ckb" style="margin-top:10px"><button type="button" data-a="save" class="pri">Save choices</button><button type="button" data-a="none">Reject non-essential</button></div></div></div>';
     document.body.appendChild(b);
+    translateBanner(b);
     var an = b.querySelector('#tfck-an'), ad = b.querySelector('#tfck-ad');
     if (an) an.checked = state.analytics; if (ad) ad.checked = state.ads;
     b.addEventListener('click', function (e) {
@@ -63,7 +93,7 @@
   function link() {
     var f = document.querySelector('footer'); if (!f || document.getElementById('tfck-link')) return;
     var as = f.querySelectorAll('a'), last = as.length ? as[as.length - 1] : null;
-    var a = document.createElement('a'); a.id = 'tfck-link'; a.href = '#'; a.textContent = 'Cookie settings';
+    var a = document.createElement('a'); a.id = 'tfck-link'; a.href = '#'; a.textContent = typeof t === 'function' ? t('cookie_settings') : 'Cookie settings';
     a.addEventListener('click', function (e) { e.preventDefault(); show(true); });
     if (last && last.parentNode) last.parentNode.insertBefore(a, last.nextSibling); else f.appendChild(a);
   }
