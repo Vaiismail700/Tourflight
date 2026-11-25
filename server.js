@@ -74,7 +74,7 @@ function clientIp(req) {
   return raw.replace(/^::ffff:/, '');
 }
 
-const RELEASE = 'tourflight-data-v3-2026-11-24';
+const RELEASE = 'tourflight-search-fix-2026-11-25';
 const MARKET = (process.env.TP_MARKET || '').trim().toLowerCase();
 const PRICE_ENDPOINT = 'https://api.travelpayouts.com/aviasales/v3/prices_for_dates';
 
@@ -354,6 +354,32 @@ http.createServer(async (req, res) => {
     }
     const r = await priceSearch(u.searchParams);
     return json(res, r.code, r.body);
+  }
+
+  if (u.pathname === '/search-provider' && req.method === 'GET') {
+    const query = readSearch(u.searchParams, false);
+    if (!query || query.date.length !== 10) {
+      return json(res, 400, { error: 'Select a valid route and travel dates.' });
+    }
+    const { origin, destination, date, returnDate, currency } = query;
+    const passenger = (key, fallback) => {
+      const value = u.searchParams.get(key) || fallback;
+      return /^[0-9]$/.test(value) ? value : fallback;
+    };
+    const adults = passenger('adults', '1') === '0' ? '1' : passenger('adults', '1');
+    const children = passenger('children', '0');
+    const infants = String(Math.min(Number(adults), Number(passenger('infants', '0'))));
+    const cabin = u.searchParams.get('cabin') === 'business' ? 'c' : '';
+    const compact = day => day.slice(8, 10) + day.slice(5, 7);
+    const party = adults + (infants !== '0' ? children + infants : children !== '0' ? children : '');
+    const params = origin + compact(date) + destination +
+      (returnDate ? compact(returnDate) : '') + cabin + party;
+    const target = new URL('https://www.aviasales.com/');
+    target.searchParams.set('params', params);
+    target.searchParams.set('currency', currency.toUpperCase());
+    if (MARKER) target.searchParams.set('marker', MARKER);
+    res.writeHead(302, { Location: target.href, 'Cache-Control': 'no-store' });
+    return res.end();
   }
 
   if (u.pathname === '/api/offers') {

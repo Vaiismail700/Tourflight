@@ -48,3 +48,9 @@
 - Cheapest across the whole month checkbox ডিফল্টে checked থাকে; ব্যবহারকারী নিজে uncheck না করা পর্যন্ত checked থাকে। এটি checked থাকলে নির্বাচিত মাসের যেকোনো দিন থেকে ফ্লাইট দেখাতে পারে; exact date চাইলে uncheck করতে হবে।
 - Travelpayouts-এর এই endpoint recent-search/indicative fares দেয়; বুকিংয়ের আগে agency site-এ final price ও availability নিশ্চিত করতে হবে। এখানে live price recheck আছে বলে দাবি করা হয়নি।
 - Cabin-specific business fare provider থেকে নিশ্চিত না হলে ফলাফলে সতর্কবার্তা দেখানো হয়।
+
+## পার্টনার অ্যাফিলিয়েট লিংক যোগ করুন
+
+GitHub-এ `public/affiliate-links.js` খুলুন। সংশ্লিষ্ট সাইটের `url: ''`-এর দুই কোটের মধ্যে আপনার অনুমোদিত HTTPS লিংক দিন। নতুন সাইটের জন্য তালিকায় `{ name: 'Partner Name', url: '' }` ধরনের একটি লাইন যোগ করুন।
+
+Trip.com-এর লিংক খালি থাকলে সাধারণ Flights পেজ খুলবে। অন্য খালি এন্ট্রি থেকে বাটন তৈরি হবে না। পপআপে Skyscanner বা KAYAK-এর মতো বিদ্যমান সাইটের নামে নতুন URL দিলে সেটি সেই বাটনে বসবে। পার্টনারের সাধারণ বা অ্যাফিলিয়েট লিংক দিয়ে তাদের সাইটে যাওয়া যায়। দাম প্রদর্শনের জন্য আলাদা মূল্য-ডেটা লাগে।
