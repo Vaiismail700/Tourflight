@@ -74,7 +74,7 @@ function clientIp(req) {
   return raw.replace(/^::ffff:/, '');
 }
 
-const RELEASE = 'tourflight-search-fix-2026-11-25';
+const RELEASE = 'tourflight-stops-2026-11-25';
 const MARKET = (process.env.TP_MARKET || '').trim().toLowerCase();
 const PRICE_ENDPOINT = 'https://api.travelpayouts.com/aviasales/v3/prices_for_dates';
 
@@ -100,6 +100,12 @@ function readSearch(q, isCalendar) {
         returnDate < date.slice(0, returnDate.length)))) return null;
 
   return { origin, destination, date, returnDate, currency };
+}
+
+function stopCount(value) {
+  if (typeof value !== 'number' && (typeof value !== 'string' || !/^\d+$/.test(value))) return null;
+  const count = Number(value);
+  return Number.isSafeInteger(count) && count >= 0 ? count : null;
 }
 
 function normalizePrice(item, query) {
@@ -131,8 +137,8 @@ function normalizePrice(item, query) {
     duration: Number(item.duration || 0),
     duration_to: Number(item.duration_to || 0),
     duration_back: Number(item.duration_back || 0),
-    transfers: Number(item.transfers || 0),
-    return_transfers: Number(item.return_transfers || 0),
+    transfers: stopCount(item.transfers),
+    return_transfers: stopCount(item.return_transfers),
     currency: query.currency,
     price,
     gate: 'Aviasales',
@@ -142,7 +148,7 @@ function normalizePrice(item, query) {
   };
 }
 
-async function priceSearch(q, isCalendar = false) {
+async function priceSearch(q, isCalendar = false, timeout = 12000) {
   const query = readSearch(q, isCalendar);
   const empty = isCalendar ? { prices: {} } : { data: [] };
   const base = { ...empty, source: 'aviasales_data', indicative: true };
@@ -175,7 +181,7 @@ async function priceSearch(q, isCalendar = false) {
     reply = await fetch(requestUrl, {
       headers: { 'X-Access-Token': TOKEN, Accept: 'application/json' },
       redirect: 'error',
-      signal: AbortSignal.timeout(12000)
+      signal: AbortSignal.timeout(timeout)
     });
     if (reply.ok) payload = await reply.json();
   } catch (error) {
@@ -203,8 +209,31 @@ async function priceSearch(q, isCalendar = false) {
     return fail(502, 'upstream_currency', 'Flight price service returned a different currency.', reply.status);
   }
 
-  const data = payload.data.filter(Boolean).map(item => normalizePrice(item, query))
+  let data = payload.data.filter(Boolean).map(item => normalizePrice(item, query))
     .filter(Boolean).sort((a, b) => a.price - b.price);
+  // The provider can have fares in a month query even when the date query is empty.
+  // Reuse only fares that satisfy the original dates.
+  let recoveredFromMonth = 0;
+  if (!isCalendar && date.length === 10 && data.length < 2) {
+    const monthQuery = new URLSearchParams(q);
+    monthQuery.set('date', date.slice(0, 7));
+    if (returnDate) monthQuery.set('return', returnDate.slice(0, 7));
+    const month = await priceSearch(monthQuery, false, 4000);
+    if (month.code === 200) {
+      const exact = month.body.data.filter(flight =>
+        flight.departure_at.slice(0, 10) === date &&
+        (!returnDate || flight.return_at.slice(0, 10) === returnDate));
+      const fares = new Map(data.map(flight => [flight.id, flight]));
+      for (const flight of exact) {
+        if (!fares.has(flight.id)) {
+          fares.set(flight.id, flight);
+          recoveredFromMonth++;
+        }
+      }
+      data = Array.from(fares.values()).sort((a, b) => a.price - b.price);
+    }
+  }
+
   const prices = {};
   if (isCalendar) {
     for (const flight of data) {
@@ -215,7 +244,7 @@ async function priceSearch(q, isCalendar = false) {
 
   const body = {
     ...base, currency, requested: currency, status: data.length ? 'ok' : 'no_cached_prices',
-    diagnostics: { received: payload.data.length, returned: data.length },
+    diagnostics: { received: payload.data.length, returned: data.length, recoveredFromMonth },
     ...(isCalendar ? { prices } : { data })
   };
   if (data.length) {
