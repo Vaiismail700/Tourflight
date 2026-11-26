@@ -139,6 +139,8 @@ function normalizePrice(item, query) {
     duration_back: Number(item.duration_back || 0),
     transfers: stopCount(item.transfers),
     return_transfers: stopCount(item.return_transfers),
+    outbound_segments: operatingSegments(item.outbound_segments),
+    return_segments: operatingSegments(item.return_segments),
     currency: query.currency,
     price,
     gate: 'Aviasales',
@@ -146,6 +148,14 @@ function normalizePrice(item, query) {
     source: 'aviasales_data',
     indicative: true
   };
+}
+
+function operatingSegments(segments) {
+  if (!Array.isArray(segments)) return undefined;
+  return segments.map(segment => ({
+    operating_carrier: typeof segment?.operating_carrier === 'string'
+      ? segment.operating_carrier.trim().toUpperCase() : ''
+  }));
 }
 
 async function priceSearch(q, isCalendar = false, timeout = 12000) {
