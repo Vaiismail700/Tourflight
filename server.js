@@ -74,7 +74,7 @@ function clientIp(req) {
   return raw.replace(/^::ffff:/, '');
 }
 
-const RELEASE = 'tourflight-stops-2026-11-25';
+const RELEASE = 'tourflight-popup-search-2026-11-25';
 const MARKET = (process.env.TP_MARKET || '').trim().toLowerCase();
 const PRICE_ENDPOINT = 'https://api.travelpayouts.com/aviasales/v3/prices_for_dates';
 
@@ -218,7 +218,7 @@ async function priceSearch(q, isCalendar = false, timeout = 12000) {
     const monthQuery = new URLSearchParams(q);
     monthQuery.set('date', date.slice(0, 7));
     if (returnDate) monthQuery.set('return', returnDate.slice(0, 7));
-    const month = await priceSearch(monthQuery, false, 4000);
+    const month = await priceSearch(monthQuery, false, 2500);
     if (month.code === 200) {
       const exact = month.body.data.filter(flight =>
         flight.departure_at.slice(0, 10) === date &&
