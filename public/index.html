@@ -333,7 +333,7 @@ footer { padding-bottom: max(72px, calc(env(safe-area-inset-bottom) + 58px)); }
 <div class="fg"><b data-i18n="stops">Stops</b><label class="ck"><input type="radio" name="sf" value="any" checked> <span data-i18n="all_stops">Any number of stops</span></label><label class="ck"><input type="radio" name="sf" value="0"> <span data-i18n="stops_0">Direct only</span></label><label class="ck"><input type="radio" name="sf" value="1"> <span data-i18n="stops_1">1 stop only</span></label>
 <label class="ck"><input type="radio" name="sf" value="2plus"> <span data-i18n="stops_2plus">2+ stops</span></label>
 <div id="direction-filter"><button type="button" class="sm" id="direction-stops" role="switch" aria-checked="false" aria-describedby="direction-help"><span class="direction-track" aria-hidden="true"></span><span data-i18n="direction_stops">One airline per direction</span></button>
-<p class="s" id="direction-help" data-i18n="direction_help">All flights in each direction must use one airline. The return may use a different airline. Connecting trips require airline details for every flight.</p></div></div>
+<p class="s" id="direction-help" data-i18n="direction_help">Known mixed-airline journeys are hidden. The airline may differ on the return. Unverified journeys are shown separately.</p></div></div>
 <div class="fg"><b data-i18n="dep_time">Departure time</b><div class="tfg"><label class="tf" data-title-key="tf_0_title" title="Night: 12 AM – 6 AM"><input type="checkbox" name="tf" value="0" checked data-aria-key="tf_0_aria" aria-label="Night, 12 AM – 6 AM"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M21.5 5A11.5 11.5 0 1 0 27 22.5 9 9 0 0 1 21.5 5z" fill="#7a86e0"/><circle cx="25" cy="8.5" r="1.4" fill="#f2b705"/><circle cx="28.5" cy="14" r="1" fill="#f2b705"/></svg><span data-i18n="tf_0">12 AM – 6 AM</span></label><label class="tf" data-title-key="tf_1_title" title="Morning: 6 AM – 12 PM"><input type="checkbox" name="tf" value="1" checked data-aria-key="tf_1_aria" aria-label="Morning, 6 AM – 12 PM"><svg viewBox="0 0 32 32" aria-hidden="true"><g stroke="#ffb020" stroke-width="2" stroke-linecap="round"><path d="M16 7v3M7.5 11.5l2 2M24.5 11.5l-2 2M3.5 20h3M25.5 20h3"/></g><path d="M9 21a7 7 0 0 1 14 0z" fill="#ffb020"/><path d="M5 21h22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M16 29v-5M13.5 26.5L16 24l2.5 2.5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span data-i18n="tf_1">6 AM – 12 PM</span></label><label class="tf" data-title-key="tf_2_title" title="Afternoon: 12 PM – 6 PM"><input type="checkbox" name="tf" value="2" checked data-aria-key="tf_2_aria" aria-label="Afternoon, 12 PM – 6 PM"><svg viewBox="0 0 32 32" aria-hidden="true"><g stroke="#ffb020" stroke-width="2.2" stroke-linecap="round"><path d="M16 3v4M16 25v4M3 16h4M25 16h4M6.8 6.8l2.8 2.8M22.4 22.4l2.8 2.8M25.2 6.8l-2.8 2.8M9.6 22.4l-2.8 2.8"/></g><circle cx="16" cy="16" r="6" fill="#ffb020"/></svg><span data-i18n="tf_2">12 PM – 6 PM</span></label><label class="tf" data-title-key="tf_3_title" title="Evening: 6 PM – 12 AM"><input type="checkbox" name="tf" value="3" checked data-aria-key="tf_3_aria" aria-label="Evening, 6 PM – 12 AM"><svg viewBox="0 0 32 32" aria-hidden="true"><g stroke="#ff6a3d" stroke-width="2" stroke-linecap="round"><path d="M16 7v3M7.5 11.5l2 2M24.5 11.5l-2 2M3.5 20h3M25.5 20h3"/></g><path d="M9 21a7 7 0 0 1 14 0z" fill="#ff6a3d"/><path d="M5 21h22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M16 24v5M13.5 26.5L16 29l2.5-2.5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span data-i18n="tf_3">6 PM – 12 AM</span></label></div><div class="s" style="margin-top:4px" data-i18n="tf_hint">Tap an icon to include or leave out that time.</div></div>
 <div class="fg"><b data-i18n="airlines">Airlines</b><button type="button" class="sm" onclick="selAll(true)" data-i18n="all">All</button><button type="button" class="sm" onclick="selAll(false)" data-i18n="none">None</button><div id="al"><div class="s" data-i18n="al_empty">Search to see airlines</div></div></div>
 <div class="fg"><b data-i18n="sort_by">Sort by</b><select id="so"><option value="price" data-i18n="sort_price">Price: low to high</option><option value="dur" data-i18n="sort_dur">Shortest flight</option><option value="dep" data-i18n="sort_dep">Earliest departure</option></select></div>
@@ -439,7 +439,7 @@ en:{
   direct:'Direct',stop_1:'1 stop',one_way:'One way',round_trip:'Round trip',outbound:'Outbound',return_leg:'Return',
   airline_fb:'Airline',flight_fb:'Flight',tap_offers:'Tap for agency offers',best_price:'Best price found · {ag}',view_offers:'View offers',
   pick_depart:'Choose departure date',pick_return:'Choose return date',expand_month:'Search this whole month',welcome_title:'Welcome to Tourflight',welcome_copy:'Search recent flight prices and continue to a provider to book.',welcome_close:'Continue to search',all_stops:'Any number of stops',
-  stops_2plus:'2+ stops',direction_stops:'One airline per direction',direction_help:'All flights in each direction must use one airline. The return may use a different airline. Connecting trips require airline details for every flight.',stop_many:'{n} stops',stop_unknown:'Stops unknown',return_airline_unknown:'Return airline unavailable',check_us_bangla:'Check US-Bangla Airlines',
+  stops_2plus:'2+ stops',direction_stops:'One airline per direction',direction_help:'Known mixed-airline journeys are hidden. The airline may differ on the return. Unverified journeys are shown separately.',direction_unverified:'Airline details incomplete — check with the provider',stop_many:'{n} stops',stop_unknown:'Stops unknown',return_airline_unknown:'Return airline unavailable',check_us_bangla:'Check US-Bangla Airlines',
   search_timeout:'Flight search took too long. Try again or check prices on Aviasales.',
   live_search:'Check live prices on Aviasales',price_estimate:'Recent price estimate. Confirm the fare and availability on the provider’s site.',no_filter_matches:'No flights match your selected filters.',
   cmp_title:'Compare this trip on other sites',cmp_sub:'Opens their own search. Prices there may differ.',
@@ -520,7 +520,7 @@ ar:{
   direct:'مباشر',stop_1:'توقف واحد',one_way:'ذهاب فقط',round_trip:'ذهاب وعودة',outbound:'الذهاب',return_leg:'العودة',
   airline_fb:'شركة طيران',flight_fb:'رحلة',tap_offers:'اضغط لعروض الوكالات',best_price:'أفضل سعر · {ag}',view_offers:'عرض العروض',
   pick_depart:'اختر تاريخ الذهاب',pick_return:'اختر تاريخ العودة',expand_month:'ابحث في هذا الشهر بالكامل',welcome_title:'مرحباً بك في Tourflight',welcome_copy:'ابحث عن أسعار الرحلات الحديثة ثم تابع الحجز لدى المزوّد.',welcome_close:'متابعة البحث',all_stops:'أي عدد من التوقفات',
-  stops_2plus:'توقفان أو أكثر',direction_stops:'شركة طيران واحدة لكل اتجاه',direction_help:'يجب أن تكون كل الرحلات في الاتجاه الواحد على شركة واحدة. يمكن أن تختلف شركة العودة. تتطلب الرحلات المتصلة بيانات الشركة لكل رحلة.',stop_many:'{n} توقفات',stop_unknown:'عدد التوقفات غير معروف',return_airline_unknown:'شركة طيران العودة غير متوفرة',check_us_bangla:'تحقق من رحلات US-Bangla',
+  stops_2plus:'توقفان أو أكثر',direction_stops:'شركة طيران واحدة لكل اتجاه',direction_help:'تُخفى الرحلات التي تشغّلها شركات مختلفة في الاتجاه نفسه. يمكن أن تختلف شركة العودة. تظهر الرحلات غير المؤكدة منفصلة.',direction_unverified:'بيانات شركة الطيران غير مكتملة — تحقق لدى المزوّد',stop_many:'{n} توقفات',stop_unknown:'عدد التوقفات غير معروف',return_airline_unknown:'شركة طيران العودة غير متوفرة',check_us_bangla:'تحقق من رحلات US-Bangla',
   search_timeout:'استغرق البحث وقتًا طويلًا. أعد المحاولة أو تحقق من الأسعار على Aviasales.',
   live_search:'تحقق من الأسعار الحالية على Aviasales',price_estimate:'سعر تقديري حديث. تحقق من السعر والتوفر على موقع المزوّد.',no_filter_matches:'لا توجد رحلات مطابقة للفلاتر المحددة.',
   cmp_title:'قارن هذه الرحلة على مواقع أخرى',cmp_sub:'يفتح بحثها الخاص. قد تختلف الأسعار هناك.',
@@ -601,7 +601,7 @@ es:{
   direct:'Directo',stop_1:'1 escala',one_way:'Solo ida',round_trip:'Ida y vuelta',outbound:'Ida',return_leg:'Vuelta',
   airline_fb:'Aerolínea',flight_fb:'Vuelo',tap_offers:'Toca para ver ofertas de agencias',best_price:'Mejor precio · {ag}',view_offers:'Ver ofertas',
   pick_depart:'Elige la fecha de ida',pick_return:'Elige la fecha de vuelta',expand_month:'Buscar en todo el mes',welcome_title:'Te damos la bienvenida a Tourflight',welcome_copy:'Busca precios recientes y continúa con el proveedor para reservar.',welcome_close:'Continuar a la búsqueda',all_stops:'Cualquier número de escalas',
-  stops_2plus:'2 o más escalas',direction_stops:'Una aerolínea por trayecto',direction_help:'Todos los vuelos de cada trayecto deben ser de una sola aerolínea. La de vuelta puede ser distinta. Los viajes con conexión requieren los datos de cada vuelo.',stop_many:'{n} escalas',stop_unknown:'Escalas desconocidas',return_airline_unknown:'Aerolínea de vuelta no disponible',check_us_bangla:'Consultar US-Bangla Airlines',
+  stops_2plus:'2 o más escalas',direction_stops:'Una aerolínea por trayecto',direction_help:'Se ocultan los trayectos con distintas aerolíneas en el mismo sentido. La de vuelta puede ser distinta. Los trayectos sin verificar se muestran aparte.',direction_unverified:'Aerolíneas sin verificar — consulta al proveedor',stop_many:'{n} escalas',stop_unknown:'Escalas desconocidas',return_airline_unknown:'Aerolínea de vuelta no disponible',check_us_bangla:'Consultar US-Bangla Airlines',
   search_timeout:'La búsqueda tardó demasiado. Inténtalo de nuevo o consulta los precios en Aviasales.',
   live_search:'Consulta precios en tiempo real en Aviasales',price_estimate:'Precio reciente estimado. Confirma la tarifa y la disponibilidad en el sitio del proveedor.',no_filter_matches:'Ningún vuelo coincide con los filtros seleccionados.',
   cmp_title:'Compara este viaje en otros sitios',cmp_sub:'Abre su propia búsqueda. Los precios allí pueden variar.',
@@ -682,7 +682,7 @@ hi:{
   direct:'सीधी',stop_1:'1 स्टॉप',one_way:'वन-वे',round_trip:'राउंड ट्रिप',outbound:'जाना',return_leg:'वापसी',
   airline_fb:'एयरलाइन',flight_fb:'उड़ान',tap_offers:'एजेंसी ऑफ़र के लिए टैप करें',best_price:'सबसे अच्छी कीमत · {ag}',view_offers:'ऑफ़र देखें',
   pick_depart:'प्रस्थान की तारीख चुनें',pick_return:'वापसी की तारीख चुनें',expand_month:'इस पूरे महीने में खोजें',welcome_title:'Tourflight में आपका स्वागत है',welcome_copy:'हाल की कीमतें देखें और बुकिंग के लिए प्रदाता की साइट पर जाएँ।',welcome_close:'खोज जारी रखें',all_stops:'किसी भी संख्या में स्टॉप',
-  stops_2plus:'2 या अधिक स्टॉप',direction_stops:'हर दिशा में एक एयरलाइन',direction_help:'हर दिशा की सभी उड़ानें एक ही एयरलाइन की हों। वापसी में दूसरी एयरलाइन हो सकती है। कनेक्शन वाली यात्रा में हर उड़ान की एयरलाइन की जानकारी चाहिए।',stop_many:'{n} स्टॉप',stop_unknown:'स्टॉप की जानकारी नहीं',return_airline_unknown:'वापसी की एयरलाइन उपलब्ध नहीं',check_us_bangla:'US-Bangla Airlines देखें',
+  stops_2plus:'2 या अधिक स्टॉप',direction_stops:'हर दिशा में एक एयरलाइन',direction_help:'एक ही दिशा में अलग एयरलाइन वाली यात्राएँ छिपाई जाती हैं। वापसी की एयरलाइन अलग हो सकती है। अपुष्ट यात्राएँ अलग दिखाई जाती हैं।',direction_unverified:'एयरलाइन की जानकारी अधूरी है — प्रदाता से जाँचें',stop_many:'{n} स्टॉप',stop_unknown:'स्टॉप की जानकारी नहीं',return_airline_unknown:'वापसी की एयरलाइन उपलब्ध नहीं',check_us_bangla:'US-Bangla Airlines देखें',
   search_timeout:'खोज में बहुत समय लगा। फिर कोशिश करें या Aviasales पर कीमतें देखें।',
   live_search:'Aviasales पर लाइव कीमतें देखें',price_estimate:'हाल का अनुमानित किराया। प्रदाता की साइट पर कीमत और उपलब्धता की पुष्टि करें।',no_filter_matches:'चुने गए फ़िल्टर से कोई उड़ान मेल नहीं खाती।',
   cmp_title:'अन्य साइटों पर इस यात्रा की तुलना करें',cmp_sub:'उनकी अपनी खोज खुलती है। वहां कीमतें अलग हो सकती हैं।',
@@ -1024,20 +1024,25 @@ function stopLabel(stops){
   if(stops===null||stops===undefined)return t('stop_unknown');
   return stops===0?t('direct'):stops===1?t('stop_1'):t('stop_many',{n:stops});
 }
-function singleAirlineForDirection(segments, stops){
-  if(!Array.isArray(segments)||segments.length===0)return stops===0;
-  if(Number.isInteger(stops)&&segments.length!==stops+1)return false;
-  var airlines=segments.map(function(segment){
+function directionAirlineStatus(segments, stops){
+  if(!Array.isArray(segments)||segments.length===0)return stops===0?'single':'unknown';
+  var carriers=segments.map(function(segment){
     return String(segment&&segment.operating_carrier||'').trim().toUpperCase();
   });
-  return /^[A-Z0-9]{2}$/.test(airlines[0])&&airlines.every(function(airline){
-    return airline===airlines[0];
-  });
+  var known=carriers.filter(function(carrier){return /^[A-Z0-9]{2}$/.test(carrier)});
+  if(new Set(known).size>1)return 'mixed';
+  if(!Number.isInteger(stops)||carriers.length!==stops+1||known.length!==carriers.length)return 'unknown';
+  return 'single';
+}
+function itineraryAirlineStatus(f){
+  var outbound=directionAirlineStatus(f.outbound_segments,f.transfers);
+  var inbound=f.return_at?directionAirlineStatus(f.return_segments,f.return_transfers):'single';
+  if(outbound==='mixed'||inbound==='mixed')return 'mixed';
+  return outbound==='unknown'||inbound==='unknown'?'unknown':'single';
 }
 function matchesStops(f, selected, oneAirlinePerDirection){
   var outbound=f.transfers, returned=f.return_transfers;
-  if(oneAirlinePerDirection&&(!singleAirlineForDirection(f.outbound_segments,outbound)||
-    (f.return_at&&!singleAirlineForDirection(f.return_segments,returned))))return false;
+  if(oneAirlinePerDirection&&itineraryAirlineStatus(f)==='mixed')return false;
   if(selected==='any')return true;
   if(!Number.isInteger(outbound)||(f.return_at&&!Number.isInteger(returned)))return false;
   var max=f.return_at?Math.max(outbound,returned):outbound;
@@ -1150,9 +1155,9 @@ list=list.filter(function(f){
   var returned=String(f.return_at||'');
   return departure.startsWith(q.d)&&(q.r ? returned.startsWith(q.r) : !returned);
 });
-var grouped={};list.forEach(function(f){var k=flightKey(f);if(!grouped[k])grouped[k]={key:k,q:q,flight:f,offers:[],currency:j.currency};grouped[k].offers.push(f)});
+var grouped={};list.forEach(function(f){var k=flightKey(f)+(oneAirlinePerDirection?"|"+itineraryAirlineStatus(f):"");if(!grouped[k])grouped[k]={key:k,q:q,flight:f,offers:[],currency:j.currency};grouped[k].offers.push(f)});
 var groups=Object.keys(grouped).map(function(k){var g=grouped[k],byAgency={};g.offers.forEach(function(o){var agency=String(o.gate||'Travel agency');if(!byAgency[agency]||Number(o.price)<Number(byAgency[agency].price))byAgency[agency]=o});g.offers=Object.keys(byAgency).map(function(a){return byAgency[a]});g.best=g.offers.reduce(function(a,b){return !a||Number(b.price)<Number(a.price)?b:a},null);return g});
-groups.sort(function(a,b){return so==='price'?Number(a.best.price)-Number(b.best.price):so==='dur'?(a.flight.duration_to||a.flight.duration||0)-(b.flight.duration_to||b.flight.duration||0):String(a.flight.departure_at).localeCompare(String(b.flight.departure_at))});
+groups.sort(function(a,b){if(oneAirlinePerDirection){var aUnknown=itineraryAirlineStatus(a.flight)==='unknown',bUnknown=itineraryAirlineStatus(b.flight)==='unknown';if(aUnknown!==bUnknown)return aUnknown?1:-1}return so==='price'?Number(a.best.price)-Number(b.best.price):so==='dur'?(a.flight.duration_to||a.flight.duration||0)-(b.flight.duration_to||b.flight.duration||0):String(a.flight.departure_at).localeCompare(String(b.flight.departure_at))});
 if(!groups.length){
   var emptyMessage=(j.data||[]).length?t('no_filter_matches'):t(q.mo?'no_res_flex':'no_res_exact');
   h+='<div class="m">'+esc(emptyMessage)+'</div>'+providerSearchLink(q);
@@ -1160,7 +1165,12 @@ if(!groups.length){
 if(groups.length&&j.indicative)h+='<div class="m">'+esc(t('price_estimate'))+'</div>';
 if(!q.mo&&(j.data||[]).length<2)h+='<div class="cmp"><button type="button" class="sm" data-expand-month>'+esc(t('expand_month'))+'</button></div>';
 if(q.mo&&groups.length)h+='<div class="s" style="margin-bottom:8px">'+esc(t('flex_on_note'))+'</div>';
+var unverifiedHeadingShown=false;
 groups.forEach(function(g){var f=g.flight,rtrip=!!f.return_at,d=f.duration_to||(rtrip?0:f.duration),db=f.duration_back||0,fm=function(m){return m>0?Math.floor(m/60)+'h '+m%60+'m':''},oc=f.origin_airport||f.origin||q.f,dc=f.destination_airport||f.destination||q.t;
+if(oneAirlinePerDirection&&!unverifiedHeadingShown&&itineraryAirlineStatus(f)==='unknown'){
+  h+='<h3>'+esc(t('direction_unverified'))+'</h3>';
+  unverifiedHeadingShown=true;
+}
 var key='g'+Object.keys(visibleGroups).length;visibleGroups[key]=g;var airH=logo(f.airline)+'<span>'+esc(f.airline_name||f.airline||t('airline_fb'))+'</span>';
 var lay=f.layovers&&f.layovers.length?f.layovers.map(function(l){return Math.floor(l.minutes/60)+'h '+l.minutes%60+'m in '+(AP[l.airport]?AP[l.airport].n+' ('+l.airport+')':l.airport)}).join(', '):'';
 var layS=f.layovers&&f.layovers.length?f.layovers.map(function(l){return Math.floor(l.minutes/60)+'h '+l.minutes%60+'m \u00b7 '+l.airport}).join(', '):'';
