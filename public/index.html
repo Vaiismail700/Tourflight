@@ -294,6 +294,10 @@ html[dir="rtl"] .addots{right:auto;left:12px}
 @media(max-width:640px){
   .ad-layout{margin-top:-40px}.ad-layout .page{align-items:stretch}
   .cal.on,.cal.r.on{position:fixed;inset:auto 12px 12px;width:auto;max-width:420px;margin:0 auto;max-height:calc(100dvh - 24px);overflow:auto;z-index:60}
+  .cal.on,.cal.r.on{bottom:max(12px,env(safe-area-inset-bottom));overscroll-behavior:contain}
+  .cal .dd,.cal .cn,.cal .cc{min-height:44px}
+  .ofd{max-height:92dvh;padding-bottom:env(safe-area-inset-bottom)}
+  #f0,#t0,[data-ac],.dpi,#cyv{font-size:16px}
   .adtx{min-width:min(180px,100%)}
 }
 #direction-filter{margin-top:10px}#direction-help{margin:4px 0 0}#direction-stops{display:flex;align-items:center;gap:8px;min-height:42px;text-align:start}
@@ -301,6 +305,26 @@ html[dir="rtl"] .addots{right:auto;left:12px}
 .direction-track::before{content:'';width:16px;height:16px;border-radius:50%;background:#fff}
 #direction-stops[aria-checked=true] .direction-track{background:var(--blue);justify-content:flex-end}
 #direction-stops:focus-visible{outline:2px solid var(--link);outline-offset:2px}
+
+.email-support {
+  position: fixed;
+  right: max(16px, env(safe-area-inset-right));
+  bottom: max(16px, env(safe-area-inset-bottom));
+  z-index: 45;
+  display: inline-flex;
+  align-items: center;
+  min-height: 48px;
+  padding: 0 18px;
+  border: 1px solid #fff;
+  border-radius: 28px;
+  background: #1458c7;
+  color: #fff;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: 0 4px 20px #0a2a5e55;
+}
+.email-support:focus-visible { outline: 3px solid #ffb020; outline-offset: 2px; }
+footer { padding-bottom: max(72px, calc(env(safe-area-inset-bottom) + 58px)); }
 </style>
 </head><body>
 <header><div class="w hr"><img src="/logo.png" alt="Tourflight" onerror="this.style.display='none'"><div><h1 data-i18n="h1">Explore · Compare · Fly</h1><div data-i18n="sub">Find the lowest fares from recent traveller searches.</div></div><div class="hctrl"><div class="langdd" id="langdd"><button type="button" class="langbtn" id="langbtn" aria-haspopup="listbox" aria-expanded="false" aria-label="Select language"><span id="langcur">🌐 English</span><span aria-hidden="true">▾</span></button><div class="langmenu" id="langmenu" role="listbox" aria-label="Languages"><button type="button" class="langopt" role="option" data-lang="en" aria-selected="true"><span>English</span><span>EN</span></button><button type="button" class="langopt" role="option" data-lang="ar" aria-selected="false"><span>العربية</span><span>AR</span></button><button type="button" class="langopt" role="option" data-lang="es" aria-selected="false"><span>Español</span><span>ES</span></button><button type="button" class="langopt" role="option" data-lang="hi" aria-selected="false"><span>हिन्दी</span><span>HI</span></button></div></div><button type="button" class="thm" id="tg" role="switch" aria-checked="false" aria-label="Switch theme"><span class="tk"><i class="st"></i><b class="tx"></b><span class="kn"></span></span></button></div></div><div class="w"><div class="ad" id="ad" aria-label="Advertisement"></div></div></header>
@@ -317,7 +341,7 @@ html[dir="rtl"] .addots{right:auto;left:12px}
 <div class="top"><div class="tabs" id="tabs"><button type="button" class="t" data-t="oneway" aria-pressed="false" data-i18n="tab_oneway">One way</button><button type="button" class="t" data-t="round" aria-pressed="true" data-i18n="tab_round">Round trip</button><button type="button" class="t" data-t="multi" aria-pressed="false" data-i18n="tab_multi">Multi-city</button></div><div class="opts"><details class="pax" id="pxd"><summary id="pxs">1 Adult</summary><div class="paxbox"><div class="pr2"><div><span data-i18n="adults">Adults</span><small data-i18n="adults_sub">12+ years</small></div><div class="stp"><button type="button" data-aria-key="fewer_adults" aria-label="Fewer Adults" onclick="chg('a',-1)">−</button><b id="na">1</b><button type="button" data-aria-key="more_adults" aria-label="More Adults" onclick="chg('a',1)">+</button></div></div><div class="pr2"><div><span data-i18n="children">Children</span><small data-i18n="children_sub">2–11 years</small></div><div class="stp"><button type="button" data-aria-key="fewer_children" aria-label="Fewer Children" onclick="chg('c',-1)">−</button><b id="nc">0</b><button type="button" data-aria-key="more_children" aria-label="More Children" onclick="chg('c',1)">+</button></div></div><div class="pr2"><div><span data-i18n="infants">Infants</span><small data-i18n="infants_sub">Under 2 years</small></div><div class="stp"><button type="button" data-aria-key="fewer_infants" aria-label="Fewer Infants" onclick="chg('i',-1)">−</button><b id="ni">0</b><button type="button" data-aria-key="more_infants" aria-label="More Infants" onclick="chg('i',1)">+</button></div></div></div></details><select id="cabin" data-aria-key="cabin_aria" aria-label="Cabin class"><option value="economy" data-i18n="cabin_eco">Economy</option><option value="business" data-i18n="cabin_biz">Business</option></select></div></div>
 <div id="legs"></div>
 <div class="g"><div><label for="cyv" data-i18n="currency_lbl">Currency (type to search)</label><div class="acw"><input type="hidden" id="cy" value="aed"><input id="cyv" autocomplete="off" spellcheck="false" data-ph-key="currency_ph" placeholder="Search currency"><div class="sug" id="cys" role="listbox"></div></div></div>
-<div style="align-self:end"><label style="display:flex;gap:8px;align-items:center;margin:0 0 8px"><input type="checkbox" id="mo" checked style="width:auto"> <span data-i18n="month_flex">Flexible dates: show the cheapest across the whole month</span></label><div class="s" style="margin-top:-5px" data-i18n="month_hint">Whole-month search is on. Untick it to search only the selected dates.</div></div></div>
+<div style="align-self:end"><label style="display:flex;gap:8px;align-items:center;margin:0 0 8px"><input type="checkbox" id="mo" checked style="width:auto"> <span data-i18n="month_flex">Flexible dates: show the cheapest across the whole month</span></label><div class="s" style="margin-top:-5px" id="month-hint" aria-live="polite">Whole-month search is on. Untick it to search only the selected dates.</div></div></div>
 <button type="button" class="go" id="go" data-i18n="search_btn">Search flights</button>
 <div class="tr" data-i18n="trust">Tourflight never takes payments or card details. You book on the partner site. Prices come from recent searches and may have changed.</div>
 </div><main id="res"></main></div></div>
@@ -388,6 +412,8 @@ en:{
   currency_lbl:'Currency (type to search)',currency_ph:'Search currency',no_match:'No match',
   month_flex:'Flexible dates: show the cheapest across the whole month',
   month_hint:'Whole-month search is on. Untick it to search only the selected dates.',
+  email_support:'Email Support',
+  month_exact_hint:'Only the selected dates are searched. Nearby date prices are estimates.',
   partner_check:'Check passenger counts, cabin and final fare on the partner site. A link may not carry all selections.',
   biz_unverified:'Business fare unverified',
   cookie_settings:'Cookie settings',
@@ -467,6 +493,8 @@ ar:{
   currency_lbl:'العملة (اكتب للبحث)',currency_ph:'ابحث عن عملة',no_match:'لا توجد نتائج',
   month_flex:'تواريخ مرنة: اعرض الأرخص خلال الشهر بالكامل',
   month_hint:'البحث في الشهر كاملاً مفعّل. ألغِ تحديده للبحث في التواريخ المحددة فقط.',
+  email_support:'الدعم عبر البريد الإلكتروني',
+  month_exact_hint:'يقتصر البحث على التواريخ المحددة. أسعار الأيام القريبة تقديرية.',
   partner_check:'تحقق من عدد المسافرين والدرجة والسعر النهائي على موقع الشريك. قد لا ينقل الرابط جميع الخيارات.',
   biz_unverified:'سعر درجة الأعمال غير مؤكد',
   cookie_settings:'إعدادات ملفات تعريف الارتباط',
@@ -546,6 +574,8 @@ es:{
   currency_lbl:'Moneda (escribe para buscar)',currency_ph:'Buscar moneda',no_match:'Sin coincidencias',
   month_flex:'Fechas flexibles: mostrar lo más barato de todo el mes',
   month_hint:'La búsqueda de todo el mes está activada. Desmárcala para buscar solo las fechas seleccionadas.',
+  email_support:'Soporte por correo',
+  month_exact_hint:'La búsqueda usa las fechas seleccionadas. Los precios de fechas cercanas son estimaciones.',
   partner_check:'Revisa los pasajeros, la cabina y el precio final en el sitio del socio. El enlace puede omitir algunas opciones.',
   biz_unverified:'Tarifa Business sin verificar',
   cookie_settings:'Preferencias de cookies',
@@ -625,6 +655,8 @@ hi:{
   currency_lbl:'मुद्रा (खोजने के लिए लिखें)',currency_ph:'मुद्रा खोजें',no_match:'कोई मेल नहीं',
   month_flex:'लचीली तारीखें: पूरे महीने में सबसे सस्ता दिखाएं',
   month_hint:'पूरे महीने की खोज चालू है। केवल चुनी गई तारीखें खोजने के लिए इसे बंद करें।',
+  email_support:'ईमेल सहायता',
+  month_exact_hint:'खोज चुनी गई तारीखों तक सीमित है। आसपास की तारीखों के किराए अनुमानित हैं।',
   partner_check:'यात्रियों की संख्या, श्रेणी और अंतिम किराया साझेदार की वेबसाइट पर जाँचें। लिंक में सभी विकल्प शामिल नहीं हो सकते।',
   biz_unverified:'बिज़नेस किराया सत्यापित नहीं है',
   cookie_settings:'कुकी सेटिंग्स',
@@ -697,6 +729,7 @@ function applyLang(l){
   document.querySelectorAll('[data-title-key]').forEach(function(el){el.title=t(el.dataset.titleKey)});
   document.querySelectorAll('[data-ph-key]').forEach(function(el){el.placeholder=t(el.dataset.phKey)});
   document.querySelectorAll('[data-aria-key]').forEach(function(el){el.setAttribute('aria-label',t(el.dataset.ariaKey))});
+  syncMonthHint();
   setType(type,true);
   paxUi();
   cyUi();
@@ -800,12 +833,12 @@ var its=box.querySelectorAll('.si'),i=parseInt(box.dataset.i||'-1',10);
 if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();i=e.key==='ArrowDown'?Math.min(i+1,its.length-1):Math.max(i-1,0);its.forEach(function(x,k){x.classList.toggle('hl',k===i)});box.dataset.i=i}
 else if(e.key==='Enter'&&its.length){e.preventDefault();pick(inp,its[i>=0?i:0].dataset.c)}else if(e.key==='Escape')box.classList.remove('on')});
 document.addEventListener('pointerdown',function(e){if(!e.target.closest('.acw'))document.querySelectorAll('.sug.on').forEach(function(b){b.classList.remove('on')})});
-var DESK=!!(window.matchMedia&&window.matchMedia('(hover:hover) and (pointer:fine)').matches),cal={y:0,m:0,inp:null,box:null,pickingReturn:false};
+var cal={y:0,m:0,inp:null,box:null,pickingReturn:false};
 function moName(m){try{return new Date(2024,m,1).toLocaleDateString(t('locale'),{month:'long'})}catch(e){return String(m+1)}}
 function iso(y,m,d){return y+'-'+('0'+(m+1)).slice(-2)+'-'+('0'+d).slice(-2)}
 function fmt(v){if(!v)return'';var p=v.split('-');try{return new Date(+p[0],+p[1]-1,+p[2]).toLocaleDateString(t('locale'),{weekday:'short',day:'numeric',month:'short',year:'numeric'})}catch(e){return v}}
-function dField(id,label){if(!DESK)return '<div><label for="'+id+'">'+esc(label)+'</label><input id="'+id+'" type="date" min="'+today+'"></div>';
-return '<div class="acw"><label for="v_'+id+'">'+esc(label)+'</label><input type="hidden" id="'+id+'" min="'+today+'"><input id="v_'+id+'" class="dpi" data-for="'+id+'" readonly placeholder="'+esc(t('select_date'))+'" autocomplete="off"><div class="cal'+(id==='rt'?' r':'')+'"></div></div>'}
+function dField(id,label){
+return '<div class="acw"><label for="v_'+id+'">'+esc(label)+'</label><input type="hidden" id="'+id+'" min="'+today+'"><input id="v_'+id+'" class="dpi" inputmode="none" aria-expanded="false" data-for="'+id+'" readonly placeholder="'+esc(t('select_date'))+'" autocomplete="off"><div class="cal'+(id==='rt'?' r':'')+'"></div></div>'}
 function syncDates(){document.querySelectorAll('.dpi').forEach(function(i){i.value=fmt($(i.dataset.for).value);i.placeholder=t('select_date')})}
 var SYM={usd:'$',eur:'\u20ac',gbp:'\u00a3',inr:'\u20b9',bdt:'\u09f3',jpy:'\u00a5',cny:'CN\u00a5',krw:'\u20a9',php:'\u20b1',vnd:'\u20ab',try:'\u20ba',egp:'E\u00a3',ngn:'\u20a6',rub:'\u20bd',brl:'R$',mxn:'MX$',hkd:'HK$',aud:'A$',cad:'C$',nzd:'NZ$',sgd:'S$',zar:'R ',chf:'CHF ',sar:'SR ',qar:'QR ',pkr:'Rs ',lkr:'Rs ',npr:'Rs ',myr:'RM ',thb:'\u0e3f',idr:'Rp '};
 function symOf(c){c=String(c).toLowerCase();return SYM[c]||c.toUpperCase()+' '}
@@ -867,21 +900,23 @@ var h='<p class="cal-step" aria-live="polite">'+esc(t(hid.id==='rt'?'pick_return
 for(var i=0;i<off;i++)h+='<span></span>';
 for(var d=1;d<=days;d++){var v=iso(y,m,d),c='dd'+(v===val?' sel':'')+(v===today?' td':'')+(dep&&v===dep&&v!==val?' rs':'')+(dep&&val&&v>dep&&v<val?' rg':'');
 h+='<button type="button" class="'+c+'" data-v="'+v+'"'+(v<min?' disabled':'')+'>'+d+(hasp&&pr[v]&&v>=min?'<small'+(pr[v]===lo?' class="lo"':'')+'>'+fmtP(pr[v])+'</small>':'')+'</button>'}
-h+='</div>'+(hasp?'<div class="cl">'+esc(t('cal_leg',{cur:$('cy').value.toUpperCase()}))+'</div>':'')+'<div class="cf"><button type="button" class="cc">'+esc(t('clear'))+'</button></div>';cal.box.classList.toggle('hasp',hasp);cal.box.innerHTML=h}
-function closeCals(){document.querySelectorAll('.cal.on').forEach(function(b){b.classList.remove('on')});cal.pickingReturn=false}
+h+='</div>'+(hasp?'<div class="cl">'+esc(t('cal_leg',{cur:$('cy').value.toUpperCase()}))+'</div>':'')+'<div class="cf"><button type="button" class="cc">'+esc(t('clear'))+'</button></div>';cal.box.classList.toggle('hasp',hasp);var activeDay=cal.box.contains(document.activeElement)?document.activeElement.dataset.v:null;
+cal.box.innerHTML=h;
+if(activeDay)cal.box.querySelector('[data-v="'+activeDay+'"]:not(:disabled)')?.focus({preventScroll:true})}
+function closeCals(){if(cal.inp)cal.inp.setAttribute('aria-expanded','false');document.querySelectorAll('.cal.on').forEach(function(b){b.classList.remove('on')});cal.pickingReturn=false}
 function openCal(inp){closeCals();var hid=$(inp.dataset.for),base=hid.value||(hid.id==='rt'&&$('d0').value)||hid.min||today,p=base.split('-');
-cal.y=+p[0];cal.m=+p[1]-1;cal.inp=inp;cal.box=inp.parentNode.querySelector('.cal');cal.box.classList.add('on');renderCal()}
+cal.y=+p[0];cal.m=+p[1]-1;cal.inp=inp;inp.setAttribute('aria-expanded','true');cal.box=inp.parentNode.querySelector('.cal');cal.box.classList.add('on');renderCal()}
 function setDate(inp,v){
   var hid=cal.pickingReturn?$('rt'):$(inp.dataset.for);
   var continueRange=type==='round'&&hid.id==='d0'&&Boolean(v);
-  if(type==='round'&&hid.id==='d0')$('rt').value='';
+  if(type==='round'&&hid.id==='d0'&&!v)$('rt').value='';
   hid.value=v;
   hid.dispatchEvent(new Event('change',{bubbles:true}));
   syncDates();
   if(continueRange){
     cal.pickingReturn=true;
     renderCal();
-    var nextDay=cal.box.querySelector('.dd:not(:disabled)');
+    var nextDay=cal.box.querySelector('.dd.sel:not(:disabled), .dd:not(:disabled)');
     if(nextDay)nextDay.focus({preventScroll:true});
     return;
   }
@@ -889,6 +924,11 @@ function setDate(inp,v){
   inp.focus({preventScroll:true});
 }
 document.addEventListener('keydown',function(e){
+  if((e.key==='Enter'||e.key===' ')&&e.target.classList.contains('dpi')){
+    e.preventDefault();
+    openCal(e.target);
+    cal.box.querySelector('.dd.sel:not(:disabled)')?.focus();
+  }
   if(e.key==='Escape'&&cal.box&&cal.box.classList.contains('on')){
     closeCals();
     cal.inp.focus({preventScroll:true});
@@ -1134,7 +1174,7 @@ h+='<div class="c fcard" data-open-offers="'+esc(key)+'" tabindex="0" role="butt
 h+='<div class="cmp"><b>'+esc(t('cmp_title'))+'</b><div class="s">'+esc(t('cmp_sub'))+'</div><div class="s">'+esc(t('partner_check'))+'</div>'+usBanglaLink(q)+cmp(q).map(function(l){return '<a href="'+esc(l[1])+'" target="_blank" rel="noopener noreferrer">'+l[0]+'</a>'}).join('')+'</div>';
 });
 show(h);data.forEach(function(x,xi){fillStrip(xi);fillStrip(xi,true)})}
-$('res').addEventListener('click',function(e){if(e.target.closest&&e.target.closest('[data-expand-month]')){$('mo').checked=true;search();return}if(e.target.closest&&e.target.closest('a'))return;var b=e.target.closest&&e.target.closest('[data-open-offers]');if(b)openOffers(b.dataset.openOffers,b)});
+$('res').addEventListener('click',function(e){if(e.target.closest&&e.target.closest('[data-expand-month]')){$('mo').checked=true;syncMonthHint();search();return}if(e.target.closest&&e.target.closest('a'))return;var b=e.target.closest&&e.target.closest('[data-open-offers]');if(b)openOffers(b.dataset.openOffers,b)});
 $('res').addEventListener('keydown',function(e){if((e.key==='Enter'||e.key===' ')&&e.target.classList&&e.target.classList.contains('fcard')){e.preventDefault();openOffers(e.target.dataset.openOffers,e.target)}});
 $('direction-stops').addEventListener('click',function(){
   var active=this.getAttribute('aria-checked')!=='true';
@@ -1171,7 +1211,9 @@ if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();i=e.key==='ArrowDo
 else if(e.key==='Enter'&&its.length){e.preventDefault();cyPick(its[i>=0?i:0].dataset.c)}else if(e.key==='Escape'){box.classList.remove('on');cyUi()}});
 document.addEventListener('pointerdown',function(e){if(!e.target.closest('.acw'))cyUi()});
 cyUi();
-// Exact-date search is the default; flexible whole-month search only when the traveller ticks it.
+function syncMonthHint(){$('month-hint').textContent=t($('mo').checked?'month_hint':'month_exact_hint')}
+$('mo').addEventListener('change',syncMonthHint);
+syncMonthHint();
 function adInit(id,ads){var box=$(id);if(!box||!ads.length)return;
 var i=0,timer=null,ok=function(u){return /^(https?:\/\/|mailto:|\/)/.test(u||'')};
 function drawAd(){var a=ads[i];box.innerHTML='<span class="adtag">'+esc(a.tag||'Ad')+'</span><div class="adin">'+(a.img?'<img class="adimg" src="'+esc(a.img)+'" alt="" loading="lazy">':'')
@@ -1236,4 +1278,5 @@ document.addEventListener('DOMContentLoaded',function(){
   });
 });
 </script>
+<a class="email-support" href="mailto:support@example.com?subject=Tourflight%20Support" data-i18n="email_support">Email Support</a>
 </body></html>
